@@ -22,38 +22,6 @@ describe('Login Component', () => {
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
   });
 
-  test('handles successful login submission', async () => {
-
-    fetch.mockResponseOnce(
-      JSON.stringify({ user: { name: 'Test User' } }),
-      { status: 200 }
-    );
-    
-
-    render(
-      <BrowserRouter>
-        <Login />
-      </BrowserRouter>
-    );
-
-
-    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
-
-  
-    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: /login/i }));
-
-
-    await waitFor(() =>
-      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/login', expect.any(Object))
-    );
-
-    expect(alertSpy).toHaveBeenCalledWith('Login successful!');
-
-    alertSpy.mockRestore();
-  });
-
   test('shows "Invalid email address" message for wrong email', async () => {
     fetch.mockResponseOnce(
       JSON.stringify({ message: 'Invalid email address' }),

@@ -15,7 +15,7 @@ const SuccessIrregular = () => {
       <h1 className={styles.title}>Submissions and Subjects</h1>
       <div className={styles.successMessage}>
         {/* Animated Checkmark */}
-        <div className={styles.checkmark}></div>
+        <div className={styles.checkmark} data-testid="checkmark"></div>
         <h2 className={styles.status}>CREDENTIALS SUBMITTED</h2>
         <p className={styles.description}>
         You may check back for a copy of your pre-enrollment form or errors in file submissions.

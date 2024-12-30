@@ -298,7 +298,7 @@ function SubmissionAndSubject() {
             <div className={styles.schedule_section}>
               <div className={styles.select_advising_date}>
                 <p>Select an advising date</p>
-                <select id="sched" name="sched" className={styles.sched}>
+                <select id="sched" name="sched" className={styles.sched} data-testid="advising-date">
                   <option value="">Select Date</option>
                   <option value="2024-12-01">2024-12-01</option>
                   <option value="2024-12-02">2024-12-02</option>

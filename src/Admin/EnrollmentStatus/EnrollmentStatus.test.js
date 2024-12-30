@@ -40,10 +40,6 @@ describe("EnrollmentStatus Component", () => {
   });
 
   
-
-
-
-
   test("renders 'Mark as Enrolled' buttons", () => {
     render(<EnrollmentStatus />);
     const buttons = screen.getAllByRole("button", { name: "Mark as Enrolled" });

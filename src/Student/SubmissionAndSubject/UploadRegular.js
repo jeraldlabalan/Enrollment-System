@@ -48,7 +48,7 @@ const SubmissionsAndSubjects = () => {
           <div className={styles.feedback}>
             <strong>Feedback</strong>
             <p>
-              <span className={styles.feedbackName}>Princess Mae Binalagbag</span> <br />
+              <span className={styles.feedbackName}>Princess Mae Binalagbag</span> <br/>
               <span className={styles.feedbackText}>"Labo amputa send mo ulit"</span>
             </p>
           </div>

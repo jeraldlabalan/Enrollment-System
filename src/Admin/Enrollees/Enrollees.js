@@ -4,6 +4,7 @@ import styles from "./Enrollees.module.css"; // Ensure this file exists
 import { SessionContext } from "../../contexts/SessionContext";
 import DashboardHeader from "../Dashboard/DashboardHeader";
 
+
 const Enrollees = () => {
   const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
   const navigate = useNavigate();
@@ -21,62 +22,58 @@ const Enrollees = () => {
   const [rejectReason, setRejectReason] = useState("");
   const [filterProgram, setFilterProgram] = useState(""); // For program filter
 
-useEffect(() => {
+ 
+  useEffect(() => {
     if (!sessionLoading && !user) {
-      navigate("/login");
+      navigate("/login", { replace: true });
     }
   }, [sessionLoading, user, navigate]);
+
   
-    const handleLogout = () => {
-      logout(navigate); // Log out and redirect to login
-    };
+   
 
-    useEffect(() => {
-      const fetchStudents = async () => {
-        setIsLoading(true);
-        try {
-          const response = await fetch("http://localhost:5000/api/students");
-          const data = await response.json();
-          setStudents(data); // Properly set the fetched data
-        } catch (error) {
-          console.error("Error fetching students:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-    
-      fetchStudents(); // Call the function to fetch data
-    }, []); // Empty dependency array ensures this runs only once
+  useEffect(() => {
+  const fetchStudents = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/enrollees");
+      const data = await response.json();
+      console.log("Raw Students Data:", data); // Check API data
+      setStudents(data);
+    } catch (error) {
+      console.error("Error fetching students:", error);
+    }
+  };
 
-  const filteredAndSortedStudents = students
-    .filter((student) => {
-      const query = searchQuery.toLowerCase();
-      const matchesSearch =
-        student.id.toLowerCase().includes(query) ||
-        student.lastName.toLowerCase().includes(query) ||
-        student.firstName.toLowerCase().includes(query);
+  fetchStudents();
+}, []);
 
-      const matchesType = filterType ? student.type === filterType : true;
-      const matchesYear = filterYear
-        ? student.yearStanding === filterYear
-        : true;
-      const matchesProgram = filterProgram
-        ? student.program === filterProgram
-        : true; // Add program filter
+    console.log("Students State:", students); // Log React state
 
-      return matchesSearch && matchesType && matchesYear && matchesProgram;
-    })
-    .sort((a, b) => {
-      if (sortCriteria === "id") {
-        return a.id - b.id; // For numeric comparison
-      } else if (sortCriteria === "lastName") {
-        return a.lastName.localeCompare(b.lastName);
-      } else if (sortCriteria === "firstName") {
-        return a.firstName.localeCompare(b.firstName);
-      }
-      return 0;
-    });
+    const filteredAndSortedStudents = students
+  .filter((student) => {
+    const query = searchQuery.toLowerCase();
+    const matchesSearch =
+      (student.id && student.id.toString().toLowerCase().includes(query)) ||
+      (student.last_name && student.last_name.toLowerCase().includes(query)) ||
+      (student.first_name && student.first_name.toLowerCase().includes(query));
 
+    console.log("Search Match:", matchesSearch, student);
+
+    const matchesType = filterType ? student.student_type === filterType : true;
+    console.log("Type Match:", matchesType, student);
+
+    const matchesYear = filterYear
+      ? student.year_level === filterYear
+      : true;
+    console.log("Year Match:", matchesYear, student);
+
+    const matchesProgram = filterProgram
+      ? student.program_name === filterProgram
+      : true;
+    console.log("Program Match:", matchesProgram, student);
+
+    return matchesSearch && matchesType && matchesYear && matchesProgram;
+  });
   const handleFilterProgramChange = (e) => {
     setFilterProgram(e.target.value);
   };
@@ -159,7 +156,7 @@ useEffect(() => {
                   <tr key={student.id}>
                     <td className={styles.td}>{student.student_id}</td>
                     <td className={styles.td}>{student.last_name}</td>
-                    <td className={styles.td}>{student.first_fame}</td>
+                    <td className={styles.td}>{student.first_name}</td>
                     <td className={styles.td}>{student.program_name}</td>
                     <td className={styles.td}>{student.student_type}</td>
                     <td className={styles.td}>{student.year_level}</td>

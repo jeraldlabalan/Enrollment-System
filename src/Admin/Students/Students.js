@@ -6,56 +6,10 @@ import DashboardHeader from "../Dashboard/DashboardHeader";
 import CORPrint from "./CORPrint"; // Import CORPrint component
 
 const Students = () => {
-  const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
+  const { user, isLoading: sessionLoading} = useContext(SessionContext);
   const navigate = useNavigate();
-  
-  const [students, setStudents] = useState([
-    {
-      id: "20231001",
-      lastName: "Labalan",
-      firstName: "Jerald",
-      middleName: "Sikip",
-      type: "S6",
-      yearStanding: "3rd year",
-      details: "Detailed information about Jerald Labalan",
-    },
-    {
-      id: "20231002",
-      lastName: "Fernandez",
-      firstName: "Alex",
-      middleName: "Hawak",
-      type: "S6",
-      yearStanding: "3rd year",
-      details: "Detailed information about Alex Fernandez",
-    },
-    {
-      id: "20231003",
-      lastName: "Galvez",
-      firstName: "Dioren",
-      middleName: "Golem",
-      type: "S6",
-      yearStanding: "3rd year",
-      details: "Detailed information about Dioren Galvez",
-    },
-    {
-      id: "20231004",
-      lastName: "Dasalla",
-      firstName: "Keith",
-      middleName: "Sikip",
-      type: "S5",
-      yearStanding: "3rd year",
-      details: "Detailed information about Keith Dasalla",
-    },
-    {
-      id: "20231005",
-      lastName: "Bides",
-      firstName: "Matthew",
-      middleName: "Tigastite",
-      type: "S5",
-      yearStanding: "2nd year",
-      details: "Detailed information about Matthew Bides",
-    },
-  ]);
+  const [students, setStudents] = useState([]); // Add this line
+
 
   const [searchQuery, setSearchQuery] = useState(""); // For search input
   const [sortCriteria, setSortCriteria] = useState("id"); // Default sorting criteria
@@ -63,41 +17,52 @@ const Students = () => {
   const [filterYear, setFilterYear] = useState(""); // For year standing filter
   const [selectedStudent, setSelectedStudent] = useState(null);
  
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/students");
+        const data = await response.json();
+        console.log("Raw Students Data:", data); // Check API data
+        setStudents(data);
+      } catch (error) {
+        console.error("Error fetching students:", error);
+      }
+    };
+  
+    fetchStudents();
+  }, []);
  
 
   const filteredAndSortedStudents = students
-    .filter((student) => {
-      const query = searchQuery.toLowerCase();
-      const matchesSearch =
-        student.id.toLowerCase().includes(query) ||
-        student.lastName.toLowerCase().includes(query) ||
-        student.firstName.toLowerCase().includes(query);
+  .filter((student) => {
+    const query = searchQuery.toLowerCase();
+    const matchesSearch =
+      (student.id && student.id.toString().toLowerCase().includes(query)) ||
+      (student.last_name && student.last_name.toLowerCase().includes(query)) ||
+      (student.first_name && student.first_name.toLowerCase().includes(query));
 
-      const matchesType = filterType ? student.type === filterType : true;
-      const matchesYear = filterYear ? student.yearStanding === filterYear : true;
+    console.log("Search Match:", matchesSearch, student);
 
-      return matchesSearch && matchesType && matchesYear;
-    })
-    .sort((a, b) => {
-      if (sortCriteria === "id") {
-        return a.id.localeCompare(b.id);
-      } else if (sortCriteria === "lastName") {
-        return a.lastName.localeCompare(b.lastName);
-      } else if (sortCriteria === "firstName") {
-        return a.firstName.localeCompare(b.firstName);
-      }
-      return 0;
-    });
+    const matchesType = filterType ? student.student_type === filterType : true;
+    console.log("Type Match:", matchesType, student);
 
-  useEffect(() => {
+    const matchesYear = filterYear
+      ? student.year_level === filterYear
+      : true;
+    console.log("Year Match:", matchesYear, student);
+
+
+
+    return matchesSearch && matchesType && matchesYear;
+  });
+
+   useEffect(() => {
       if (!sessionLoading && !user) {
-        navigate("/login");
+        navigate("/login", { replace: true });
       }
     }, [sessionLoading, user, navigate]);
     
-      const handleLogout = () => {
-        logout(navigate); // Log out and redirect to login
-      };
+
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -168,12 +133,12 @@ const Students = () => {
               <tbody>
                 {filteredAndSortedStudents.map((student) => (
                   <tr key={student.id}>
-                    <td className={styles.td}>{student.id}</td>
-                    <td className={styles.td}>{student.lastName}</td>
-                    <td className={styles.td}>{student.firstName}</td>
-                    <td className={styles.td}>{student.middleName}</td>
-                    <td className={styles.td}>{student.type}</td>
-                    <td className={styles.td}>{student.yearStanding}</td>
+                    <td className={styles.td}>{student.student_id}</td>
+                    <td className={styles.td}>{student.last_name}</td>
+                    <td className={styles.td}>{student.first_name}</td>
+                    <td className={styles.td}>{student.middle_name || "N/A"} </td>
+                    <td className={styles.td}>{student.student_type}</td>
+                    <td className={styles.td}>{student.year_level}</td>
                     <td className={styles.td}>
                       
                     <button className={styles.print_button} onClick={() => handlePrintCOR(student)}>Print COR</button>

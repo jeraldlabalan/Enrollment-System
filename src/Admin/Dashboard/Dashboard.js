@@ -14,6 +14,7 @@ const Dashboard = () => {
   const [paidComSci, setpaidComSci] = useState(null); // Track enrolled Computer Science count
   const [paidIT, setpaidIT] = useState(null); // Track enrolled Information Technology count
   const [announcementText, setAnnouncementText] = useState('');
+  const [genderStudentTypeCounts, setGenderStudentTypeCounts] = useState({});
 
   const [course, setCourse] = useState(''); // Track selected course
   const [loading, setLoading] = useState(false); // Loading state for fetchEnrolledCount
@@ -44,15 +45,14 @@ const Dashboard = () => {
     },
   ];
 
+  
+
   useEffect(() => {
     if (!sessionLoading && !user) {
-      navigate("/login");
+      navigate("/login", { replace: true });
     }
   }, [sessionLoading, user, navigate]);
 
-  const handleLogout = () => {
-    logout(navigate); // Log out and redirect to login
-  };
 
   const fetchEnrolledCounts = async () => {
     setIsLoading(true);
@@ -109,14 +109,65 @@ const Dashboard = () => {
       alert(error.message);
     }
   };
+
+  const fetchGenderStudentTypeCounts = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("http://localhost:5000/progressbar");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setGenderStudentTypeCounts(data); // Set the fetched gender and student type counts
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Fetch total enrolled count on initial render
   useEffect(() => {
+    
     fetchEnrolledCounts();
   }, []);
 
+  
   if (isLoading) {
     return <div>Loading...</div>; // Show loading spinner while validating session
   }
+
+  const maleRegular = genderStudentTypeCounts.male?.regular || 0;
+  const maleIrregular = genderStudentTypeCounts.male?.irregular || 0;
+  const femaleRegular = genderStudentTypeCounts.female?.regular || 0;
+  const femaleIrregular = genderStudentTypeCounts.female?.irregular || 0;
+
+  const maleComSci = genderStudentTypeCounts.male?.comsci || 0;
+  const maleIT = genderStudentTypeCounts.male?.it || 0;
+  const femaleComSci = genderStudentTypeCounts.female?.comsci || 0;
+  const femaleIT = genderStudentTypeCounts.female?.it || 0;
+
+  // Calculate total male and female for regular/irregular
+  const totalMaleRegularIrregular = maleRegular + maleIrregular;
+  const totalFemaleRegularIrregular = femaleRegular + femaleIrregular;
+
+  // Calculate total male and female for ComSci/IT
+  const totalMaleComSciIT = maleComSci + maleIT;
+  const totalFemaleComSciIT = femaleComSci + femaleIT;
+
+  // Calculate percentages for each category
+  const maleRegularPercentage = totalMaleRegularIrregular > 0 ? (maleRegular / totalMaleRegularIrregular) * 100 : 0;
+  const maleIrregularPercentage = totalMaleRegularIrregular > 0 ? (maleIrregular / totalMaleRegularIrregular) * 100 : 0;
+  const femaleRegularPercentage = totalFemaleRegularIrregular > 0 ? (femaleRegular / totalFemaleRegularIrregular) * 100 : 0;
+  const femaleIrregularPercentage = totalFemaleRegularIrregular > 0 ? (femaleIrregular / totalFemaleRegularIrregular) * 100 : 0;
+
+  const maleComSciPercentage = totalMaleComSciIT > 0 ? (maleComSci / totalMaleComSciIT) * 100 : 0;
+  const maleITPercentage = totalMaleComSciIT > 0 ? (maleIT / totalMaleComSciIT) * 100 : 0;
+  const femaleComSciPercentage = totalFemaleComSciIT > 0 ? (femaleComSci / totalFemaleComSciIT) * 100 : 0;
+  const femaleITPercentage = totalFemaleComSciIT > 0 ? (femaleIT / totalFemaleComSciIT) * 100 : 0;
 
   return (
     <div className={styles.container}>
@@ -158,8 +209,8 @@ const Dashboard = () => {
           <div className={`${styles.card} ${styles.regularIrregularGender} ${styles.genderCard}`}>
           <p>Regular Student</p>
             <div className={styles.progressBar}>
-              <div className={styles.progressBarGreen} style={{ width: "75%" }}>45</div>
-              <div className={styles.progressBarRed} style={{ width: "25%" }}>15</div>
+              <div className={styles.progressBarGreen} style={{ width: `${maleRegularPercentage}%` }}>{maleRegular}</div>
+              <div className={styles.progressBarRed} style={{ width: `${femaleRegularPercentage}%` }}>{femaleRegular}</div>
             </div>
 
             <p>Irregular Student</p>

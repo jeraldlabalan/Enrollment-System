@@ -43,7 +43,7 @@ app.use(session({
 const db = mysql.createPool({
   host: "localhost", // Replace with your DB host
   user: "root", // Replace with your MySQL username
-  password: "Jerald_11783", // Replace with your MySQL password
+  password: "Wearefamily03", // Replace with your MySQL password
   database: "enrollment_system", // Replace with your DB name
 });
 
@@ -565,16 +565,22 @@ app.get("/user/:userId", async (req, res) => {
 });
 
 // Logout endpoint
-app.post("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("Error destroying session:", err.message);
-      return res.status(500).json({ message: "Failed to log out." });
-    }
+app.post("/logout", async (req, res) => {
+  try {
+    // Wrap session.destroy in a Promise for async/await
+    await new Promise((resolve, reject) => {
+      req.session.destroy((err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
 
     res.clearCookie("connect.sid");
     res.status(200).json({ message: "Logout successful." });
-  });
+  } catch (error) {
+    console.error("Error destroying session:", error.message);
+    res.status(500).json({ message: "Failed to log out." });
+  }
 });
 
 // Create a new student
@@ -683,6 +689,39 @@ app.post("/api/announcements", async (req, res) => {
   }
 });
 
+app.get('/progressbar', async (req, res) => {
+  try {
+    // Query to get counts of male/female and regular/irregular students
+    const query = `
+      SELECT 
+        gender, 
+        student_type,
+        program,
+        COUNT(*) AS total_count 
+      FROM 
+        tbl_student_data 
+      GROUP BY 
+        gender, student_type;
+    `;
+    
+    const [results] = await db.query(query);
+    
+    // Format the result to return as gender and student type counts
+    const genderStudentTypeCounts = results.reduce((acc, row) => {
+      if (!acc[row.gender]) {
+        acc[row.gender] = {};
+      }
+      acc[row.gender][row.student_type] = row.total_count;
+      return acc;
+    }, {});
+
+    res.json(genderStudentTypeCounts); // Return gender and student type counts as JSON
+  } catch (error) {
+    console.error("Error fetching gender and student type counts:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.get("/api/enrollees", async (req, res) => {
   try {
     // Execute the SQL query
@@ -705,7 +744,84 @@ ON
 JOIN 
   tbl_program 
 ON 
-  tbl_student_data.program = tbl_program.program_id;
+  tbl_student_data.program = tbl_program.program_id
+WHERE
+  tbl_student_data.status = 'not enrolled';
+      `
+    );
+
+    // Respond with the data
+    res.json(students);
+  } catch (error) {
+    // Handle any errors
+    console.error("Error fetching students:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/api/students", async (req, res) => {
+  try {
+    // Execute the SQL query
+    const [students, metadata] = await db.query(
+      `
+    SELECT 
+  tbl_student_data.student_id, 
+  tbl_user_account.first_name, 
+  tbl_user_account.last_name, 
+  tbl_user_account.middle_name,
+  tbl_program.program_name,
+  tbl_student_data.student_type,
+  tbl_student_data.year_level
+FROM 
+  tbl_student_data
+JOIN 
+  tbl_user_account 
+ON 
+  tbl_student_data.user_id = tbl_user_account.user_id
+JOIN 
+  tbl_program 
+ON 
+  tbl_student_data.program = tbl_program.program_id
+WHERE
+  tbl_student_data.status = 'enrolled';
+      `
+    );
+
+    // Respond with the data
+    res.json(students);
+  } catch (error) {
+    // Handle any errors
+    console.error("Error fetching students:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/api/enrollment-team", async (req, res) => {
+  try {
+    // Execute the SQL query
+    const [students, metadata] = await db.query(
+      `
+SELECT 
+  officer_id AS id, 
+  first_name AS first_name, 
+  middle_name AS middle_name, 
+  last_name AS last_name,
+  position as position
+  
+FROM 
+  tbl_officer_data
+
+UNION ALL
+
+SELECT 
+  adviser_id AS id, 
+  first_name AS first_name, 
+  middle_name AS middle_name, 
+  last_name AS last_name,
+  position as position
+  
+FROM 
+  tbl_adviser_data;
       `
     );
 

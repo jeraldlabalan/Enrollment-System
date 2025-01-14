@@ -8,16 +8,34 @@ function EnrollmentTeam() {
   const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [students, setStudents] = useState([]); // Add this line
 
   useEffect(() => {
-    if (!sessionLoading && !user) {
-      navigate("/login");
-    }
-  }, [sessionLoading, user, navigate]);
+      const fetchStudents = async () => {
+        try {
+          const response = await fetch("http://localhost:5000/api/enrollment-team");
+          const data = await response.json();
+          console.log("Raw Students Data:", data); // Check API data
+          setStudents(data);
+        } catch (error) {
+          console.error("Error fetching students:", error);
+        }
+      };
+    
+      fetchStudents();
+    }, []);
+
+ const filteredAndSortedStudents = students;
+ 
+
+
+
+  useEffect(() => {
+        if (!sessionLoading && !user) {
+          navigate("/login", { replace: true });
+        }
+      }, [sessionLoading, user, navigate]);
   
-    const handleLogout = () => {
-      logout(navigate); // Log out and redirect to login
-    };
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -56,17 +74,22 @@ function EnrollmentTeam() {
                 <th className={styles.thTd}>Commands</th>
               </tr>
             </thead>
+            
             <tbody>
-              <tr>
-                <td className={styles.td}>Jerald</td>
-                <td className={styles.td}>Valdez</td>
-                <td className={styles.td}>Labalan</td>
-                <td className={styles.td}>Kopal</td>
-                <td className={styles.td}>
-                  <button className={styles.button}>Edit Role</button>
-                  <button className={styles.button}>Delete</button>
-                </td>
-              </tr>
+            {filteredAndSortedStudents.map((student) => (
+                  <tr key={student.id}>
+                    <td className={styles.td}>{student.first_name}</td>
+                    <td className={styles.td}>{student.middle_name || "N/A"}</td>
+                    <td className={styles.td}>{student.last_name}</td>
+                    <td className={styles.td}>{student.position} </td>
+                    <td className={styles.td}>
+                      
+                    <button className={styles.button}>Edit Role</button>
+                    <button className={styles.button}>Delete</button>
+
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

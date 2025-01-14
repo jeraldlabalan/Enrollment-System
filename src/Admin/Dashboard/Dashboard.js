@@ -1,91 +1,79 @@
 import React, { useState, useEffect, useContext } from "react";
-import {useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import DashboardHeader from "./DashboardHeader";
 import { SessionContext } from "../../contexts/SessionContext";
 import styles from "./Dashboard.module.css";
 
 const Dashboard = () => {
+  // Session context and navigation
   const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
   const navigate = useNavigate();
- 
+
+  // State variables for enrolled counts, gender and student type counts, etc.
   const [enrolledCount, setEnrolledCount] = useState(null);
-  const [enrolledCountComSci, setEnrolledCountComSci] = useState(null); // Track enrolled Computer Science count
-  const [enrolledCountIT, setEnrolledCountIT] = useState(null); // Track enrolled Information Technology count
-  const [paidComSci, setpaidComSci] = useState(null); // Track enrolled Computer Science count
-  const [paidIT, setpaidIT] = useState(null); // Track enrolled Information Technology count
+  const [enrolledCountComSci, setEnrolledCountComSci] = useState(null);
+  const [enrolledCountIT, setEnrolledCountIT] = useState(null);
+  const [paidComSci, setPaidComSci] = useState(null);
+  const [paidIT, setPaidIT] = useState(null);
   const [announcementText, setAnnouncementText] = useState('');
   const [genderStudentTypeCounts, setGenderStudentTypeCounts] = useState({});
-
-  const [course, setCourse] = useState(''); // Track selected course
-  const [loading, setLoading] = useState(false); // Loading state for fetchEnrolledCount
-  const [error, setError] = useState(null); // Error state for fetchEnrolledCount
-
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const data = [
-    {
-      category: "Regular Student",
-      green: { value: 45, percentage: 75 },
-      red: { value: 15, percentage: 25 },
-    },
-    {
-      category: "Irregular Student",
-      green: { value: 45, percentage: 50 },
-      red: { value: 20, percentage: 50 },
-    },
-    {
-      category: "Information Technology",
-      blue: { value: 20, percentage: 57 },
-      pink: { value: 15, percentage: 43 },
-    },
-    {
-      category: "Computer Science",
-      blue: { value: 20, percentage: 50 },
-      pink: { value: 20, percentage: 50 },
-    },
-  ];
-
-  
-
+  // Redirect to login if session is not valid
   useEffect(() => {
     if (!sessionLoading && !user) {
       navigate("/login", { replace: true });
     }
   }, [sessionLoading, user, navigate]);
 
-
+  // Fetch enrolled counts from the backend
   const fetchEnrolledCounts = async () => {
     setIsLoading(true);
     setError(null);
-  
     try {
       const response = await fetch('http://localhost:5000/enrolled-count');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
       const data = await response.json();
-  
       // Update state with fetched data
       setEnrolledCount(data.totalEnrolled);
       setEnrolledCountComSci(data.enrolledComSci);
       setEnrolledCountIT(data.enrolledIT);
-      setpaidComSci(data.paidComSci);
-      setpaidIT(data.paidIT);
+      setPaidComSci(data.paidComSci);
+      setPaidIT(data.paidIT);
     } catch (err) {
       setError(err.message);
     } finally {
       setIsLoading(false);
     }
   };
-  
-  const handleAnnouncementSubmit = async () => {
 
+  // Fetch gender and student type counts from the backend
+  const fetchGenderStudentTypeCounts = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("http://localhost:5000/progressbar");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setGenderStudentTypeCounts(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle announcement submission
+  const handleAnnouncementSubmit = async () => {
     if (!announcementText.trim()) {
       alert("Please enter an announcement.");
       return;
     }
-  
     try {
       const response = await fetch("http://localhost:5000/api/announcements", {
         method: "POST",
@@ -95,12 +83,10 @@ const Dashboard = () => {
         credentials: "include", // Include session cookies
         body: JSON.stringify({ content: announcementText }),
       });
-  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to post announcement.");
       }
-  
       const result = await response.json();
       alert(result.message);
       setAnnouncementText(""); // Clear the textarea
@@ -110,36 +96,17 @@ const Dashboard = () => {
     }
   };
 
-  const fetchGenderStudentTypeCounts = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch("http://localhost:5000/progressbar");
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setGenderStudentTypeCounts(data); // Set the fetched gender and student type counts
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Fetch total enrolled count on initial render
+  // Fetch data on initial render
   useEffect(() => {
-    
     fetchEnrolledCounts();
+    fetchGenderStudentTypeCounts();
   }, []);
 
-  
   if (isLoading) {
     return <div>Loading...</div>; // Show loading spinner while validating session
   }
 
+  // Gender and student type counts calculations
   const maleRegular = genderStudentTypeCounts.male?.regular || 0;
   const maleIrregular = genderStudentTypeCounts.male?.irregular || 0;
   const femaleRegular = genderStudentTypeCounts.female?.regular || 0;

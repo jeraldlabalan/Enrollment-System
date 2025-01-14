@@ -693,15 +693,15 @@ app.get('/progressbar', async (req, res) => {
   try {
     // Query to get counts of male/female and regular/irregular students
     const query = `
-      SELECT 
-        gender, 
-        student_type,
-        program,
-        COUNT(*) AS total_count 
-      FROM 
-        tbl_student_data 
-      GROUP BY 
-        gender, student_type;
+     SELECT 
+  gender, 
+  student_type,
+  MAX(program_name) AS program_name, 
+  COUNT(*) AS total_count 
+FROM 
+  tbl_student_data 
+GROUP BY 
+  gender, student_type;
     `;
     
     const [results] = await db.query(query);

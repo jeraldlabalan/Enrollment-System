@@ -34,7 +34,7 @@ const ReceiptPrint = ({ student, onClose }) => {
         {/* Receipt Details */}
         <div className={styles.details}>
           <p>
-            <strong>Student Number:</strong> {student?.id || "202211456"}
+            <strong>Student Number:</strong> {student?.student_id || "202211456"}
           </p>
           <p>
             <strong>Student Name:</strong> {student?.name || "DELA CRUZ, JUAN CRUZ"}

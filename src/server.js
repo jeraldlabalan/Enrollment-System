@@ -494,7 +494,6 @@ app.post("/login", async (req, res) => {
   const query = `SELECT * FROM tbl_user_account WHERE email = ?`;
 
   try {
-    // Execute the query using async/await
     const [results] = await db.query(query, [email]);
 
     if (results.length === 0) {
@@ -523,9 +522,18 @@ app.post("/login", async (req, res) => {
         return res.status(500).json({ message: "Session save failed." });
       }
 
+      // Map roles to human-readable names
+      const roleMap = {
+        0: "student",
+        1: "admin",
+        2: "adviser",
+        3: "officer",
+        4: "guest",
+      };
+
       res.status(200).json({
         message: "Login successful.",
-        role: user.account_role === 0 ? "student" : "admin",
+        role: roleMap[user.account_role] || "unknown",
         incompleteProfile: user.account_role === 0 && !isProfileComplete,
         user: { user_id: user.user_id },
       });
@@ -534,15 +542,7 @@ app.post("/login", async (req, res) => {
     console.error("Database error:", error.message);
     res.status(500).json({ message: "Internal server error." });
   }
-});
-
-app.get("/check-session", (req, res) => {
-  if (req.session && req.session.user) {
-    console.log("Session User:", req.session.user); // Debugging
-    return res.status(200).json({ message: "Session is valid.", user: req.session.user });
-  }
-  res.status(401).json({ message: "Session is invalid." });
-});
+}); 
 
 // Endpoint to get user data if authenticated
 app.get("/user/:userId", async (req, res) => {
@@ -833,6 +833,149 @@ FROM
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+app.get("/api/schedule", async (req, res) => {
+  try {
+    // Execute the SQL query
+    const [students, metadata] = await db.query(
+      `
+    SELECT 
+  tbl_student_data.student_id, 
+  tbl_user_account.first_name, 
+  tbl_user_account.last_name, 
+  tbl_student_data.Advising_date,
+  tbl_program.program_name,
+  tbl_student_data.student_type,
+  tbl_student_data.year_level
+FROM 
+  tbl_student_data
+JOIN 
+  tbl_user_account 
+ON 
+  tbl_student_data.user_id = tbl_user_account.user_id
+JOIN 
+  tbl_program 
+ON 
+  tbl_student_data.program = tbl_program.program_id;
+      `
+    );
+
+    // Respond with the data
+    res.json(students);
+  } catch (error) {
+    // Handle any errors
+    console.error("Error fetching students:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/api/enrollmentstatus", async (req, res) => {
+  try {
+    // Execute the SQL query
+    const [students, metadata] = await db.query(
+      `
+    SELECT 
+  tbl_student_data.student_id, 
+  tbl_user_account.first_name, 
+  tbl_user_account.last_name, 
+  tbl_student_data.status,
+  tbl_program.program_name,
+  tbl_student_data.student_type,
+  tbl_student_data.year_level
+FROM 
+  tbl_student_data
+JOIN 
+  tbl_user_account 
+ON 
+  tbl_student_data.user_id = tbl_user_account.user_id
+JOIN 
+  tbl_program 
+ON 
+  tbl_student_data.program = tbl_program.program_id;
+      `
+    );
+
+    // Respond with the data
+    res.json(students);
+  } catch (error) {
+    // Handle any errors
+    console.error("Error fetching students:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/api/submission", async (req, res) => {
+  try {
+    // Execute the SQL query
+    const [students, metadata] = await db.query(
+      `
+    SELECT 
+  tbl_student_data.student_id, 
+  tbl_user_account.first_name, 
+  tbl_user_account.last_name, 
+  tbl_user_account.middle_name, 
+  tbl_student_data.status,
+  tbl_program.program_name,
+  tbl_student_data.student_type,
+  tbl_student_data.year_level
+FROM 
+  tbl_student_data
+JOIN 
+  tbl_user_account 
+ON 
+  tbl_student_data.user_id = tbl_user_account.user_id
+JOIN 
+  tbl_program 
+ON 
+  tbl_student_data.program = tbl_program.program_id;
+      `
+    );
+
+    // Respond with the data
+    res.json(students);
+  } catch (error) {
+    // Handle any errors
+    console.error("Error fetching students:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/api/advisee", async (req, res) => {
+  try {
+    // Execute the SQL query
+    const [students, metadata] = await db.query(
+      `
+    SELECT 
+  tbl_student_data.student_id, 
+  tbl_user_account.first_name, 
+  tbl_user_account.last_name, 
+  tbl_user_account.middle_name, 
+  tbl_student_data.Advising_status,
+  tbl_program.program_name,
+  tbl_student_data.student_type,
+  tbl_student_data.year_level
+FROM 
+  tbl_student_data
+JOIN 
+  tbl_user_account 
+ON 
+  tbl_student_data.user_id = tbl_user_account.user_id
+JOIN 
+  tbl_program 
+ON 
+  tbl_student_data.program = tbl_program.program_id;
+      `
+    );
+
+    // Respond with the data
+    res.json(students);
+  } catch (error) {
+    // Handle any errors
+    console.error("Error fetching students:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 app.get("/profile/:userId", async (req, res) => {
   const { userId } = req.params;

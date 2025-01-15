@@ -1,55 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { SessionContext } from "../../contexts/SessionContext";
 import styles from "./Submission.module.css";
 import Header from "../Header/Header";
 
 const Advisee = () => {
-  const [students, setStudents] = useState([
-    {
-      id: "20231001",
-      lastName: "Labalan",
-      firstName: "Jerald",
-      middleName: "Sikip",
-      type: "S6",
-      yearStanding: "3rd year",
-      details: "Detailed information about Jerald Labalan",
-    },
-    {
-      id: "20231002",
-      lastName: "Fernandez",
-      firstName: "Alex",
-      middleName: "Hawak",
-      type: "S6",
-      yearStanding: "3rd year",
-      details: "Detailed information about Alex Fernandez",
-    },
-    {
-      id: "20231003",
-      lastName: "Galvez",
-      firstName: "Dioren",
-      middleName: "Golem",
-      type: "S6",
-      yearStanding: "3rd year",
-      details: "Detailed information about Dioren Galvez",
-    },
-    {
-      id: "20231004",
-      lastName: "Dasalla",
-      firstName: "Keith",
-      middleName: "Sikip",
-      type: "S5",
-      yearStanding: "3rd year",
-      details: "Detailed information about Keith Dasalla",
-    },
-    {
-      id: "20231005",
-      lastName: "Bides",
-      firstName: "Matthew",
-      middleName: "Tigastite",
-      type: "S5",
-      yearStanding: "2nd year",
-      details: "Detailed information about Matthew Bides",
-    },
-  ]);
+  const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [students, setStudents] = useState([]); // Add this line
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortCriteria, setSortCriteria] = useState("id");
@@ -63,28 +22,40 @@ const Advisee = () => {
   const [rejectTo, setRejectTo] = useState("Both");
   const [acceptTo, setAcceptTo] = useState("Both");
 
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/submission");
+        const data = await response.json();
+        console.log("Fetched Students Data:", data);
+        setStudents(data);
+      } catch (error) {
+        console.error("Error fetching students:", error);
+      }
+    };
+    fetchStudents();
+  }, []);
+
   const filteredAndSortedStudents = students
     .filter((student) => {
       const query = searchQuery.toLowerCase();
       const matchesSearch =
-        student.id.toLowerCase().includes(query) ||
-        student.lastName.toLowerCase().includes(query) ||
-        student.firstName.toLowerCase().includes(query);
-
-      const matchesType = filterType ? student.type === filterType : true;
-      const matchesYear = filterYear ? student.yearStanding === filterYear : true;
-
+        (student.id && student.id.toString().toLowerCase().includes(query)) ||
+        (student.last_name && student.last_name.toLowerCase().includes(query)) ||
+        (student.first_name && student.first_name.toLowerCase().includes(query));
+  
+      console.log("Search Match:", matchesSearch, student);
+  
+      const matchesType = filterType ? student.student_type === filterType : true;
+      console.log("Type Match:", matchesType, student);
+  
+      const matchesYear = filterYear
+        ? student.year_level === filterYear
+        : true;
+      console.log("Year Match:", matchesYear, student);
+  
+  
       return matchesSearch && matchesType && matchesYear;
-    })
-    .sort((a, b) => {
-      if (sortCriteria === "id") {
-        return a.id.localeCompare(b.id);
-      } else if (sortCriteria === "lastName") {
-        return a.lastName.localeCompare(b.lastName);
-      } else if (sortCriteria === "firstName") {
-        return a.firstName.localeCompare(b.firstName);
-      }
-      return 0;
     });
 
   const handleSearchChange = (e) => setSearchQuery(e.target.value);
@@ -166,21 +137,22 @@ const Advisee = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredAndSortedStudents.map((student) => (
-                  <tr key={student.id}>
-                    <td className={styles.td}>{student.id}</td>
-                    <td className={styles.td}>{student.lastName}</td>
-                    <td className={styles.td}>{student.firstName}</td>
-                    <td className={styles.td}>{student.middleName}</td>
-                    <td className={styles.td}>{student.type}</td>
-                    <td className={styles.td}>{student.yearStanding}</td>
-                    <td className={styles.td}>
-                      <button
-                        className={styles.button}
-                        onClick={() => handleViewChecklist(student)}
+              {filteredAndSortedStudents.length > 0 ? (
+  filteredAndSortedStudents.map((student) => (
+    <tr key={student.id}>
+      <td className={styles.td}>{student.student_id}</td>
+      <td className={styles.td}>{student.last_name}</td>
+      <td className={styles.td}>{student.first_name}</td>
+      <td className={styles.td}>{student.middle_name || "N/A"}</td>
+      <td className={styles.td}>{student.student_type}</td>
+      <td className={styles.td}>{student.year_level}</td>
+      <td className={styles.td}>
+      <button 
+                        className={styles.button} onClick={() => handleViewChecklist(student)}
                       >
                         View Checklist
                       </button>
+
                       <button className={styles.button}>View ISCOR</button>
                       <button
                         className={styles.button}
@@ -194,9 +166,14 @@ const Advisee = () => {
                       >
                         Accept
                       </button>
-                    </td>
-                  </tr>
-                ))}
+      </td>
+    </tr>
+  ))
+) : (
+  <tr>
+    <td colSpan="5">No students found.</td>
+  </tr>
+)}
               </tbody>
             </table>
           </div>

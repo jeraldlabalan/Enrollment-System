@@ -20,7 +20,7 @@ const Students = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/students");
+        const response = await fetch("http://localhost:5000/api/schedule");
         const data = await response.json();
         console.log("Raw Students Data:", data); // Check API data
         setStudents(data);

@@ -1,4 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { SessionContext } from "../../contexts/SessionContext";
 import styles from "./Advisee.module.css";
 import Header from "../Header/Header";
 
@@ -86,58 +88,10 @@ const EditSubjectsModal = ({ student, onClose, onSubmit }) => {
 };
 
 const Advisee = () => {
-  const [students, setStudents] = useState([
-    {
-      id: "20231001",
-      lastName: "Labalan",
-      firstName: "Jerald",
-      middleName: "Sikip",
-      type: "S6",
-      yearStanding: "3rd year",
-      AdvisingStatus: "Rejected",
-      details: "Detailed information about Jerald Labalan",
-    },
-    {
-      id: "20231002",
-      lastName: "Fernandez",
-      firstName: "Alex",
-      middleName: "Hawak",
-      type: "S6",
-      yearStanding: "3rd year",
-      AdvisingStatus: "Accepted",
-      details: "Detailed information about Alex Fernandez",
-    },
-    {
-      id: "20231003",
-      lastName: "Galvez",
-      firstName: "Dioren",
-      middleName: "Golem",
-      type: "S6",
-      yearStanding: "3rd year",
-      AdvisingStatus: "Accepted",
-      details: "Detailed information about Dioren Galvez",
-    },
-    {
-      id: "20231004",
-      lastName: "Dasalla",
-      firstName: "Keith",
-      middleName: "Sikip",
-      type: "S5",
-      yearStanding: "3rd year",
-      AdvisingStatus: "Accepted",
-      details: "Detailed information about Keith Dasalla",
-    },
-    {
-      id: "20231005",
-      lastName: "Bides",
-      firstName: "Matthew",
-      middleName: "Tigastite",
-      type: "S5",
-      yearStanding: "2nd year",
-      AdvisingStatus: "Accepted",
-      details: "Detailed information about Matthew Bides",
-    },
-  ]);
+  const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [students, setStudents] = useState([]); // Add this line
 
   const [searchQuery, setSearchQuery] = useState(""); // For search input
   const [sortCriteria, setSortCriteria] = useState("id"); // Default sorting criteria
@@ -149,6 +103,20 @@ const Advisee = () => {
   const printContentRef = useRef(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnrollmentModalOpen, setIsEnrollmentModalOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/advisee");
+        const data = await response.json();
+        console.log("Fetched Students Data:", data);
+        setStudents(data);
+      } catch (error) {
+        console.error("Error fetching students:", error);
+      }
+    };
+    fetchStudents();
+  }, []);
 
   const handleEditSubjectClick = (student) => {
     setSelectedStudent(student);
@@ -243,26 +211,22 @@ const Advisee = () => {
     .filter((student) => {
       const query = searchQuery.toLowerCase();
       const matchesSearch =
-        student.id.toLowerCase().includes(query) ||
-        student.lastName.toLowerCase().includes(query) ||
-        student.firstName.toLowerCase().includes(query);
-
-      const matchesType = filterType ? student.type === filterType : true;
+        (student.id && student.id.toString().toLowerCase().includes(query)) ||
+        (student.last_name && student.last_name.toLowerCase().includes(query)) ||
+        (student.first_name && student.first_name.toLowerCase().includes(query));
+  
+      console.log("Search Match:", matchesSearch, student);
+  
+      const matchesType = filterType ? student.student_type === filterType : true;
+      console.log("Type Match:", matchesType, student);
+  
       const matchesYear = filterYear
-        ? student.yearStanding === filterYear
+        ? student.year_level === filterYear
         : true;
-
+      console.log("Year Match:", matchesYear, student);
+  
+  
       return matchesSearch && matchesType && matchesYear;
-    })
-    .sort((a, b) => {
-      if (sortCriteria === "id") {
-        return a.id.localeCompare(b.id);
-      } else if (sortCriteria === "lastName") {
-        return a.lastName.localeCompare(b.lastName);
-      } else if (sortCriteria === "firstName") {
-        return a.firstName.localeCompare(b.firstName);
-      }
-      return 0;
     });
 
   const handleSearchChange = (e) => {
@@ -346,24 +310,22 @@ const Advisee = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredAndSortedStudents.map((student) => (
-                  <tr key={student.id}>
-                    <td className={styles.td}>{student.id}</td>
-                    <td className={styles.td}>{student.lastName}</td>
-                    <td className={styles.td}>{student.firstName}</td>
-                    <td className={styles.td}>{student.type}</td>
-                    <td className={styles.td}>{student.yearStanding}</td>
-                    <td className={styles.td}>{student.AdvisingStatus}</td>
-                    <td className={styles.td}>
-                      <button className={styles.button}>View Subject</button>
-                      <button
-                        className={styles.button}
-                        onClick={() => handleEditSubjectClick(student)}
+              {filteredAndSortedStudents.length > 0 ? (
+  filteredAndSortedStudents.map((student) => (
+    <tr key={student.id}>
+      <td className={styles.td}>{student.student_id}</td>
+      <td className={styles.td}>{student.last_name}</td>
+      <td className={styles.td}>{student.first_name}</td>
+      <td className={styles.td}>{student.student_type}</td>
+      <td className={styles.td}>{student.year_level}</td>
+      <td className={styles.td}>{student.Advising_status}</td>
+      <td className={styles.td}>
+      <button className={styles.button}>View Subject</button>
+      <button 
+                        className={styles.button} onClick={() => handleEditSubjectClick(student)}
                       >
                         Edit Subject
                       </button>
-                      
-                     
                       <button className={styles.button}>Edit Subject</button>
                       <button className={styles.button}>Update Status</button>
                       <button className={styles.button}>View Checklist</button>
@@ -380,9 +342,15 @@ const Advisee = () => {
                       >
                         Set Enrollment Date
                       </button>
-                    </td>
-                  </tr>
-                ))}
+                      
+      </td>
+    </tr>
+  ))
+) : (
+  <tr>
+    <td colSpan="5">No students found.</td>
+  </tr>
+)}
               </tbody>
             </table>
           </div>

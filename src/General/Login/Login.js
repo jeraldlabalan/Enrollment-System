@@ -49,6 +49,12 @@ const Login = () => {
         } else if (role === "admin") {
           toast.success("Login successful!");
           navigate("/dashboard", { state: { userId: user.user_id } });
+        } else if (role === "adviser") {
+          toast.success("Login successful!");
+          navigate("/aDashboard", { state: { userId: user.user_id } });
+        } else if (role === "officer") {
+          toast.success("Login successful!");
+          navigate("/EnrollmentStatusCS", { state: { userId: user.user_id } });
         } else {
           throw new Error("Unexpected role received.");
         }

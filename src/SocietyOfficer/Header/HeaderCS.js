@@ -34,7 +34,7 @@ function HeaderCS() {
         <a className={styles.navLink}>Enrollment Status</a>
         </Link>
 
-        <Link to="">
+        <Link to="/login">
           <a className={styles.navLink}>Log Out</a>
         </Link>
         <Link to="">

@@ -31,7 +31,7 @@ function Header() {
         <Link to="/Advisee">
           <a className={styles.navLink}>Advisee</a>
         </Link>
-        <Link to="/statusandscheduling">
+        <Link to="/login">
           
           <a className={styles.navLink}>Log Out</a>
         </Link>

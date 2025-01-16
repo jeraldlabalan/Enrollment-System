@@ -21,41 +21,46 @@ const Students = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/students");
+        const response = await fetch("http://localhost:5000/api/enrollees");
         const data = await response.json();
-        console.log("Raw Students Data:", data); // Check API data
-        setStudents(data);
+        console.log("Raw Students Data:", data);
+        if (Array.isArray(data)) {
+          setStudents(data);
+        } else {
+          console.error("Invalid API response format:", data);
+        }
       } catch (error) {
         console.error("Error fetching students:", error);
       }
     };
-  
+
     fetchStudents();
   }, []);
- 
 
-  const filteredAndSortedStudents = students
-  .filter((student) => {
-    if (!student) return false;
-    const query = searchQuery.toLowerCase();
+    console.log("Students State:", students); // Log React state
 
-    const matchesSearch =
-      (student.student_id && student.student_id.toString().includes(query)) ||
-      (student.last_name && student.last_name.toLowerCase().includes(query)) ||
-      (student.first_name && student.first_name.toLowerCase().includes(query));
+    const filteredAndSortedStudents = students
+    .filter((student) => {
+      if (!student) return false;
+      const query = searchQuery.toLowerCase();
 
-    const matchesType = filterType ? student.student_type === filterType : true;
-    const matchesYear = filterYear ? student.year_level === filterYear : true;
-    const matchesProgram = filterProgram ? student.program_name === filterProgram : true;
+      const matchesSearch =
+        (student.student_id && student.student_id.toString().includes(query)) ||
+        (student.last_name && student.last_name.toLowerCase().includes(query)) ||
+        (student.first_name && student.first_name.toLowerCase().includes(query));
 
-    return matchesSearch && matchesType && matchesYear && matchesProgram;
-  })
-  .sort((a, b) => {
-    if (sortCriteria === "id") {
-      return a.student_id - b.student_id;
-    }
-    return a[sortCriteria]?.localeCompare(b[sortCriteria]) || 0;
-  });
+      const matchesType = filterType ? student.student_type === filterType : true;
+      const matchesYear = filterYear ? student.year_level === filterYear : true;
+      const matchesProgram = filterProgram ? student.program_name === filterProgram : true;
+
+      return matchesSearch && matchesType && matchesYear && matchesProgram;
+    })
+    .sort((a, b) => {
+      if (sortCriteria === "id") {
+        return a.student_id - b.student_id;
+      }
+      return a[sortCriteria]?.localeCompare(b[sortCriteria]) || 0;
+    });
 
    useEffect(() => {
       if (!sessionLoading && !user) {

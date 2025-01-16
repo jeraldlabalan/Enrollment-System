@@ -30,22 +30,24 @@ const Enrollees = () => {
   }, [sessionLoading, user, navigate]);
 
   
-   
-
   useEffect(() => {
-  const fetchStudents = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/api/enrollees");
-      const data = await response.json();
-      console.log("Raw Students Data:", data); // Check API data
-      setStudents(data);
-    } catch (error) {
-      console.error("Error fetching students:", error);
-    }
-  };
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/enrollees");
+        const data = await response.json();
+        console.log("Raw Students Data:", data);
+        if (Array.isArray(data)) {
+          setStudents(data);
+        } else {
+          console.error("Invalid API response format:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching students:", error);
+      }
+    };
 
-  fetchStudents();
-}, []);
+    fetchStudents();
+  }, []);
 
     console.log("Students State:", students); // Log React state
 
@@ -70,7 +72,9 @@ const Enrollees = () => {
         return a.student_id - b.student_id;
       }
       return a[sortCriteria]?.localeCompare(b[sortCriteria]) || 0;
-    });
+    }); 
+
+  
   const handleFilterProgramChange = (e) => {
     setFilterProgram(e.target.value);
   };

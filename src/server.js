@@ -47,7 +47,7 @@ app.use(
 const db = mysql.createPool({
   host: "localhost", // Replace with your DB host
   user: "root", // Replace with your MySQL username
-  password: "Jerald_11783", // Replace with your MySQL password
+  password: "Wearefamily03", // Replace with your MySQL password
   database: "enrollment_system", // Replace with your DB name
 });
 
@@ -140,9 +140,18 @@ function splitAddress(address) {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "martkaws847@gmail.com", // Replace with your Gmail
-    pass: "hkol avhd afwa iawy",   // Replace with your Gmail App Password
+    user: "martkaws847@gmail.com", // Your Gmail address
+    pass: "eebtevpxpzsaceul",     // Your 16-character App Password
   },
+});
+
+// Test email sending
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("Error connecting to email server:", error);
+  } else {
+    console.log("Server is ready to send emails:", success);
+  }
 });
 
 function generateOtp() {
@@ -234,23 +243,18 @@ app.post("/send-otp", async (req, res) => {
     return res.status(400).json({ message: "Email is required." });
   }
 
-  // Generate a random 6-digit OTP
   const otp = crypto.randomInt(100000, 999999).toString();
 
-  // Save the OTP and email temporarily in the database
   const otpQuery = `
     INSERT INTO tbl_email_verification (email, otp, expires_at)
     VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 15 MINUTE))
     ON DUPLICATE KEY UPDATE otp = ?, expires_at = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
   `;
 
-  db.query(otpQuery, [email, otp, otp], async (error) => {
-    if (error) {
-      console.error("Error saving OTP:", error.message);
-      return res.status(500).json({ message: "Database error while saving OTP." });
-    }
+  try {
+    await db.query(otpQuery, [email, otp, otp]);
+    console.log("OTP saved successfully.");
 
-    // Send the OTP via email
     const mailOptions = {
       from: "Enrollment System <your_email@example.com>",
       to: email,
@@ -260,12 +264,16 @@ app.post("/send-otp", async (req, res) => {
 
     try {
       await transporter.sendMail(mailOptions);
+      console.log("OTP email sent successfully.");
       res.status(200).json({ message: "OTP sent successfully." });
     } catch (emailError) {
       console.error("Error sending OTP email:", emailError.message);
       res.status(500).json({ message: "Failed to send OTP email." });
     }
-  });
+  } catch (dbError) {
+    console.error("Error saving OTP:", dbError.message);
+    res.status(500).json({ message: "Database error while saving OTP." });
+  }
 });
 
 // Endpoint to verify OTP
@@ -285,54 +293,47 @@ app.post("/verify-otp", async (req, res) => {
     SELECT * FROM tbl_email_verification
     WHERE email = ? AND otp = ? AND expires_at > NOW()
   `;
-  db.query(verifyQuery, [email, otp], async (error, results) => {
-    if (error) {
-      console.error("Database error:", error.message);
-      return res.status(500).json({ success: false, message: "Database error." });
-    }
 
+  try {
+    // Verify OTP
+    const [results] = await db.query(verifyQuery, [email, otp]);
     console.log("OTP Verification Results:", results);
+
     if (results.length === 0) {
       return res.status(400).json({ success: false, message: "Invalid or expired OTP." });
     }
 
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const insertUserQuery = `
-        INSERT INTO tbl_user_account (email, password)
-        VALUES (?, ?)
-      `;
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-      db.query(insertUserQuery, [email, hashedPassword], (userError) => {
-        if (userError) {
-          console.error("Error inserting user:", userError.message);
-          if (userError.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({
-              success: false,
-              message: "Email already registered.",
-            });
-          }
-          return res.status(500).json({ success: false, message: "Error registering user." });
-        }
+    // Insert user into tbl_user_account
+    const insertUserQuery = `
+      INSERT INTO tbl_user_account (email, password)
+      VALUES (?, ?)
+    `;
+    await db.query(insertUserQuery, [email, hashedPassword]);
+    console.log("User inserted successfully");
 
-        console.log("User inserted successfully");
+    // Update OTP verification status
+    const updateQuery = `UPDATE tbl_email_verification SET otp_verified = 1 WHERE email = ?`;
+    await db.query(updateQuery, [email]);
+    console.log("OTP verification status updated successfully");
 
-        const updateQuery = `UPDATE tbl_email_verification SET otp_verified = 1 WHERE email = ?`;
-        db.query(updateQuery, [email], (updateError) => {
-          if (updateError) {
-            console.error("Error updating OTP status:", updateError.message);
-            return res.status(500).json({ success: false, message: "Database error while updating OTP status." });
-          }
+    // Respond with success
+    res.status(200).json({ success: true, message: "OTP verified and registration successful." });
+  } catch (error) {
+    console.error("Error:", error.message);
 
-          console.log("OTP verification status updated successfully");
-          res.status(200).json({ success: true, message: "OTP verified and registration successful." });
-        });
+    // Handle specific errors
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(400).json({
+        success: false,
+        message: "Email already registered.",
       });
-    } catch (hashError) {
-      console.error("Error hashing password:", hashError.message);
-      return res.status(500).json({ success: false, message: "Server error." });
     }
-  });
+
+    res.status(500).json({ success: false, message: "Server error." });
+  }
 });
 
 app.post("/request-password-reset", async (req, res) => {
@@ -436,6 +437,7 @@ app.post("/register", async (req, res) => {
     country,
   } = req.body;
 
+  // Validate required fields
   if (
     !firstName ||
     !lastName ||
@@ -454,64 +456,69 @@ app.post("/register", async (req, res) => {
   }
 
   try {
+    // Extract house_number and street from the address
     const { house_number, street } = splitAddress(address);
+
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Insert address into the database
     const addressQuery = `
       INSERT INTO tbl_address (house_number, street, barangay, city, province, country, postal_code)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
+    const [addressResult] = await db.query(addressQuery, [
+      house_number,
+      street,
+      barangay,
+      city,
+      province,
+      country,
+      postal,
+    ]);
 
-    db.query(
-      addressQuery,
-      [house_number, street, barangay, city, province, country, postal],
-      (addressError, addressResult) => {
-        if (addressError) {
-          console.error("Address insert error:", addressError.message);
-          return res.status(500).json({
-            message: "Database error while inserting address.",
-          });
-        }
+    const addressId = addressResult.insertId;
 
-        const addressId = addressResult.insertId;
+    // Insert user data into the database
+    const userQuery = `
+      INSERT INTO tbl_user_account (first_name, middle_name, last_name, date_of_birth, phone_number, email, password, address_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const [userResult] = await db.query(userQuery, [
+      firstName,
+      middleName,
+      lastName,
+      dob,
+      contactNumber,
+      email,
+      hashedPassword,
+      addressId,
+    ]);
 
-        const userQuery = `
-          INSERT INTO tbl_user_account (first_name, middle_name, last_name, date_of_birth, phone_number, email, password, address_id)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `;
+    const userId = userResult.insertId;
 
-        db.query(
-          userQuery,
-          [
-            firstName,
-            middleName,
-            lastName,
-            dob,
-            contactNumber,
-            email,
-            hashedPassword,
-            addressId,
-          ],
-          (userError, userResult) => {
-            if (userError) {
-              console.error("User insert error:", userError.message);
-              return res.status(500).json({
-                message: "Database error while inserting user.",
-              });
-            }
+    // Insert data into tbl_student_data
+    const studentQuery = `
+      INSERT INTO tbl_student_data (user_id, address_id, status)
+      VALUES (?, ?, ?, ?)
+    `;
+    await db.query(studentQuery, [userId, addressId, "not enrolled"]);
 
-            // Trigger frontend to navigate to email verification
-            res.status(201).json({
-              message: "Proceed to email verification.",
-              userId: userResult.insertId, // Send user ID for verification if needed
-              email: email, // Optional: Return the email for the frontend
-            });
-          }
-        );
-      }
-    );
+    // Respond with success message and user details
+    res.status(201).json({
+      message: "Proceed to email verification.",
+      userId: userId, // Send user ID for verification if needed
+      email: email, // Optional: Return the email for the frontend
+    });
   } catch (error) {
     console.error("Error during registration:", error.message);
+
+    // Handle specific errors (e.g., duplicate email)
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(400).json({ message: "Email already registered." });
+    }
+
+    // General error response
     res.status(500).json({ message: "Server error." });
   }
 });

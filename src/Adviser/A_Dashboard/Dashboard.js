@@ -2,19 +2,18 @@ import React, { useState, useEffect, useContext } from "react";
 import { SessionContext } from "../../contexts/SessionContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Pie } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import Header from "../Header/Header";
 import styles from "./Dashboard.module.css";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard = () => {
-  const { user, isLoading: sessionLoading, setUser } = useContext(SessionContext);
+  const {
+    user,
+    isLoading: sessionLoading,
+    setUser,
+  } = useContext(SessionContext);
   const navigate = useNavigate();
 
   // State for enrollment data
@@ -22,12 +21,13 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
   const pieData = {
     labels: ["CS", "IT"],
     datasets: [
       {
         label: "Enrollment Distribution",
-        data: [50, 50 ], // Replace with dynamic data if needed
+        data: [50, 50], // Replace with dynamic data if needed
         backgroundColor: ["#640404", "#28a745"],
         borderColor: ["#", "#"],
         borderWidth: 0,
@@ -68,7 +68,6 @@ const Dashboard = () => {
       },
     },
   };
-
 
   // Fetch enrollment data
   const fetchEnrollmentData = async () => {
@@ -136,17 +135,19 @@ const Dashboard = () => {
         <div className={styles.grid}>
           {/* Card 1: Enrolled Students */}
           <div className={`${styles.card} ${styles.enrolledStudents}`}>
-  <h5 className={styles.cardTitle}>Enrolled Students</h5>
+            <h5 className={styles.cardTitle}>Enrolled Students</h5>
 
-  <div className={styles.pieChartContainer}>
-    {/* Chart Canvas */}
-    <div className={styles.chartCanvas}>
-      <Pie data={pieData} options={pieOptions} />
-    </div>
-  </div>
+            <div className={styles.pieChartContainer}>
+              {/* Chart Canvas */}
+              <div className={styles.chartCanvas}>
+                <Pie data={pieData} options={pieOptions} />
+              </div>
+            </div>
 
-  <a href="#view-list" className={styles.viewList}>View List</a>
-</div>
+            <a href="#view-list" className={styles.viewList}>
+              View List
+            </a>
+          </div>
 
           {/* Card 2: Regular and Irregular Students + Gender Distribution */}
           <div
@@ -154,32 +155,20 @@ const Dashboard = () => {
           >
             <p>Regular Student</p>
             <div className={styles.progressBar}>
-              <div
-                className={styles.progressBarGreen}
-                style={{ width: "75%" }}
-              >
+              <div className={styles.progressBarGreen} style={{ width: "75%" }}>
                 45
               </div>
-              <div
-                className={styles.progressBarRed}
-                style={{ width: "25%" }}
-              >
+              <div className={styles.progressBarRed} style={{ width: "25%" }}>
                 15
               </div>
             </div>
 
             <p>Irregular Student</p>
             <div className={styles.progressBar}>
-              <div
-                className={styles.progressBarGreen}
-                style={{ width: "50%" }}
-              >
+              <div className={styles.progressBarGreen} style={{ width: "50%" }}>
                 45
               </div>
-              <div
-                className={styles.progressBarRed}
-                style={{ width: "50%" }}
-              >
+              <div className={styles.progressBarRed} style={{ width: "50%" }}>
                 20
               </div>
             </div>
@@ -189,31 +178,19 @@ const Dashboard = () => {
             </strong>
             <p>Information Technology</p>
             <div className={styles.progressBar}>
-              <div
-                className={styles.progressBarBlue}
-                style={{ width: "57%" }}
-              >
+              <div className={styles.progressBarBlue} style={{ width: "57%" }}>
                 20
               </div>
-              <div
-                className={styles.progressBarPink}
-                style={{ width: "43%" }}
-              >
+              <div className={styles.progressBarPink} style={{ width: "43%" }}>
                 15
               </div>
             </div>
             <p>Computer Science</p>
             <div className={styles.progressBar}>
-              <div
-                className={styles.progressBarBlue}
-                style={{ width: "50%" }}
-              >
+              <div className={styles.progressBarBlue} style={{ width: "50%" }}>
                 20
               </div>
-              <div
-                className={styles.progressBarPink}
-                style={{ width: "50%" }}
-              >
+              <div className={styles.progressBarPink} style={{ width: "50%" }}>
                 20
               </div>
             </div>

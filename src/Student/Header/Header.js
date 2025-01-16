@@ -1,47 +1,47 @@
 import React from "react";
 import styles from "./Header.module.css";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 function Header() {
   return (
     <div className={styles.header}>
       <div className={styles.logos}>
-        <Link to="/">
+        <NavLink to="/">
           <img
             src="./images/CSlogo.png"
             alt="BSCS Logo"
             className={styles.logo_shield}
           />
-        </Link>
-        <Link to="/">
+        </NavLink>
+        <NavLink to="/">
           <img
             src="./images/ITlogo.png"
             alt="BSIT Logo"
             className={styles.logo_its}
           />
-        </Link>
+        </NavLink>
       </div>
       <nav className={styles.nav}>
-        <Link to="/home">
+        <NavLink to="/home">
           <a className={styles.navLink}>Home</a>
-        </Link>
-        <Link to="/profile">
+        </NavLink>
+        <NavLink to="/profile">
           <a className={styles.navLink}>Profile</a>
-        </Link>
-        <Link to="/submissionandsubject">
+        </NavLink>
+        <NavLink to="/submissionandsubject">
           <a className={styles.navLink}>Submission and Subject</a>
-        </Link>
-        <Link to="/statusandscheduling">
+        </NavLink>
+        <NavLink to="/statusandscheduling">
           <a className={styles.navLink}>Status and Scheduling</a>
-        </Link>
-        <Link to="">
+        </NavLink>
+        <NavLink to="">
           <a className={styles.navLink}>Log Out</a>
-        </Link>
-        <Link to="">
+        </NavLink>
+        <NavLink to="">
           <a className={styles.navLink}>
             <i class="fa-solid fa-bell"></i>
           </a>
-        </Link>
+        </NavLink>
       </nav>
     </div>
   );

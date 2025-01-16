@@ -9,6 +9,16 @@ function EnrollmentTeam() {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [students, setStudents] = useState([]); // Add this line
+  const [showModal, setShowModal] = useState(false);
+  const [Role, setRole] = useState(""); 
+  const handleRole = () => {
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    setRole("");
+  };
 
   useEffect(() => {
       const fetchStudents = async () => {
@@ -84,7 +94,7 @@ function EnrollmentTeam() {
                     <td className={styles.td}>{student.position} </td>
                     <td className={styles.td}>
                       
-                    <button className={styles.button}>Edit Role</button>
+                    <button className={styles.button}  onClick={() => handleRole()}>Edit Role</button>
                     <button className={styles.button}>Delete</button>
 
                     </td>
@@ -188,6 +198,34 @@ function EnrollmentTeam() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+{showModal &&  (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h3>Edit Role</h3>
+            {/*<h2>{selectedStudent.firstName} {selectedStudent.lastName}</h2>*/}
+            <label for="date-input" className={styles.dateLabel} >Select Role</label>
+            <div className={styles.selected}>
+            
+              
+              <select className={styles.input}>
+                
+                <option value="admin">Admin</option>
+                <option value="adviser">Adviser</option>
+                <option value="officer">Officer</option>
+                
+              </select>
+            
+            </div>
+            <div className={styles.buttonGroup}>
+              
+              <button className={styles.closeButton} onClick={handleModalClose}>
+                Done
+              </button>
             </div>
           </div>
         </div>

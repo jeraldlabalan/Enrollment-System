@@ -22,7 +22,27 @@ const Enrollees = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [filterProgram, setFilterProgram] = useState(""); // For program filter
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editedStudent, setEditedStudent] = useState(null);
 
+  const handleEditClick = (student) => {
+    setEditedStudent({ ...student }); // Create a copy of the student object
+    setShowEditModal(true);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditedStudent((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditSubmit = () => {
+    setStudents((prev) =>
+      prev.map((student) =>
+        student.id === editedStudent.id ? editedStudent : student
+      )
+    );
+    setShowEditModal(false);
+  };
  
   useEffect(() => {
     if (!sessionLoading && !user) {
@@ -188,7 +208,7 @@ const Enrollees = () => {
                     <td className={styles.td}>
                       <button
                         className={styles.button}
-                        onClick={() => handleViewChecklist(student)}
+                        onClick={() => handleEditClick(student)}
                       >
                         Edit Credentials
                       </button>
@@ -304,6 +324,97 @@ const Enrollees = () => {
           </div>
         </div>
       )}
+
+      {/* Edit Credential Modal */}
+      {showEditModal && editedStudent && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h3>Edit Credentials</h3>
+            <form>
+              <div className={styles.formGroup}>
+                <label>Last Name:</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={editedStudent.lastName}
+                  onChange={handleEditChange}
+                  className={styles.input}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>First Name:</label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={editedStudent.firstName}
+                  onChange={handleEditChange}
+                  className={styles.input}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Program:</label>
+                <select
+                  name="program"
+                  value={editedStudent.program}
+                  onChange={handleEditChange}
+                  className={styles.input}
+                >
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Information Technology">
+                    Information Technology
+                  </option>
+                  
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Student Type:</label>
+                <select
+                  name="type"
+                  value={editedStudent.type}
+                  onChange={handleEditChange}
+                  className={styles.input}
+                >
+                  <option value="S1">S1</option>
+                  <option value="S2">S2</option>
+                  <option value="S3">S3</option>
+                  <option value="S4">S4</option>
+                  <option value="S5">S5</option>
+                  <option value="S6">S6</option>
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Year Standing:</label>
+                <select
+                  name="yearStanding"
+                  value={editedStudent.yearStanding}
+                  onChange={handleEditChange}
+                  className={styles.input}
+                >
+                  <option value="1st year">1st Year</option>
+                  <option value="2nd year">2nd Year</option>
+                  <option value="3rd year">3rd Year</option>
+                  <option value="4th year">4th Year</option>
+                </select>
+              </div>
+              <button
+                type="button"
+                className={styles.submit}
+                onClick={handleEditSubmit}
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                className={styles.closeButton}
+                onClick={() => setShowEditModal(false)}
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

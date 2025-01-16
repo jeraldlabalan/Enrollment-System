@@ -491,3 +491,7 @@ p, h5, span, strong {
   top: 0;
   right: 0;
 }
+
+.activeNavLink {
+  color: blue;
+}

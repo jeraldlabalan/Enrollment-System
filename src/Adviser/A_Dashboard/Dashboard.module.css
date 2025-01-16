@@ -1,19 +1,16 @@
 /* Overall container */
 .container {
-  background-color: #f8f9fa;
+  background-color: #DAF7A6;
   min-height: 100vh;
   display: flex;
-  flex-direction: row;
-  overflow: hidden; /* Prevent content from overflowing */
+  flex-direction: column;
+}
+
+.title {
+  padding: 0 50px;
 }
 
 /*******************************/
-
-.title {
-  width: 100%;
-  margin-left: 100px;
- }
-
 
 .header {
   width: 100%;
@@ -65,49 +62,15 @@
 /************************************************/
 
 .dashboardHeader {
-  margin-bottom: -14px;
-}
+  width: 100%;
+  background-color: #030507;
 
-/* h1 styling */
-.dashboardHeader h1 {
-  font-size: 50px;
-  margin-left: 70px;
-  margin-top: 0px;
-  text-align: left;
-  color: #333;
-}
-
-/* Existing grid adjustments */
-.grid {
-  margin-top: 0;
+  h1 {
+    margin-left: 50px;
+  }
 }
 
 
-.logos {
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  width: 50px;
-  height: 50px;
-}
-
-.logoMargin {
-  margin-left: 10px;
-}
-
-.navLinks {
-  display: flex;
-  gap: 160px;
-  margin-right: 200px;
-}
-
-.navLink {
-  color: white;
-  text-decoration: none;
-  font-size: 21px;
-}
 
 .logout {
   color: white;
@@ -115,97 +78,115 @@
 
 /* Dashboard grid layout */
 .dashboardContent {
-  padding: 20px;
-  flex-grow: 1;
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  
 }
 
 /* Grid settings */
 .grid {
+  flex: 1;
   display: grid;
-  grid-template-columns: 50% 25% 25%;
-  grid-template-rows: auto auto;
+  grid-template-columns: 55% 35%;
+  grid-template-rows: 55% 35%;
   gap: 20px;
-  padding: 40px;
-  margin-top: -60px;
+  width: 100vh;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Card Styles */
 .card {
-  position: relative; /* Add this line to position the card */
   background: white;
-  border: 1px solid #ddd;
+  border: 1px solid white;
   border-radius: 8px;
-  padding: 40px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  padding: 10px 20px;
 }
 
 .cardTitle, .cardTitles {
-  font-size: 20px;
-  margin-top: 0;
-  padding-top: 0;
-  position: relative;
-  top: -15px;
+  font-size: var(--h3-font-size);
+
 }
 
 /* Enrolled Students Card */
-.enrolledStudents {
- 
-  background-color: #ffffff; /* Ensure white background */
-  padding: 20px;
-  border: 1px solid #ddd; /* Add subtle border */
-  border-radius: 10px; /* Rounded edges */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+.card.enrolledStudents {
+  background-color: #f8f9fa;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.enrolledStudents h5 {
-  font-size: 18px; /* Slightly smaller title */
-  margin-bottom: 10px; /* Spacing below the title */
+.card.enrolledStudents p {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  margin: 10px 0;
+  padding: 0 10px;
 }
 
-.viewList {
-  margin-top: 15px; /* Spacing below the chart */
-  text-decoration: none;
-  color: #007bff; /* Blue link color */
-  font-size: 14px;
+.card.enrolledStudents strong {
+  font-size: 40px;
+  color: #000000;
 }
 
-.viewList:hover {
+.card.enrolledStudents a.viewList {
+
+}
+
+.card.enrolledStudents a.viewList:hover {
   text-decoration: underline;
 }
 
 /* Regular, Irregular Students and Gender Card */
 .card.regularIrregularGender {
-  grid-column: span 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  p {
+    font-size: var(--small-font-size);
+  }
+
+  h5 {
+    margin-top: 5px;
+  }
 }
 
 /* Announcement Card */
 .card.announcementCard {
-  grid-column: span 1;
   background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .card.announcementCard textarea {
-  width: 100%;
-  height: 120px;
-  border: 1px solid #ddd;
+  height: 150px;
+  border: 2px solid #000;
   border-radius: 10px;
   padding: 10px;
-  font-size: 16px;
+  font-size: var(--small-font-size);
+  overflow-y: auto;
+  resize: none;
+  outline: none;
 }
 
-.card.announcementCard button {
-  margin-top: 10px;
-  padding: 10px 45px;
+.announcementButton {
+  width: 120px;
+  height: 35px;
   background-color: #030507;
   color: white;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
-  float: right;
-  margin-right: 10px;
+  font-size: var(--smaller-font-size);
+  align-self: flex-end;
 }
 
 .card.announcementCard button:hover {
@@ -214,7 +195,6 @@
 
 /* Total Paid IT and CS Cards */
 .card.totalPaid, .card.totalPaidCS {
-  grid-column: span 1;
   background-color: #fff;
 }
 
@@ -230,54 +210,53 @@
 }
 
 .card.totalPaidCS .paidValue {
-  color: #640404;
+  color: #631b09;
 }
 
 /* Gender and Total Paid cards have same size */
 .card.totalPaid, .card.totalPaidCS {
-  width: 90%;
+  width: 48%;
 }
 
 .card.genderCard {
-  width: 95%;
+  width: 100%;
 }
 
 /* Progress Bar */
 .progressBar {
   display: flex;
-  height: 80px;
+  height: 20px;
   background-color: #e9ecef;
   border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 15px;
 }
 
 .progressBarGreen {
   background-color: #28a745;
   text-align: center;
   color: white;
-  font-size: 44px;
+  font-size: 12px;
 }
 
 .progressBarRed {
-  background-color: #8a0505;
+  background-color: #dc3545;
   text-align: center;
   color: white;
-  font-size: 44px;
+  font-size: 12px;
 }
 
 .progressBarBlue {
   background-color: #007bff;
   text-align: center;
   color: white;
-  font-size: 44px;
+  font-size: 12px;
 }
 
 .progressBarPink {
   background-color: #ff85b2;
   text-align: center;
   color: white;
-  font-size: 44px;
+  font-size: 12px;
 }
 
 /* Button and Interaction Styles */
@@ -296,12 +275,10 @@
 }
 
 .viewList {
-  position: absolute; /* Position absolutely within the card */
-  bottom: 20px; /* Space from the bottom */
-  right: 20px; /* Space from the right */
+  display: inline-block;
+  margin-top: 10px;
   text-decoration: none;
-  color: #007bff; /* Blue link color */
-  font-size: 14px;
+  color: #007bff;
 }
 
 .viewList:hover {
@@ -312,33 +289,7 @@ p, h5, span, strong {
   color: black;
 }
 
-.notificationWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  margin-right: 20px;
-  cursor: pointer;
-}
 
-.notificationIcon {
-  font-size: 24px;
-  color: white;
-}
-
-.notificationBadge {
-  position: absolute;
-  top: -5px;
-  right: -10px;
-  background-color: red;
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 50%;
-  padding: 2px 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 /* General Reset for Responsive Layout */
 * {
@@ -374,40 +325,6 @@ body {
   font-size: clamp(24px, 5vw, 40px); /* Responsive title font size */
 }
 
-
-
-
-/* .logos {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.logo {
-  width: 50px;
-  height: 50px;
-}
-
-.navLinks {
-  display: flex;
-  gap: 160px;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-}
-
-.navLink {
-  color: white;
-  text-decoration: none;
-  font-size: 21px;
-}
-
-.navLink:hover {
-  text-decoration: underline;
-}
-
-.logout {
-  color: rgb(255, 255, 255);
-} */
 
 /* General Reset for Responsive Layout */
 * {
@@ -446,14 +363,6 @@ body {
 /* Header Styling for Medium Screens */
 
 /* Ensuring Responsive Cards */
-.card {
-  transition: transform 0.3s ease;
-}
-
-.card:hover {
-  transform: scale(1.02); /* Hover effect for card */
-}
-
 
 .card.announcementCard button {
   transition: background-color 0.3s ease;
@@ -497,6 +406,137 @@ p, h5, span, strong {
   text-decoration: underline;
 }
 
+.total_paid {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: space-between;
+}
+
+
+
+/* Dropdown Styling */
+
+.bell_button{
+  position: relative;
+  cursor: pointer;
+}
+
+.dropdown_menu {
+  position: absolute;
+  top: 100%; /* Para palaging sa taas ng header nag-a-appear */
+  right: 0; /* Align to the right side */
+  background-color: #DDDDDD;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  z-index: 1000; /* Para ma-ensure na clickable */
+  width: 100%;
+  width: 325px; /* Adjust width as needed */
+  border-radius: 8px;
+  padding: 20px;
+  height: 300px; /* Set maximum height */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+}
+
+.notification {
+  width: 100%;
+  padding: 2px;
+  border-radius: 8px;
+}
+
+
+.notification:hover {
+
+}
+
+.notification_subject {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  
+  p:first-child {
+    font-size: var(--small-font-size);
+    font-weight: var(--font-semi-bold);
+  }
+
+  p:last-child{
+    font-size: var(--tiny-font-size);
+  }
+}
+
+.notification_message {
+  p:first-child{
+    font-size: var(--tiny-font-size);
+  }
+}
+
+.notification_mark {
+  position: absolute;
+  background-color: #C00202;
+  padding: 1px 5px;
+  color: white;
+  font-size: .475rem;
+  font-weight: bold;
+  border-radius: 50%;
+  top: 0;
+  right: 0;
+}
+
+.activeNavLink {
+  color: blue;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .notificationWrapper {
   position: relative;
   display: flex;
@@ -526,13 +566,23 @@ p, h5, span, strong {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 .pieChartContainer {
   display: flex;
   align-items: center; /* Vertically center-align chart and legend */
-  justify-content: space-between; /* Create spacing between legend and chart */
-  width: 100%;
-  max-width: 500px; /* Adjust to fit your card layout */
-  margin: 0 auto; /* Center horizontally */
+  justify-content: center; /* Create spacing between legend and chart */
+  width: 100%; /* Adjust to fit your card layout */
 }
 
 .chartLegend {
@@ -541,11 +591,18 @@ p, h5, span, strong {
 }
 
 .chartCanvas {
-  max-width: 500px; /* Increase width */
-  max-height: 500px; /* Increase height */
-  width: 100%; /* Allow responsive scaling */
-  height: 600px; /* Maintain aspect ratio */
- 
+  width: 200px;
 }
+
+
+
+
+
+
+
+
+
+
+
 
 

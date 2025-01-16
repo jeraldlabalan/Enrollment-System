@@ -3,9 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "../Login/Login.module.css";
-import "../../App.css";
+import show from "../../assets/show-password.png";
+import hide from "../../assets/hide-password.png";
 
 const Login = () => {
+
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  }
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -97,6 +105,7 @@ const Login = () => {
               type="text"
               name="email"
               id="email"
+              placeholder="example@gmail.com"
               className={styles.input}
               value={formData.email}
               onChange={handleChange}
@@ -106,15 +115,21 @@ const Login = () => {
           </div>
           <div className={styles.form_field_login}>
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              className={styles.input}
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
+            <div className={styles.password_field}>
+              <input
+                type={passwordVisible ? 'text' : 'password'}
+                name="password"
+                id="password"
+                value={formData.password}
+                onChange={handleChange}
+                className={styles.password}
+                required
+              />
+              <img src={passwordVisible ? show : hide}
+               onClick={togglePasswordVisibility}
+
+               alt="hide password" />
+            </div>
           </div>
           <div className={styles.text_end}>
             <Link to="/EmailVerification">Forgot password?</Link>

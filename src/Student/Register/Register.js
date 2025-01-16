@@ -4,10 +4,10 @@ import styles from "../Register/Register.module.css";
 import "../../App.css";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal"; // Importing Modal library
-
+import show from "../../assets/show-password.png";
+import hide from "../../assets/hide-password.png";
 
 Modal.setAppElement("#root"); // For accessibility reasons
-
 
 const OTPInput = ({ length = 6, onVerify }) => {
   const [otp, setOtp] = useState(Array(length).fill(""));
@@ -65,6 +65,11 @@ export default function Register() {
     confirmPassword: "",
   });
 
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
   const [errors, setErrors] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
@@ -115,26 +120,30 @@ export default function Register() {
 
   const handleVerify = async (enteredOtp) => {
     try {
-        const response = await fetch("http://localhost:5000/verify-otp", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: formData.email, password: formData.password, otp: enteredOtp }),
-        });
+      const response = await fetch("http://localhost:5000/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          otp: enteredOtp,
+        }),
+      });
 
-        const result = await response.json();
-        console.log("Verification Response:", result);
+      const result = await response.json();
+      console.log("Verification Response:", result);
 
-        if (response.ok && result.success) {
-            setIsVerified(true); // Update the UI to show success
-            setTimeout(() => navigate("/login"), 2000); // Redirect to login
-        } else {
-            setErrors({ otp: result.message || "Verification failed." });
-        }
+      if (response.ok && result.success) {
+        setIsVerified(true); // Update the UI to show success
+        setTimeout(() => navigate("/login"), 2000); // Redirect to login
+      } else {
+        setErrors({ otp: result.message || "Verification failed." });
+      }
     } catch (error) {
-        console.error("Verification Error:", error);
-        setErrors({ otp: "Error verifying OTP. Please try again later." });
+      console.error("Verification Error:", error);
+      setErrors({ otp: "Error verifying OTP. Please try again later." });
     }
-};
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -191,7 +200,7 @@ export default function Register() {
       setIsModalOpen(true);
       return;
     }
-  
+
     try {
       // Send OTP to the email
       const response = await fetch("http://localhost:5000/send-otp", {
@@ -199,13 +208,15 @@ export default function Register() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email }),
       });
-  
+
       const result = await response.json();
       if (response.ok) {
         setIsOtpSent(true); // Mark OTP as sent
         setCurrentStep((prev) => prev + 1); // Proceed to the next step
       } else {
-        setErrors({ email: result.message || "Failed to send OTP. Please try again." });
+        setErrors({
+          email: result.message || "Failed to send OTP. Please try again.",
+        });
       }
     } catch (error) {
       console.error("Error sending OTP:", error);
@@ -253,15 +264,25 @@ export default function Register() {
 
               <div className={`${styles.form_row}`}>
                 <div className={`${styles.form_field} ${styles.solo_row}`}>
-                  <label htmlFor="password">Password</label>
-                  <input
-                    type="password"
-                    name="password"
-                    id="password"
-                    className={styles.input}
-                    value={formData.password}
-                    onChange={handleChange}
-                  />
+                  <div className={styles.form_field_login}>
+                    <label htmlFor="password">Password</label>
+                    <div className={styles.password_field}>
+                      <input
+                        type={passwordVisible ? "text" : "password"}
+                        name="password"
+                        id="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className={styles.password}
+                        required
+                      />
+                      <img
+                        src={passwordVisible ? show : hide}
+                        onClick={togglePasswordVisibility}
+                        alt="hide password"
+                      />
+                    </div>
+                  </div>
                   {errors.email && (
                     <p className={styles.error}>{errors.email}</p>
                   )}
@@ -271,14 +292,22 @@ export default function Register() {
               <div className={`${styles.form_row}`}>
                 <div className={`${styles.form_field} ${styles.solo_row}`}>
                   <label htmlFor="confirmPassword">Confirm Password</label>
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    id="confirmPassword"
-                    className={styles.input}
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                  />
+                  <div className={styles.password_field}>
+                      <input
+                        type={passwordVisible ? "text" : "password"}
+                        name="confirmPassword"
+                        id="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        className={styles.password}
+                        required
+                      />
+                      <img
+                        src={passwordVisible ? show : hide}
+                        onClick={togglePasswordVisibility}
+                        alt="hide password"
+                      />
+                    </div>
                   {errors.email && (
                     <p className={styles.error}>{errors.email}</p>
                   )}
@@ -295,9 +324,9 @@ export default function Register() {
               </div>
               <div className={styles.register_text_center}>
                 <p>
-                <Link to="/login">
-                  Already have an account? <span>Login</span>
-                </Link>
+                  <Link to="/login">
+                    Already have an account? <span>Login</span>
+                  </Link>
                 </p>
               </div>
             </div>
@@ -307,9 +336,7 @@ export default function Register() {
             <div className={styles.content}>
               {!isVerified ? (
                 <div className={styles.content_wrapper}>
-                  <h1 className={styles.content_h1}>
-                    Verify email address
-                  </h1>
+                  <h1 className={styles.content_h1}>Verify email address</h1>
                   <p className={styles.content_p}>
                     We have sent a verification code to {formData.email}. Please
                     check your inbox and insert the code in the fields below to

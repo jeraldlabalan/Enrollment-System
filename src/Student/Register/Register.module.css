@@ -7,7 +7,7 @@
 }
 
 .register_wrapper {
-    width: auto;
+    width: 500px;
     height: auto;
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 15px;
@@ -121,6 +121,40 @@
   border-radius: 8px;
   height: 35px;
   font-size: var(--normal-font-size);
+}
+
+.password_field {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 35px;
+  border: 2px solid #000;
+  overflow: hidden;
+  border-radius: 8px;
+  padding: 0 5px;
+  gap: 10px;
+  background-color: white;
+
+  .password {
+    font-size: var(--small-font-size);
+    border-radius: 8px;
+    height: 100%;
+    color: var(--title-color);
+    border: none;
+    outline: none;
+    flex: 1;
+  }
+
+  input[type="password"]:focus {
+    border-color: white;
+  }
+
+  img {
+    width: 20px;
+    background-color: transparent !important;
+    cursor: pointer;
+  }
 }
 
 

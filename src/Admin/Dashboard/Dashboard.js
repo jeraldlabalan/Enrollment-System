@@ -6,8 +6,9 @@ import styles from "./Dashboard.module.css";
 
 const Dashboard = () => {
   // Session context and navigation
-  const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
+  const { user, isLoading: sessionLoading, logout,  } = useContext(SessionContext);
   const navigate = useNavigate();
+  
 
   // State variables for enrolled counts, gender and student type counts, etc.
   const [enrolledCount, setEnrolledCount] = useState(null);
@@ -20,8 +21,30 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Redirect to login if session is not valid
+
+  const fetchProtectedEndpoint = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/protected-endpoint", {
+        method: "GET",
+        credentials: "include", // Include cookies/session
+      });
+  
+      if (!response.ok) {
+        throw new Error("Unauthorized or session expired");
+      }
+  
+      const data = await response.json();
+      console.log("Protected data:", data);
+    } catch (error) {
+      console.error("Error fetching protected endpoint:", error.message);
+    }
+  };
+  
+  // Call the function
+  fetchProtectedEndpoint();
+
   useEffect(() => {
+    console.log("User state:", user);
     if (!sessionLoading && !user) {
       navigate("/login", { replace: true });
     }

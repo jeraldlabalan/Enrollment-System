@@ -1,8 +1,34 @@
-import React from "react";
+import React, { useContext } from "react"; // Import useContext
+import { Link, useNavigate } from "react-router-dom";
+import { SessionContext } from '../../contexts/SessionContext';
 import styles from "./Header.module.css";
-import { Link } from "react-router-dom";
 
-function Header() {
+
+const Header = () => {
+   const navigate = useNavigate(); // Hook for navigation
+      const { setUser } = useContext(SessionContext); // Access setUser from context
+  
+      const handleLogout = async () => {
+        try {
+          const response = await fetch("http://localhost:5000/logout", {
+            method: "POST",
+            credentials: "include", // Include cookies
+          });
+    
+          if (response.ok) {
+            // Clear user session context
+            setUser(null); // Update session context to null (logged out)
+            // Redirect to login page
+            navigate("/login");
+          } else {
+            console.error("Logout failed with status:", response.status);
+          }
+        } catch (error) {
+          console.error("Error during logout:", error);
+        }
+      };
+
+
   return (
     <div className={styles.header}>
       <div className={styles.logos}>
@@ -33,7 +59,7 @@ function Header() {
         </Link>
         <Link to="/login">
           
-          <a className={styles.navLink}>Log Out</a>
+          <a className={styles.navLink} onClick={handleLogout}>Log Out</a>
         </Link>
         <Link to="">
           <a className={styles.navLink}>

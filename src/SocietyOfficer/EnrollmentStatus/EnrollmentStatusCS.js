@@ -8,54 +8,70 @@ import ReceiptPrint from "./ReceiptPrint";
 const EnrollmentStatusCS = () => {
   const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [students, setStudents] = useState([]); // Add this line
-
-  const [searchQuery, setSearchQuery] = useState(""); // For search input
-  const [sortCriteria, setSortCriteria] = useState("id"); // Default sorting criteria
-  const [filterType, setFilterType] = useState(""); // For student type filter
-  const [filterYear, setFilterYear] = useState(""); // For year standing filter
-  const [showModal, setShowModal] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortCriteria, setSortCriteria] = useState("id");
+  const [filterType, setFilterType] = useState("");
+  const [filterYear, setFilterYear] = useState("");
+  const [filterProgram, setFilterProgram] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
-  const [filterProgram, setFilterProgram] = useState(""); // For program filter
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-      const fetchStudents = async () => {
-        try {
-          const response = await fetch("http://localhost:5000/api/enrollmentstatus");
-          const data = await response.json();
-          console.log("Fetched Students Data:", data);
-          setStudents(data);
-        } catch (error) {
-          console.error("Error fetching students:", error);
-        }
-      };
-      fetchStudents();
-    }, []);
+    // Redirect to login if user is not authenticated
+    if (!sessionLoading && !user) {
+      navigate("/login", { replace: true });
+    }
+  }, [sessionLoading, user, navigate]);
 
-    const filteredAndSortedStudents = students
-    .filter((student) => {
-      const query = searchQuery.toLowerCase();
-      const matchesSearch =
-        (student.id && student.id.toString().toLowerCase().includes(query)) ||
-        (student.last_name && student.last_name.toLowerCase().includes(query)) ||
-        (student.first_name && student.first_name.toLowerCase().includes(query));
-  
-      console.log("Search Match:", matchesSearch, student);
-  
-      const matchesType = filterType ? student.student_type === filterType : true;
-      console.log("Type Match:", matchesType, student);
-  
-      const matchesYear = filterYear
-        ? student.year_level === filterYear
-        : true;
-      console.log("Year Match:", matchesYear, student);
-  
-  
-      return matchesSearch && matchesType && matchesYear;
-    });
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/enrollmentstatus", {
+          method: "GET",
+          credentials: "include", // Include cookies/session
+        });
+        if (!response.ok) {
+          throw new Error("Unauthorized or session expired");
+        }
+        const data = await response.json();
+        console.log("Fetched Students Data:", data);
+        setStudents(data);
+      } catch (error) {
+        console.error("Error fetching students:", error.message);
+        // Optionally, redirect to login if session expires
+        if (error.message === "Unauthorized or session expired") {
+          navigate("/login", { replace: true });
+        }
+      }
+    };
+
+    fetchStudents();
+  }, [navigate]);
+
+  const handleLogout = () => {
+    logout(); // Clear session and redirect to login
+    navigate("/login", { replace: true });
+  };
+
+  const filteredAndSortedStudents = students.filter((student) => {
+    const query = searchQuery.toLowerCase();
+    const matchesSearch =
+      (student.id && student.id.toString().toLowerCase().includes(query)) ||
+      (student.last_name && student.last_name.toLowerCase().includes(query)) ||
+      (student.first_name && student.first_name.toLowerCase().includes(query));
+
+    const matchesType = filterType ? student.student_type === filterType : true;
+    const matchesYear = filterYear ? student.year_level === filterYear : true;
+    const matchesProgram = filterProgram
+      ? student.program === filterProgram
+      : true;
+
+    return matchesSearch && matchesType && matchesYear && matchesProgram;
+  });
 
   const handleFilterProgramChange = (e) => {
     setFilterProgram(e.target.value);
@@ -79,7 +95,6 @@ const EnrollmentStatusCS = () => {
 
   const handleViewChecklist = (student) => {
     setSelectedStudent(student);
-    setShowModal(true);
   };
 
   const handleRejectClick = (student) => {
@@ -89,7 +104,7 @@ const EnrollmentStatusCS = () => {
 
   const closeRejectModal = () => {
     setShowRejectModal(false);
-    setRejectReason(""); // Clear textarea when modal closes
+    setRejectReason("");
   };
 
   const handleRejectSubmit = () => {
@@ -106,9 +121,6 @@ const EnrollmentStatusCS = () => {
   const handlePrintClose = () => {
     setSelectedStudent(null);
   };
-
-
-  
 
   return (
     <div className={styles.container}>

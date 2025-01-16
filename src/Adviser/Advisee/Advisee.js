@@ -91,18 +91,45 @@ const Advisee = () => {
   const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [students, setStudents] = useState([]); // Add this line
+  const [students, setStudents] = useState([]);
 
-  const [searchQuery, setSearchQuery] = useState(""); // For search input
-  const [sortCriteria, setSortCriteria] = useState("id"); // Default sorting criteria
-  const [filterType, setFilterType] = useState(""); // For student type filter
-  const [filterYear, setFilterYear] = useState(""); // For year standing filter
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortCriteria, setSortCriteria] = useState("id");
+  const [filterType, setFilterType] = useState("");
+  const [filterYear, setFilterYear] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showBondPaperModal, setShowBondPaperModal] = useState(false);
   const printContentRef = useRef(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnrollmentModalOpen, setIsEnrollmentModalOpen] = useState(false);
+
+  const fetchProtectedEndpoint = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/protected-endpoint", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Unauthorized or session expired");
+      }
+
+      const data = await response.json();
+      console.log("Protected data:", data);
+    } catch (error) {
+      console.error("Error fetching protected endpoint:", error.message);
+    }
+  };
+
+  fetchProtectedEndpoint();
+
+  useEffect(() => {
+    console.log("User state:", user);
+    if (!sessionLoading && !user) {
+      navigate("/login", { replace: true });
+    }
+  }, [sessionLoading, user, navigate]);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -130,7 +157,6 @@ const Advisee = () => {
 
   const handleEditSubjectSubmit = (payload) => {
     console.log("Submitted payload:", payload);
-    // Add logic to update subjects in your database or state
   };
 
   const handlePrint = () => {
@@ -155,11 +181,10 @@ const Advisee = () => {
               img {
               display: block;
               margin: 0 auto;
-              width: 80px; /* Adjust size */
+              width: 80px;
               height: auto;
               margin-bottom: -15px;
               }
-              
               h5 {
                 font-size: 20px;
                 margin-bottom: 5px;
@@ -168,7 +193,6 @@ const Advisee = () => {
                 margin-left: 380px;
                 text-align: center;
               }
-
               p3 {
                 margin-left: 350px;
                 text-align: center;
@@ -186,9 +210,9 @@ const Advisee = () => {
               th {
                 background-color: #f2f2f2;
               }
-                button{
+              button{
                 display: none;
-                }
+              }
             </style>
           </head>
           <body>
@@ -197,7 +221,6 @@ const Advisee = () => {
         </html>
       `);
 
-      // Ensure content is loaded before printing
       printWindow.document.close();
       printWindow.onload = () => {
         printWindow.print();
@@ -206,7 +229,7 @@ const Advisee = () => {
     }
   };
 
-  const [enrollmentDate, setEnrollmentDate] = useState(""); // State for enrollment date
+  const [enrollmentDate, setEnrollmentDate] = useState("");
   const filteredAndSortedStudents = students
     .filter((student) => {
       const query = searchQuery.toLowerCase();
@@ -214,18 +237,17 @@ const Advisee = () => {
         (student.id && student.id.toString().toLowerCase().includes(query)) ||
         (student.last_name && student.last_name.toLowerCase().includes(query)) ||
         (student.first_name && student.first_name.toLowerCase().includes(query));
-  
+
       console.log("Search Match:", matchesSearch, student);
-  
+
       const matchesType = filterType ? student.student_type === filterType : true;
       console.log("Type Match:", matchesType, student);
-  
+
       const matchesYear = filterYear
         ? student.year_level === filterYear
         : true;
       console.log("Year Match:", matchesYear, student);
-  
-  
+
       return matchesSearch && matchesType && matchesYear;
     });
 
@@ -262,7 +284,6 @@ const Advisee = () => {
   };
   const handleEnrollmentDateSubmit = () => {
     console.log(`Enrollment date for ${selectedStudent.id}: ${enrollmentDate}`);
-    // You can add further logic to update the student's record here
     handleModalClose();
   };
 
@@ -273,6 +294,7 @@ const Advisee = () => {
   const handleCloseBondPaperModal = () => {
     setShowBondPaperModal(false);
   };
+
 
   return (
     <div className={styles.container}>

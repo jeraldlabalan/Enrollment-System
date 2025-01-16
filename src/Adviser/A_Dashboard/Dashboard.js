@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { SessionContext } from "../../contexts/SessionContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Pie } from "react-chartjs-2";
 import {
@@ -13,6 +14,14 @@ import styles from "./Dashboard.module.css";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard = () => {
+  const { user, isLoading: sessionLoading, setUser } = useContext(SessionContext);
+  const navigate = useNavigate();
+
+  // State for enrollment data
+  const [enrollmentData, setEnrollmentData] = useState({ cs: 0, it: 0 });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const pieData = {
     labels: ["CS", "IT"],
     datasets: [
@@ -59,7 +68,62 @@ const Dashboard = () => {
       },
     },
   };
-  
+
+
+  // Fetch enrollment data
+  const fetchEnrollmentData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("http://localhost:5000/enrolled-count", {
+        method: "GET",
+        credentials: "include", // Include cookies/session
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch enrollment data");
+      }
+
+      const data = await response.json();
+      setEnrollmentData({ cs: data.enrolledComSci, it: data.enrolledIT });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch protected endpoint to validate session
+  const fetchProtectedEndpoint = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/protected-endpoint", {
+        method: "GET",
+        credentials: "include", // Include cookies/session
+      });
+
+      if (!response.ok) {
+        throw new Error("Unauthorized or session expired");
+      }
+
+      const data = await response.json();
+      console.log("Protected data:", data);
+    } catch (error) {
+      console.error("Error fetching protected endpoint:", error.message);
+    }
+  };
+
+  // Redirect if session is invalid
+  useEffect(() => {
+    if (!sessionLoading && !user) {
+      navigate("/login", { replace: true });
+    }
+  }, [sessionLoading, user, navigate]);
+
+  // Fetch data on initial render
+  useEffect(() => {
+    fetchProtectedEndpoint();
+    fetchEnrollmentData();
+  }, []);
 
   return (
     <div className={styles.container}>

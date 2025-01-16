@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { SessionContext } from "../../contexts/SessionContext";
 import { checkSession, logout } from "../../utils/session";
 import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./Profile.module.css";
@@ -7,70 +8,88 @@ import axios from 'axios';
 const Profile = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, isLoading: sessionLoading } = useContext(SessionContext);
   const userId = location.state?.userId;
   const [profile, setProfile] = useState({});
-
 
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("personal"); // Default active tab
   const [profileImage, setProfileImage] = useState(null); // State to store uploaded image
   const [isNextDisabled, setIsNextDisabled] = useState(true);
+  const [error, setError] = useState(null);
 
-  
-    useEffect(() => {
-      const fetchProfile = async () => {
-        try {
-          const response = await axios.get(`/profile/${userId}`);
-          setProfile(response.data);
-        } catch (error) {
-          console.error("Error fetching profile:", error);
-        }
-      };
-  
-      fetchProfile();
-    }, [userId]);
-  
-    const handleImageChange = async (e) => {
-      const file = e.target.files[0];
-      const formData = new FormData();
-      formData.append('profilePicture', file);
-  
-      try {
-        const response = await axios.post(`/upload-profile-picture/${userId}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-        setProfile({ ...profile, profile_picture: response.data.profilePicture });
-      } catch (error) {
-        console.error("Error uploading profile picture:", error);
+  useEffect(() => {
+    const initialize = async () => {
+      if (!sessionLoading && !user) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      if (userId) {
+        await fetchProfile();
+      } else {
+        console.error("Missing userId.");
+        setError("Invalid userId.");
+        navigate("/login", { replace: true });
       }
     };
-  
-    const handleProfileUpdate = async (e) => {
-      e.preventDefault();
+
+    const fetchProfile = async () => {
       try {
-        await axios.put(`/profile/${userId}`, profile);
-        alert("Profile updated successfully.");
+        const response = await axios.get(`/profile/${userId}`);
+        setProfile(response.data);
       } catch (error) {
-        console.error("Error updating profile:", error);
-        alert("Failed to update profile.");
+        console.error("Error fetching profile:", error);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
       }
     };
-  
-    const handleEducationChange = (index, field, value) => {
-      const updatedEducation = [...profile.education];
-      updatedEducation[index][field] = value;
-      setProfile({ ...profile, education: updatedEducation });
-    };
-  
-    const handleFamilyChange = (index, field, value) => {
-      const updatedFamily = [...profile.family];
-      updatedFamily[index][field] = value;
-      setProfile({ ...profile, family: updatedFamily });
-    };
-  // Render content based on the active tab
-const renderTabContent = () => {
+
+    initialize();
+  }, [sessionLoading, user, userId, navigate]);
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append("profilePicture", file);
+
+    try {
+      const response = await axios.post(`/upload-profile-picture/${userId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      setProfile({ ...profile, profile_picture: response.data.profilePicture });
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+    }
+  };
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`/profile/${userId}`, profile);
+      alert("Profile updated successfully.");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile.");
+    }
+  };
+
+  const handleEducationChange = (index, field, value) => {
+    const updatedEducation = [...profile.education];
+    updatedEducation[index][field] = value;
+    setProfile({ ...profile, education: updatedEducation });
+  };
+
+  const handleFamilyChange = (index, field, value) => {
+    const updatedFamily = [...profile.family];
+    updatedFamily[index][field] = value;
+    setProfile({ ...profile, family: updatedFamily });
+  };
+
+  const renderTabContent = () => {
     switch (activeTab) {
       case "personal":
         return <PersonalDetails />;
@@ -85,9 +104,13 @@ const renderTabContent = () => {
     }
   };
 
-  // if (isLoading) {
-  //   return <div>Loading...</div>; // Show a loading indicator while checking session
-  // }
+  if (isLoading || sessionLoading) {
+    return <div>Loading...</div>; // Show a loading indicator while checking session
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>; // Show error message
+  }
 
   return (
     <div className={styles.profile_wrapper}>

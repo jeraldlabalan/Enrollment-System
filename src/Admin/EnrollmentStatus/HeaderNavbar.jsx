@@ -1,34 +1,33 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { SessionContext } from './context/SessionContext'; // Import SessionContext
 import { toast } from "react-toastify"; // Ensure toast notifications are set up
 
 const HeaderNavbar = () => {
   const navigate = useNavigate(); // Hook for navigation
+  const { setUser } = useContext(SessionContext); // Access setUser from context
 
-  const logout = async () => {
+  const handleLogout = async () => {
     try {
       const response = await fetch("http://localhost:5000/logout", {
         method: "POST",
-        credentials: "include", // Include cookies/session
+        credentials: "include", // Include cookies
       });
 
       if (response.ok) {
-        toast.success("Logout successful!");
-        navigate("/login", { replace: true }); // Redirect to login and replace history
+        // Clear user session context
+        setUser(null); // Update session context to null (logged out)
+        // Redirect to login page
+        navigate("/login");
       } else {
-        const result = await response.json();
-        throw new Error(result.message || "Logout failed.");
+        console.error("Logout failed with status:", response.status);
       }
     } catch (error) {
-      console.error("Error during logout:", error.message);
-      toast.error(error.message || "Failed to connect to server.");
+      console.error("Error during logout:", error);
     }
   };
 
-  const handleLogout = () => {
-    logout(); // Call the logout function
-  };
 
   return (
     <AppBar position="fixed" sx={{ backgroundColor: "#333" }}>
@@ -50,7 +49,7 @@ const HeaderNavbar = () => {
           <Button color="inherit">Schedules</Button>
           <Button color="inherit">Enrollment</Button>
           <Button color="inherit" onClick={handleLogout}>
-            Log Out
+            Lf
           </Button>
         </Box>
       </Toolbar>

@@ -5,59 +5,65 @@ import styles from "./Schedule.module.css" // Ensure this file exists
 import HeaderCS from "../Header/HeaderCS";
 
 const ScheduleCS = () => {
-  
-
   const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
   const navigate = useNavigate();
+  const [students, setStudents] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortCriteria, setSortCriteria] = useState("id");
+  const [filterType, setFilterType] = useState("");
+  const [filterYear, setFilterYear] = useState("");
+  const [filterAdvisingDate, setAdvisingDate] = useState("");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [students, setStudents] = useState([]); // Add this line
-  const [searchQuery, setSearchQuery] = useState(""); // For search input
-  const [sortCriteria, setSortCriteria] = useState("id"); // Default sorting criteria
-  const [filterType, setFilterType] = useState(""); // For student type filter
-  const [filterYear, setFilterYear] = useState(""); // For year standing filter
   const [showModal, setShowModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
-  const [filterAdvisingDate, setAdvisingDate] = useState(""); // For program filter
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toISOString().split("T")[0]; // Extracts only the date part
-  };
+  useEffect(() => {
+    // Redirect to login if user is not authenticated
+    if (!sessionLoading && !user) {
+      navigate("/login", { replace: true });
+    }
+  }, [sessionLoading, user, navigate]);
 
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/schedule");
+        const response = await fetch("http://localhost:5000/api/schedule", {
+          method: "GET",
+          credentials: "include", // Include cookies/session
+        });
+        if (!response.ok) {
+          throw new Error("Unauthorized or session expired");
+        }
         const data = await response.json();
-        console.log("Fetched Students Data:", data);
         setStudents(data);
       } catch (error) {
-        console.error("Error fetching students:", error);
+        console.error("Error fetching students:", error.message);
+        // Optionally, redirect to login if session expires
+        if (error.message === "Unauthorized or session expired") {
+          navigate("/login", { replace: true });
+        }
       }
     };
-    fetchStudents();
-  }, []);
 
-  const filteredAndSortedStudents = students
-  .filter((student) => {
+    fetchStudents();
+  }, [navigate]);
+
+  const handleLogout = () => {
+    logout(); // Clear session and redirect to login
+    navigate("/login", { replace: true });
+  };
+
+  const filteredAndSortedStudents = students.filter((student) => {
     const query = searchQuery.toLowerCase();
     const matchesSearch =
       (student.id && student.id.toString().toLowerCase().includes(query)) ||
       (student.last_name && student.last_name.toLowerCase().includes(query)) ||
       (student.first_name && student.first_name.toLowerCase().includes(query));
-
-    console.log("Search Match:", matchesSearch, student);
-
     const matchesType = filterType ? student.student_type === filterType : true;
-    console.log("Type Match:", matchesType, student);
-
-    const matchesYear = filterYear
-      ? student.year_level === filterYear
-      : true;
-    console.log("Year Match:", matchesYear, student);
-
+    const matchesYear = filterYear ? student.year_level === filterYear : true;
 
     return matchesSearch && matchesType && matchesYear;
   });
@@ -103,6 +109,8 @@ const ScheduleCS = () => {
     );
     closeRejectModal();
   };
+
+  
 
   return (
     <div className={styles.container}>

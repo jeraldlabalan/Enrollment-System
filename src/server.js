@@ -13,6 +13,7 @@ const sessionStore = require('../src/sessionStore.js'); // Adjust the path as ne
 
 app.use(bodyParser.json());
 
+
 // Middleware
 app.use(
   cors({
@@ -27,17 +28,20 @@ const sessionSecret = process.env.SESSION_SECRET;
 
 
 // Set up session
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  store: sessionStore,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24, // 1 day
-    secure: false, // Set to true if using HTTPS
-    httpOnly: true
-  }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "default_secret_key", // Use environment variable for security
+    store: sessionStore,       // Use the Sequelize session store
+    resave: false,             // Avoid unnecessary session saving
+    saveUninitialized: false,  // Do not save empty sessions
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      httpOnly: true,                 // Prevent client-side access to cookies
+      secure: false,                  // Set to true if using HTTPS
+    },
+  })
+);
+
 
 // Database connection
 const db = mysql.createPool({
@@ -60,7 +64,36 @@ const db = mysql.createPool({
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Session store is working!");
+  if (req.session.views) {
+    req.session.views++;
+    res.send(`Number of views: ${req.session.views}`);
+  } else {
+    req.session.views = 1;
+    res.send("Welcome! Refresh to count views.");
+  }
+});
+
+app.get("/session", (req, res) => {
+  if (req.session && req.session.user) {
+    // Return session data if the user is authenticated
+    res.status(200).json({ user: req.session.user });
+  } else {
+    // Return an error if no session exists
+    res.status(401).json({ message: "Unauthorized. No active session." });
+  }
+});
+
+app.use((req, res, next) => {
+  console.log("Session Data:", req.session);
+  next();
+});
+
+app.get("/protected-endpoint", (req, res) => {
+  if (req.session.user) {
+    res.status(200).json({ message: "Session is valid.", user: req.session.user });
+  } else {
+    res.status(401).json({ message: "Unauthorized." });
+  }
 });
 
 
@@ -544,6 +577,22 @@ app.post("/login", async (req, res) => {
   }
 }); 
 
+app.get("/check-session", async (req, res) => {
+  try {
+    if (req.session.user) {
+      return res.status(200).json({
+        message: "Session is valid",
+        user: req.session.user, // Send user data back
+      });
+    } else {
+      return res.status(401).json({ message: "Session is invalid" });
+    }
+  } catch (error) {
+    console.error("Error checking session:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Endpoint to get user data if authenticated
 app.get("/user/:userId", async (req, res) => {
   const { userId } = req.params;
@@ -565,21 +614,27 @@ app.get("/user/:userId", async (req, res) => {
 });
 
 // Logout endpoint
-app.post("/logout", async (req, res) => {
+app.post('/logout', async (req, res) => {
   try {
-    // Wrap session.destroy in a Promise for async/await
+    // Destroy the session asynchronously
     await new Promise((resolve, reject) => {
       req.session.destroy((err) => {
-        if (err) reject(err);
-        else resolve();
+        if (err) {
+          reject(err); // Reject the promise if there's an error
+        }
+        resolve(); // Resolve the promise if session is destroyed successfully
       });
     });
 
-    res.clearCookie("connect.sid");
-    res.status(200).json({ message: "Logout successful." });
-  } catch (error) {
-    console.error("Error destroying session:", error.message);
-    res.status(500).json({ message: "Failed to log out." });
+    // Clear the session cookie
+    res.clearCookie('connect.sid'); // Clear the session cookie
+
+    // Respond with success message
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (err) {
+    // Handle any errors
+    console.error("Logout error:", err);
+    res.status(500).json({ message: 'Failed to logout' });
   }
 });
 

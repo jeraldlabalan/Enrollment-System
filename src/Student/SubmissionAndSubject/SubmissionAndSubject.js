@@ -1,13 +1,30 @@
-import React, { useState } from "react";
+
 import styles from "./SubmissionAndSubject.module.css";
 import Header from "../Header/Header";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { SessionContext } from "../../contexts/SessionContext";
 
-function SubmissionAndSubject() {
+const SubmissionAndSubject = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout, validateSession, sessionLoading } = useContext(SessionContext);
   const [step, setStep] = useState(1);
   const [subjectRows, setSubjectRows] = useState([
     { id: 1, subject: "", units: "" },
   ]);
-
+  const userId = location.state?.userId;
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  // Validate session on component mount
+  useEffect(() => {
+      console.log("User state:", user);
+      if (!sessionLoading && !user) {
+        navigate("/login", { replace: true });
+      }
+    }, [sessionLoading, user, navigate]);
+    
   const handleNext = () => {
     setStep((prevStep) => prevStep + 1);
   };

@@ -1,4 +1,6 @@
+// src/context/SessionContext.js
 import React, { createContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Create the context
 export const SessionContext = createContext();
@@ -7,6 +9,7 @@ export const SessionContext = createContext();
 export const SessionProvider = ({ children }) => {
   const [user, setUser] = useState(null); // Store session user
   const [isLoading, setIsLoading] = useState(true); // Loading state for session check
+  const navigate = useNavigate(); // Access navigate function for redirection
 
   // Function to check the session on page load
   const fetchSession = async () => {
@@ -36,7 +39,7 @@ export const SessionProvider = ({ children }) => {
   }, []);
 
   return (
-    <SessionContext.Provider value={{ user, setUser, isLoading }}>
+    <SessionContext.Provider value={{ user, setUser, isLoading, navigate }}>
       {children}
     </SessionContext.Provider>
   );

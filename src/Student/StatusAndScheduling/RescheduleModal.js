@@ -1,19 +1,67 @@
-import React, { useState } from 'react';
+
 import { ChevronDown } from 'lucide-react';
 import styles from './StatusAndScheduling.module.css'
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import React, { useState, useContext, useEffect } from "react";
+import { SessionContext } from "../../contexts/SessionContext";
 
 const RescheduleModal = ({ isOpen, onClose }) => {
-  const [selectedDate, setSelectedDate] = useState('September 15');
-  const [reason, setReason] = useState('');
-  const [error, setError] = useState('Selected date is full, please choose another date.');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout, validateSession, sessionLoading } = useContext(SessionContext);
+  const [selectedDate, setSelectedDate] = useState("September 15");
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState("");
+
+  const userId = location.state?.userId;
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+      console.log("User state:", user);
+      if (!sessionLoading && !user) {
+        navigate("/login", { replace: true });
+      }
+    }, [sessionLoading, user, navigate]);
+  
 
   if (!isOpen) return null;
 
   const handleConfirm = () => {
-    // Handle form submission
+    if (!user) {
+      setError("Session expired. Please log in again.");
+      return;
+    }
+
+    if (!selectedDate || !reason.trim()) {
+      setError("Please select a date and provide a reason for rescheduling.");
+      return;
+    }
+
+    if (selectedDate === "September 15") {
+      setError("Selected date is full, please choose another date.");
+      return;
+    }
+
+    setError("");
+    console.log("Reschedule confirmed with date:", selectedDate, "and reason:", reason);
     onClose();
   };
 
+  const handleLogout = () => {
+    logout();
+    onClose();
+  };
+
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
+    setError("");
+  };
+
+  const handleReasonChange = (e) => {
+    setReason(e.target.value);
+    setError("");
+  };
   return (
     <div className={styles.modal_overlay}>
       <div className={styles.modal_content}>

@@ -10,7 +10,7 @@ import Dashboard from "./Admin/Dashboard/Dashboard";
 import Home from "./Student/Home/Home";
 import Enrollees from "./Admin/Enrollees/Enrollees";
 import { Navigate } from "react-router-dom";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import SuccessRegular from "./Student/SubmissionAndSubject/SuccessRegular";
 import SuccessIrregular from "./Student/SubmissionAndSubject/SuccessIrregular";
 import UploadRegular from  "./Student/SubmissionAndSubject/UploadRegular";
@@ -29,7 +29,7 @@ import AdmissionAndFaqs from "./Student/AdmissionAndFaqs/AdmissionAndFaqs";
 
 function App() {
   return (
-    <Router>
+    
       <Routes>
         <Route path="/" element={<Landingpage />} />
         <Route path="/login" element={<Login />} />
@@ -65,7 +65,7 @@ function App() {
         <Route path="/AdmissionAndFaqs" element={<AdmissionAndFaqs />} />
         <Route path="/schedulecs" element={<ScheduleCS />} />
       </Routes>
-    </Router>
+   
   );
 }
 

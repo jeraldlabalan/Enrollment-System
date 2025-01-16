@@ -1,64 +1,90 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { checkSession, logout } from "../../utils/session";
 import styles from "./Home.module.css";
+import { SessionContext } from "../../contexts/SessionContext";
 import Header from "../Header/Header";
 
 const Home = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const userId = location.state?.userId;
+  const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
 
+  const userId = location.state?.userId;
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const initialize = async () => {
-      const isValidSession = await checkSession(navigate); // Check session validity
-      if (isValidSession && userId) {
-        await fetchUserData(); // Fetch user data if session is valid and userId exists
+      // Check if the session is valid and user is authenticated
+      if (!sessionLoading && !user) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      if (userId) {
+        await fetchUserData(); // Fetch user data if the user is logged in
       } else {
-        console.error("Invalid session or missing userId.");
-        navigate("/login"); // Redirect if session is invalid
+        console.error("Missing userId.");
+        setError("Invalid userId.");
+        navigate("/login", { replace: true });
       }
     };
 
     const fetchUserData = async () => {
       try {
         const response = await fetch(`http://localhost:5000/user/${userId}`, {
-          credentials: "include", // Ensure cookies are included
+          credentials: "include", // Include cookies/session
         });
-    
-        if (response.ok) {
-          const data = await response.json();
-          setUserData(data); // Set the state with the retrieved user data
-        } else {
-          const error = await response.json();
-          console.error("Error:", error.message);
-          throw new Error(error.message || "Failed to fetch user data.");
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to fetch user data.");
         }
-      } catch (error) {
-        console.error("Error fetching user data:", error.message);
-        setUserData(null); // Set state to null in case of error
+
+        const data = await response.json();
+        setUserData(data); // Update state with user data
+      } catch (err) {
+        console.error("Error fetching user data:", err.message);
+        setError(err.message);
       } finally {
         setIsLoading(false); // Stop the loading spinner
       }
     };
 
-    initialize(); // Initialize component state and session check
-  }, [userId, navigate]);
+    initialize(); // Initialize the component state
+  }, [sessionLoading, user, userId, navigate]);
 
-  const handleLogout = () => {
-    logout(navigate); // Log out the user and redirect to login
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/logout", {
+        method: "POST",
+        credentials: "include", // Ensure cookies are included
+      });
+
+      if (response.ok) {
+        logout(); // Clear session context
+        navigate("/login", { replace: true }); // Redirect to login page
+      } else {
+        throw new Error("Failed to log out.");
+      }
+    } catch (err) {
+      console.error("Logout error:", err.message);
+      alert("Error logging out. Please try again.");
+    }
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>; // Show loading screen while fetching user data
+  if (isLoading || sessionLoading) {
+    return <div>Loading...</div>; // Show loading spinner
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>; // Show error message
   }
 
   if (!userData) {
-    return <div>Error loading user data. Please try again.</div>; // Error message if no user data
+    return <div>Error loading user data. Please try again.</div>; // Fallback if no user data
   }
 
   return (

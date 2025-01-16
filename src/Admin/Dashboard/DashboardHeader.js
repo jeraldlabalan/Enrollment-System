@@ -1,14 +1,32 @@
-import React from "react";
+import React, { useContext } from "react"; // Import useContext
 import { Link, useNavigate } from "react-router-dom";
-import { logout } from "../../utils/session"; // Import the logout function
+import { SessionContext } from '../../contexts/SessionContext';
+
 import styles from "./Dashboard.module.css"; // Import custom styles
 
 const DashboardHeader = () => {
-  const navigate = useNavigate();
+    const navigate = useNavigate(); // Hook for navigation
+    const { setUser } = useContext(SessionContext); // Access setUser from context
 
-  const handleLogout = () => {
-    logout(navigate); // Call the logout function and redirect to login
-  };
+    const handleLogout = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/logout", {
+          method: "POST",
+          credentials: "include", // Include cookies
+        });
+  
+        if (response.ok) {
+          // Clear user session context
+          setUser(null); // Update session context to null (logged out)
+          // Redirect to login page
+          navigate("/login");
+        } else {
+          console.error("Logout failed with status:", response.status);
+        }
+      } catch (error) {
+        console.error("Error during logout:", error);
+      }
+    };
 
   return (
     <div className={styles.header}>

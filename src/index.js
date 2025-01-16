@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter as Router } from "react-router-dom"; // Only here in index.js
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -9,9 +10,11 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     {/* Wrap App with SessionProvider */}
-    <SessionProvider>
-      <App />
-    </SessionProvider>
+    <Router>
+      <SessionProvider>
+        <App />
+      </SessionProvider>
+    </Router>
   </React.StrictMode>
 );
 

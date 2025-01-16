@@ -5,11 +5,10 @@ import styles from "./Submission.module.css";
 import Header from "../Header/Header";
 
 const Advisee = () => {
-  const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
+  const { user, isLoading: sessionLoading } = useContext(SessionContext);
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [students, setStudents] = useState([]); // Add this line
 
+  const [students, setStudents] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortCriteria, setSortCriteria] = useState("id");
   const [filterType, setFilterType] = useState("");
@@ -17,25 +16,71 @@ const Advisee = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [showAcceptModal, setShowAcceptModal] = useState(false);  // New state for accept modal
+  const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [rejectTo, setRejectTo] = useState("Both");
   const [acceptTo, setAcceptTo] = useState("Both");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/submission");
-        const data = await response.json();
-        console.log("Fetched Students Data:", data);
-        setStudents(data);
-      } catch (error) {
-        console.error("Error fetching students:", error);
+  // Validate session by fetching a protected endpoint
+  const fetchProtectedEndpoint = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/protected-endpoint", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Unauthorized or session expired");
       }
-    };
+
+      const data = await response.json();
+      console.log("Protected data:", data);
+    } catch (error) {
+      console.error("Error fetching protected endpoint:", error.message);
+      navigate("/login", { replace: true });
+    }
+  };
+
+  // Redirect to login if session is invalid
+  useEffect(() => {
+    if (!sessionLoading && !user) {
+      navigate("/login", { replace: true });
+    }
+  }, [sessionLoading, user, navigate]);
+
+  // Fetch students from the backend
+  const fetchStudents = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("http://localhost:5000/api/submission", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch students data");
+      }
+
+      const data = await response.json();
+      console.log("Fetched Students Data:", data);
+      setStudents(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch data on initial render
+  useEffect(() => {
+    fetchProtectedEndpoint();
     fetchStudents();
   }, []);
 
+  // Filter and sort students based on user input
   const filteredAndSortedStudents = students
     .filter((student) => {
       const query = searchQuery.toLowerCase();
@@ -43,21 +88,19 @@ const Advisee = () => {
         (student.id && student.id.toString().toLowerCase().includes(query)) ||
         (student.last_name && student.last_name.toLowerCase().includes(query)) ||
         (student.first_name && student.first_name.toLowerCase().includes(query));
-  
-      console.log("Search Match:", matchesSearch, student);
-  
+
       const matchesType = filterType ? student.student_type === filterType : true;
-      console.log("Type Match:", matchesType, student);
-  
-      const matchesYear = filterYear
-        ? student.year_level === filterYear
-        : true;
-      console.log("Year Match:", matchesYear, student);
-  
-  
+      const matchesYear = filterYear ? student.year_level === filterYear : true;
+
       return matchesSearch && matchesType && matchesYear;
+    })
+    .sort((a, b) => {
+      if (sortCriteria === "id") return a.id - b.id;
+      if (sortCriteria === "last_name") return a.last_name.localeCompare(b.last_name);
+      return 0;
     });
 
+  // Handlers for various actions
   const handleSearchChange = (e) => setSearchQuery(e.target.value);
   const handleSortChange = (e) => setSortCriteria(e.target.value);
   const handleFilterTypeChange = (e) => setFilterType(e.target.value);
@@ -75,7 +118,7 @@ const Advisee = () => {
 
   const handleAcceptClick = (student) => {
     setSelectedStudent(student);
-    setShowAcceptModal(true);  // Show accept modal
+    setShowAcceptModal(true);
   };
 
   const closeRejectModal = () => {
@@ -85,7 +128,7 @@ const Advisee = () => {
   };
 
   const closeAcceptModal = () => {
-    setShowAcceptModal(false);  // Close the accept modal
+    setShowAcceptModal(false);
     setAcceptTo("Both");
   };
 
@@ -97,11 +140,17 @@ const Advisee = () => {
   };
 
   const handleAcceptSubmit = () => {
-    console.log(
-      `Accepted student ${selectedStudent.id} to ${acceptTo} `
-    );
-    closeAcceptModal();  // Close after accepting
+    console.log(`Accepted student ${selectedStudent.id} to ${acceptTo}`);
+    closeAcceptModal();
   };
+
+  if (isLoading || sessionLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className={styles.container}>

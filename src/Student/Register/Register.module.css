@@ -7,39 +7,58 @@
 }
 
 .register_wrapper {
-    width: 500px;
-    height: auto;
+    width: 400px;
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 15px;
-    padding: 15px 30px;
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
-    margin: 0 auto;
+    padding: 30px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.8);
 }
 
 .logo {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    padding-top: 20px;
 
-    h3 {
-        font-size: var(--normal-font-size);
-        color: var(--title-color);
-    }
-    
-    p {
-        font-size: var(--small-font-size );
-        margin-top: -5px;
-    }
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  gap: 10px;
+  
 }
 
+
+.logo_container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100%;
+  
+}
+
+
 .heading {
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  height: 100%;
+  flex: 1;
+
+  h3 {
+    font-size: var(--small-font-size);
+    color: var(--title-color);
+
+}
+
+  p {
+    font-size: var(--tiny-font-size);
+    margin-top: -5px;
+
+}
 }
 
 
 .register_wrapper h1 {
-    color: var(--title-color);
+    color: var(--title-color-dark);
     margin: 15px 0;
 }
 
@@ -54,22 +73,24 @@
 .responsive_form {
   display: flex;
   flex-direction: column;
-  max-width: 1000px; 
-  margin: 0 auto;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .form_row {
   display: flex;
-  flex-direction: row; 
-  justify-content: space-between;
-  gap: 20px; 
+  flex-direction: column; 
+  gap: 20px;
 }
 
 .form_row .solo_row {
   display: flex;
   flex-direction: column; 
   width: 100%; 
-  position: relative;
 }
 
 .form_row .two_rows {
@@ -85,42 +106,18 @@
   position: relative;
 }
 
-
-.solo_row .radio {
-  display: inline-flex;     
-  align-items: center;      
-  gap: 8px;                 
-  line-height: 1;   
-  margin: 0 10px;
-}
-
-.radio label { 
-  margin: 0 !important;
-  display: inline-block; 
-}
-
-.radio input[type="radio"] {
-  margin: 0;          
-}
-
-.solo_row .radio_container {
-  display: flex;
-  align-items: center;
-  margin-top: 8px;
-}
-
-
 .form_field label {
-  margin-top: 8px;
-  font-size: var(--normal-font-size);
+  font-size: var(--small-font-size);
 }
 
 .form_field input {
-  padding: 8px;
+  padding: 0 5px;
   width: 100%; /* Make the input take up full width */
   border-radius: 8px;
   height: 35px;
-  font-size: var(--normal-font-size);
+  font-size: var(--small-font-size);
+  outline: none;
+  border: 2px solid black;
 }
 
 .password_field {
@@ -161,6 +158,19 @@
 .register_text_center {
   display: flex;
   justify-content: center;
+
+  a {
+    font-size: var(--small-font-size);
+    color: black;
+  }
+
+  span {
+    font-size: var(--small-font-size);
+    font-weight: var(--font-semi-bold);
+  }
+  span:hover {
+    text-decoration: underline;
+  }
 }
 
 .register_wrapper .navigation_button_holder {
@@ -170,14 +180,14 @@
 }
 
 .register_wrapper .register_btn {
-  margin: 20px 3px;
-  width: 130px;
+  width: 120px;
   height: 40px;
   background-color: var(--title-color);
   color: #fff;
-  font-size: var(--normal-font-size);
+  font-size: var(--small-font-size);
   border-radius: 8px;
   border: none;
+  margin-top: 10px;
 }
 .register_wrapper  .register_btn:hover {
   background-color: var(--title-color-dark);
@@ -187,12 +197,6 @@
   display: flex;
 }
 
-.input:focus {
-  border-color: #007bff; /* Border olor when focused */
-  
-  outline: none; /* Remove default browser outline */
-  box-shadow: 0 0 4px rgba(0, 123, 255, 0.6); /* Add a glow effect */
-}
 
 .register_submit_btn {
   margin: 0 10px;

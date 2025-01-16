@@ -1,4 +1,5 @@
 import React from "react";
+import 'react-toastify/dist/ReactToastify.css';
 import Login from "./General/Login/Login";
 import Homepage from "./Homepage";
 import Register from "./Student/Register/Register";

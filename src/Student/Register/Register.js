@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import styles from "../Register/Register.module.css";
+import { toast } from 'react-toastify';
 import "../../App.css";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal"; // Importing Modal library
+import { ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 import show from "../../assets/show-password.png";
 import hide from "../../assets/hide-password.png";
 
-Modal.setAppElement("#root"); // For accessibility reasons
 
 const OTPInput = ({ length = 6, onVerify }) => {
   const [otp, setOtp] = useState(Array(length).fill(""));
@@ -70,6 +72,13 @@ export default function Register() {
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
+
+  const [confirmPasswordVisible, setConfirmPaswordVisible] = useState(false);
+
+  const toggleConfirmPasswordVisibility = () => {
+    setConfirmPaswordVisible(!confirmPasswordVisible);
+  }
+
   const [errors, setErrors] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
@@ -166,38 +175,13 @@ export default function Register() {
     }
   };
 
-  const renderErrorModal = () => {
-    return (
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        contentLabel="Validation Errors"
-        className={styles.modalContent}
-        overlayClassName={styles.modalOverlay}
-      >
-        <div className={styles.top_container}>
-          <h1>Cannot proceed</h1>
-          <button
-            onClick={() => setIsModalOpen(false)}
-            className={styles.closeModalBtn}
-          >
-            <i className="fa-solid fa-xmark"></i>
-          </button>
-        </div>
-        <ul>
-          {Object.keys(errors).map((key) => (
-            <li key={key}>{errors[key]}</li>
-          ))}
-        </ul>
-      </Modal>
-    );
-  };
-
   const handleNextStep = async () => {
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      setIsModalOpen(true);
+      Object.keys(validationErrors).forEach((key) => {
+        toast.error(validationErrors[key]);
+      });
       return;
     }
 
@@ -228,12 +212,14 @@ export default function Register() {
     <div className={styles.register_container}>
       <div className={styles.register_wrapper}>
         <div className={styles.logo}>
-          <Link to="/">
-            <img src="./images/bscslogo.jpg" alt="BSCS Logo" />
-          </Link>
-          <Link to="/">
-            <img src="./images/bsitlogo.jpg" alt="BSIT Logo" />
-          </Link>
+          <div className={styles.logo_container}>
+            <Link to="/">
+              <img src="./images/bscslogo.jpg" alt="BSCS Logo" />
+            </Link>
+            <Link to="/">
+              <img src="./images/bsitlogo.jpg" alt="BSIT Logo" />
+            </Link>
+          </div>
           <div className={styles.heading}>
             <h3>Department of Computer Studies</h3>
             <p>Enrollment System</p>
@@ -244,7 +230,8 @@ export default function Register() {
         <form className={styles.responsive_form} onSubmit={handleSubmit}>
           {/* Second Step: User Account Form */}
           {currentStep === 1 && (
-            <div className={`${styles.form} ${styles.user_account_form}`}>
+            <div className={`${styles.form}`}>
+
               <div className={`${styles.form_row}`}>
                 <div className={`${styles.form_field} ${styles.solo_row}`}>
                   <label htmlFor="email">Email</label>
@@ -252,13 +239,11 @@ export default function Register() {
                     type="email"
                     name="email"
                     id="email"
+                    placeholder="example@gmail.com"
                     className={styles.input}
                     value={formData.email}
                     onChange={handleChange}
                   />
-                  {errors.email && (
-                    <p className={styles.error}>{errors.email}</p>
-                  )}
                 </div>
               </div>
 
@@ -279,13 +264,9 @@ export default function Register() {
                       <img
                         src={passwordVisible ? show : hide}
                         onClick={togglePasswordVisibility}
-                        alt="hide password"
                       />
                     </div>
                   </div>
-                  {errors.email && (
-                    <p className={styles.error}>{errors.email}</p>
-                  )}
                 </div>
               </div>
 
@@ -294,7 +275,7 @@ export default function Register() {
                   <label htmlFor="confirmPassword">Confirm Password</label>
                   <div className={styles.password_field}>
                       <input
-                        type={passwordVisible ? "text" : "password"}
+                        type={confirmPasswordVisible ? "text" : "password"}
                         name="confirmPassword"
                         id="confirmPassword"
                         value={formData.confirmPassword}
@@ -303,16 +284,13 @@ export default function Register() {
                         required
                       />
                       <img
-                        src={passwordVisible ? show : hide}
-                        onClick={togglePasswordVisibility}
-                        alt="hide password"
+                        src={confirmPasswordVisible ? show : hide}
+                        onClick={toggleConfirmPasswordVisibility}
                       />
                     </div>
-                  {errors.email && (
-                    <p className={styles.error}>{errors.email}</p>
-                  )}
                 </div>
               </div>
+
               <div className={styles.navigation_button_holder}>
                 <button
                   className={styles.register_btn}
@@ -322,6 +300,7 @@ export default function Register() {
                   Proceed
                 </button>
               </div>
+
               <div className={styles.register_text_center}>
                 <p>
                   <Link to="/login">
@@ -329,6 +308,7 @@ export default function Register() {
                   </Link>
                 </p>
               </div>
+
             </div>
           )}
 
@@ -360,7 +340,7 @@ export default function Register() {
             </div>
           )}
         </form>
-        {renderErrorModal()}
+        <ToastContainer position="top-center" autoClose={3000} hideProgressBar newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
       </div>
     </div>
   );

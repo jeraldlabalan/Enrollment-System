@@ -33,6 +33,18 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Check for empty email and password fields
+    if (!formData.email) {
+      toast.error("Email is required.");
+      return;
+    }
+
+    if (!formData.password) {
+      toast.error("Password is required.");
+      return;
+    }
+
+
     try {
       const response = await fetch("http://localhost:5000/login", {
         method: "POST",
@@ -45,7 +57,6 @@ const Login = () => {
 
       if (response.ok) {
         const { role, incompleteProfile, user } = result;
-
         if (role === "student") {
           if (incompleteProfile) {
             toast.warning("Incomplete profile. Please complete your profile.");
@@ -86,12 +97,14 @@ const Login = () => {
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
       <div className={styles.wrapper}>
         <div className={styles.logo}>
-          <Link to="/">
-            <img src="./images/bscslogo.jpg" alt="BSCS Logo" />
-          </Link>
-          <Link to="/">
-            <img src="./images/bsitlogo.jpg" alt="BSIT Logo" />
-          </Link>
+        <div className={styles.logo_container}>
+            <Link to="/">
+              <img src="./images/bscslogo.jpg" alt="BSCS Logo" />
+            </Link>
+            <Link to="/">
+              <img src="./images/bsitlogo.jpg" alt="BSIT Logo" />
+            </Link>
+          </div>
           <div className={styles.heading}>
             <h3>Department of Computer Studies</h3>
             <p>Enrollment System</p>
@@ -109,7 +122,7 @@ const Login = () => {
               className={styles.input}
               value={formData.email}
               onChange={handleChange}
-              required
+             
               ref={emailInputRef}
             />
           </div>
@@ -123,7 +136,7 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
                 className={styles.password}
-                required
+     
               />
               <img src={passwordVisible ? show : hide}
                onClick={togglePasswordVisibility}

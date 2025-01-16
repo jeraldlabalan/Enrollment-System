@@ -6,6 +6,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { SessionContext } from "../../contexts/SessionContext";
 
 const SubmissionAndSubject = () => {
+  const [AdvisingDate, setAdvisingDate] = useState(""); // State for enrollment date
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, validateSession, sessionLoading } = useContext(SessionContext);
@@ -313,14 +314,14 @@ const SubmissionAndSubject = () => {
             </div>
 
             <div className={styles.schedule_section}>
-              <div className={styles.select_advising_date}>
+            <div className={styles.select_advising_date}>
                 <p>Select an advising date</p>
-                <select id="sched" name="sched" className={styles.sched}>
-                  <option value="">Select Date</option>
-                  <option value="2024-12-01">2024-12-01</option>
-                  <option value="2024-12-02">2024-12-02</option>
-                  <option value="2024-12-03">2024-12-03</option>
-                </select>
+                <input
+              type="date"
+              className={styles.input}
+              value={AdvisingDate}
+              onChange={(e) => setAdvisingDate(e.target.value)}
+            />
               </div>
             </div>
 

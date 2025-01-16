@@ -19,6 +19,7 @@ const ScheduleCS = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+  const [RedesignateSchedule, setRedesignateSchedule] = useState(""); // State for enrollment date
 
   useEffect(() => {
     // Redirect to login if user is not authenticated
@@ -110,6 +111,17 @@ const ScheduleCS = () => {
     closeRejectModal();
   };
 
+  const handleSetRedesignateScheduleClick = (student) => {
+    setSelectedStudent(student);
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    setSelectedStudent(null);
+    setRedesignateSchedule("");
+  };
+
   
 
   return (
@@ -165,7 +177,7 @@ const ScheduleCS = () => {
                       </button>
 
                       <button 
-                        className={styles.button}
+                        className={styles.button} onClick={() => handleSetRedesignateScheduleClick(student)}
                       >
                         Redesignate Schedule
                       </button>
@@ -276,6 +288,29 @@ const ScheduleCS = () => {
           </div>
         </div>
       )}
+
+{showModal && selectedStudent && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h3>Redesignate Sched  </h3>
+            <h2>{selectedStudent.firstName} {selectedStudent.lastName}</h2>
+            <label for="date-input" className={styles.dateLabel} >Select Date</label>
+            <input
+              type="date"
+              className={styles.input}
+              value={RedesignateSchedule}
+              onChange={(e) => setRedesignateSchedule(e.target.value)}
+            />
+            <div className={styles.buttonGroup}>
+              
+              <button className={styles.closeButton} onClick={handleModalClose}>
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

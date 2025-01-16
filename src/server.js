@@ -703,6 +703,33 @@ app.delete("/students/:id", async (req, res) => {
   }
 });
 
+app.put('/students/:id/enroll', async (req, res) => {
+  console.log('Raw student_id received:', req.params.id); // Debugging log
+
+  const student_id = parseInt(req.params.id, 10); // Convert to integer
+  console.log('Parsed student_id:', student_id);
+
+  if (isNaN(student_id)) {
+    return res.status(400).json({ message: 'Invalid student_id provided.' });
+  }
+
+  try {
+    const [result] = await db.query(
+      'UPDATE tbl_student_data SET status = ? WHERE student_id = ?',
+      ['enrolled', student_id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Student not found or already enrolled.' });
+    }
+
+    res.status(200).json({ message: 'Student successfully enrolled.' });
+  } catch (error) {
+    console.error('Error enrolling student:', error);
+    res.status(500).json({ message: 'Failed to enroll student.' });
+  }
+});
+
 // API Endpoint to post an announcement
 app.post("/api/announcements", async (req, res) => {
   if (!req.session || !req.session.user) {

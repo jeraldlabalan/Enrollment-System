@@ -50,30 +50,27 @@ const Enrollees = () => {
     console.log("Students State:", students); // Log React state
 
     const filteredAndSortedStudents = students
-  .filter((student) => {
-    const query = searchQuery.toLowerCase();
-    const matchesSearch =
-      (student.id && student.id.toString().toLowerCase().includes(query)) ||
-      (student.last_name && student.last_name.toLowerCase().includes(query)) ||
-      (student.first_name && student.first_name.toLowerCase().includes(query));
+    .filter((student) => {
+      if (!student) return false;
+      const query = searchQuery.toLowerCase();
 
-    console.log("Search Match:", matchesSearch, student);
+      const matchesSearch =
+        (student.student_id && student.student_id.toString().includes(query)) ||
+        (student.last_name && student.last_name.toLowerCase().includes(query)) ||
+        (student.first_name && student.first_name.toLowerCase().includes(query));
 
-    const matchesType = filterType ? student.student_type === filterType : true;
-    console.log("Type Match:", matchesType, student);
+      const matchesType = filterType ? student.student_type === filterType : true;
+      const matchesYear = filterYear ? student.year_level === filterYear : true;
+      const matchesProgram = filterProgram ? student.program_name === filterProgram : true;
 
-    const matchesYear = filterYear
-      ? student.year_level === filterYear
-      : true;
-    console.log("Year Match:", matchesYear, student);
-
-    const matchesProgram = filterProgram
-      ? student.program_name === filterProgram
-      : true;
-    console.log("Program Match:", matchesProgram, student);
-
-    return matchesSearch && matchesType && matchesYear && matchesProgram;
-  });
+      return matchesSearch && matchesType && matchesYear && matchesProgram;
+    })
+    .sort((a, b) => {
+      if (sortCriteria === "id") {
+        return a.student_id - b.student_id;
+      }
+      return a[sortCriteria]?.localeCompare(b[sortCriteria]) || 0;
+    });
   const handleFilterProgramChange = (e) => {
     setFilterProgram(e.target.value);
   };
@@ -116,6 +113,28 @@ const Enrollees = () => {
     closeRejectModal();
   };
 
+  const handleEnroll = async (student_id) => {
+    console.log('Sending student_id:', student_id); // Debugging
+  
+    try {
+      const response = await fetch(`http://localhost:5000/students/${student_id}/enroll`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to update enrollment status.');
+      }
+  
+      const result = await response.json();
+      alert(result.message);
+    } catch (error) {
+      console.error('Error updating enrollment status:', error);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -153,7 +172,7 @@ const Enrollees = () => {
               </thead>
               <tbody>
                 {filteredAndSortedStudents.map((student) => (
-                  <tr key={student.id}>
+                  <tr key={student.student_id}>
                     <td className={styles.td}>{student.student_id}</td>
                     <td className={styles.td}>{student.last_name}</td>
                     <td className={styles.td}>{student.first_name}</td>
@@ -172,7 +191,7 @@ const Enrollees = () => {
                       </button>
                       <button
                         className={styles.button}
-                        onClick={() => handleRejectClick(student)}
+                        onClick={() => handleEnroll(student.student_id)}
                       >
                         Mark as Enrolled
                       </button>

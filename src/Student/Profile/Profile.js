@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { SessionContext } from "../../contexts/SessionContext";
 import { checkSession, logout } from "../../utils/session";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import styles from "./Profile.module.css";
 import axios from 'axios';
 

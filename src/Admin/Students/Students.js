@@ -15,6 +15,7 @@ const Students = () => {
   const [sortCriteria, setSortCriteria] = useState("id"); // Default sorting criteria
   const [filterType, setFilterType] = useState(""); // For student type filter
   const [filterYear, setFilterYear] = useState(""); // For year standing filter
+  const [filterProgram, setFilterProgram] = useState(""); // For program filter
   const [selectedStudent, setSelectedStudent] = useState(null);
  
   useEffect(() => {
@@ -35,25 +36,25 @@ const Students = () => {
 
   const filteredAndSortedStudents = students
   .filter((student) => {
+    if (!student) return false;
     const query = searchQuery.toLowerCase();
+
     const matchesSearch =
-      (student.id && student.id.toString().toLowerCase().includes(query)) ||
+      (student.student_id && student.student_id.toString().includes(query)) ||
       (student.last_name && student.last_name.toLowerCase().includes(query)) ||
       (student.first_name && student.first_name.toLowerCase().includes(query));
 
-    console.log("Search Match:", matchesSearch, student);
-
     const matchesType = filterType ? student.student_type === filterType : true;
-    console.log("Type Match:", matchesType, student);
+    const matchesYear = filterYear ? student.year_level === filterYear : true;
+    const matchesProgram = filterProgram ? student.program_name === filterProgram : true;
 
-    const matchesYear = filterYear
-      ? student.year_level === filterYear
-      : true;
-    console.log("Year Match:", matchesYear, student);
-
-
-
-    return matchesSearch && matchesType && matchesYear;
+    return matchesSearch && matchesType && matchesYear && matchesProgram;
+  })
+  .sort((a, b) => {
+    if (sortCriteria === "id") {
+      return a.student_id - b.student_id;
+    }
+    return a[sortCriteria]?.localeCompare(b[sortCriteria]) || 0;
   });
 
    useEffect(() => {
@@ -78,6 +79,10 @@ const Students = () => {
 
   const handleFilterYearChange = (e) => {
     setFilterYear(e.target.value);
+  };
+
+  const handleFilterProgramChange = (e) => {
+    setFilterProgram(e.target.value);
   };
 
   const handlePrintCOR = (student) => {

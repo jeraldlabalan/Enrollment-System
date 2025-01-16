@@ -21,7 +21,10 @@ const Students = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/enrollees");
+        const response = await fetch("http://localhost:5000/api/students");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         console.log("Raw Students Data:", data);
         if (Array.isArray(data)) {
@@ -40,27 +43,29 @@ const Students = () => {
     console.log("Students State:", students); // Log React state
 
     const filteredAndSortedStudents = students
-    .filter((student) => {
-      if (!student) return false;
-      const query = searchQuery.toLowerCase();
-
-      const matchesSearch =
-        (student.student_id && student.student_id.toString().includes(query)) ||
-        (student.last_name && student.last_name.toLowerCase().includes(query)) ||
-        (student.first_name && student.first_name.toLowerCase().includes(query));
-
-      const matchesType = filterType ? student.student_type === filterType : true;
-      const matchesYear = filterYear ? student.year_level === filterYear : true;
-      const matchesProgram = filterProgram ? student.program_name === filterProgram : true;
-
-      return matchesSearch && matchesType && matchesYear && matchesProgram;
-    })
-    .sort((a, b) => {
-      if (sortCriteria === "id") {
-        return a.student_id - b.student_id;
-      }
-      return a[sortCriteria]?.localeCompare(b[sortCriteria]) || 0;
-    });
+      .filter((student) => {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch =
+          (student.student_id && student.student_id.toString().toLowerCase().includes(query)) ||
+          (student.last_name && student.last_name.toLowerCase().includes(query)) ||
+          (student.first_name && student.first_name.toLowerCase().includes(query));
+      
+        const matchesType = filterType ? student.student_type === filterType : true;
+        const matchesYear = filterYear ? student.year_level === filterYear : true;
+        const matchesProgram = filterProgram ? student.program_name === filterProgram : true;
+      
+        return matchesSearch && matchesType && matchesYear && matchesProgram;
+      })
+      .sort((a, b) => {
+        if (sortCriteria === "id") {
+          return a.student_id - b.student_id;
+        } else if (sortCriteria === "lastName") {
+          return a.last_name.localeCompare(b.last_name);
+        } else if (sortCriteria === "firstName") {
+          return a.first_name.localeCompare(b.first_name);
+        }
+        return 0;
+      });
 
    useEffect(() => {
       if (!sessionLoading && !user) {
@@ -141,8 +146,9 @@ const Students = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredAndSortedStudents.map((student) => (
-                  <tr key={student.id}>
+              {filteredAndSortedStudents.length > 0 ? (
+  filteredAndSortedStudents.map((student) => (
+                  <tr key={student.student_id}>
                     <td className={styles.td}>{student.student_id}</td>
                     <td className={styles.td}>{student.last_name}</td>
                     <td className={styles.td}>{student.first_name}</td>
@@ -155,7 +161,12 @@ const Students = () => {
                       
                     </td>
                   </tr>
-                ))}
+                 ))
+) : (
+  <tr>
+    <td colSpan="7">No students found.</td>
+  </tr>
+)}
               </tbody>
             </table>
           </div>

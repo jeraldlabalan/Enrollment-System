@@ -136,7 +136,6 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
                 className={styles.password}
-     
               />
               <img src={passwordVisible ? show : hide}
                onClick={togglePasswordVisibility}

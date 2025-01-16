@@ -52,8 +52,11 @@
 .content_wrapper {
   display: flex;
   flex-direction: column;
-  text-align: center;
+  justify-content: center;
   align-items: center;
+  gap: 20px;
+  width: 500px;
+  padding: 30px;
 }
 
 
@@ -62,7 +65,7 @@
   flex-direction: column;
   justify-content: center; 
   align-items: center;
-  height: calc(100vh - 200px); 
+  flex: 1;
   padding: 0 50px; 
   
 }
@@ -80,18 +83,29 @@
 
 
 .content_h1 {
-  font-size: var(--big-font-size);
+  font-size: 3rem;
+  text-align: center;
 }
 
 
 .content_p {
-  width: 600px;
-  margin: 5px auto;
+  width: 100%;
+  font-size: var(--small-font-size);
 }
 
 
 
 /* EmailVerification.module.css */
+
+.emailInput {
+  height: 35px;
+  padding: 0 5px;
+  width: 75%;
+  outline: none;
+  border: 2px solid black;
+  border-radius: 8px;
+  font-size: var(--small-font-size);
+}
 
 .otpContainer {
   display: flex;
@@ -180,21 +194,19 @@
 
 /* Style for the continue button in success message */
 .continue_button {
-  display: inline-block;
-  padding: 12px 24px;
-  background-color: var(--title-color); 
+  height: 40px;
   color: white;
+  background-color: var(--title-color);
   border: none;
+  padding: 0 10px;
   border-radius: 8px;
-  text-decoration: none;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 20px;
+  font-weight: var(--font-semi-bold);
+  transition: none;
 }
 
 .continue_button:hover {
-  background-color: var(--title-color-dark); 
+  background-color: var(--title-color-dark);
+  color: white; 
 }
 
 /*====== BREAKPOINTS =====*/

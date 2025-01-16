@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import styles from "./EmailVerification.module.css";
 import "../../App.css";
+import { toast, ToastContainer } from "react-toastify";
 
 const OTPInput = ({ length = 6, onVerify }) => {
   const [otp, setOtp] = useState(Array(length).fill(""));
@@ -63,7 +64,7 @@ function EmailVerification() {
 
   const handleEmailSubmit = async () => {
     if (!email) {
-      alert("Please enter your email address.");
+      toast.warning("Please enter your email address.");
       return;
     }
   
@@ -159,13 +160,13 @@ function EmailVerification() {
             </div>
             <input
               type="email"
-              placeholder="Email Address"
+              placeholder="example@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={styles.emailInput}
             />
             <button onClick={handleEmailSubmit} className={styles.continue_button}>
-              Send Verification Code
+              Send Code
             </button>
           </div>
         )}
@@ -228,6 +229,7 @@ function EmailVerification() {
           </div>
         )}
       </div>
+       <ToastContainer position="top-center" autoClose={3000} hideProgressBar newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
     </div>
   );
 }

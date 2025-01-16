@@ -1,9 +1,13 @@
 /* Overall container */
 .container {
-  background-color: #f8f9fa;
+  background-color: #DAF7A6;
   min-height: 100vh;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+}
+
+.title {
+  padding: 0 50px;
 }
 
 /*******************************/
@@ -58,49 +62,15 @@
 /************************************************/
 
 .dashboardHeader {
-  margin-bottom: -14px;
-}
+  width: 100%;
+  background-color: #030507;
 
-/* h1 styling */
-.dashboardHeader h1 {
-  font-size: 50px;
-  margin-left: 70px;
-  margin-top: 0px;
-  text-align: left;
-  color: #333;
-}
-
-/* Existing grid adjustments */
-.grid {
-  margin-top: 0;
+  h1 {
+    margin-left: 50px;
+  }
 }
 
 
-.logos {
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  width: 50px;
-  height: 50px;
-}
-
-.logoMargin {
-  margin-left: 10px;
-}
-
-.navLinks {
-  display: flex;
-  gap: 160px;
-  margin-right: 200px;
-}
-
-.navLink {
-  color: white;
-  text-decoration: none;
-  font-size: 21px;
-}
 
 .logout {
   color: white;
@@ -108,44 +78,44 @@
 
 /* Dashboard grid layout */
 .dashboardContent {
-  padding: 20px;
-  flex-grow: 1;
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  
 }
 
 /* Grid settings */
 .grid {
+  flex: 1;
   display: grid;
-  grid-template-columns: 50% 25% 25%;
-  grid-template-rows: auto auto;
+  grid-template-columns: 55% 35%;
+  grid-template-rows: 55% 35%;
   gap: 20px;
-  padding: 40px;
-  margin-top: -40px;
+  width: 100vh;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Card Styles */
 .card {
   background: white;
-  border: 1px solid #ddd;
+  border: 1px solid white;
   border-radius: 8px;
-  padding: 40px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  padding: 10px 20px;
 }
 
 .cardTitle, .cardTitles {
-  font-size: 20px;
-  margin-top: 0;
-  padding-top: 0;
-  position: relative;
-  top: -15px;
+  font-size: var(--h3-font-size);
+
 }
 
 /* Enrolled Students Card */
 .card.enrolledStudents {
-  grid-column: span 1;
   background-color: #f8f9fa;
+  width: 100%;
+  height: 100%;
 }
 
 .card.enrolledStudents p {
@@ -177,34 +147,49 @@
 
 /* Regular, Irregular Students and Gender Card */
 .card.regularIrregularGender {
-  grid-column: span 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  p {
+    font-size: var(--small-font-size);
+  }
+
+  h5 {
+    margin-top: 5px;
+  }
 }
 
 /* Announcement Card */
 .card.announcementCard {
-  grid-column: span 1;
   background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .card.announcementCard textarea {
-  width: 100%;
-  height: 120px;
-  border: 1px solid #ddd;
+  height: 150px;
+  border: 2px solid #000;
   border-radius: 10px;
   padding: 10px;
-  font-size: 16px;
+  font-size: var(--small-font-size);
+  overflow-y: none;
+  resize: none;
+  outline: none;
 }
 
-.card.announcementCard button {
-  margin-top: 10px;
-  padding: 10px 45px;
+.announcementButton {
+  width: 120px;
+  height: 35px;
   background-color: #030507;
   color: white;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
-  float: right;
-  margin-right: 10px;
+  font-size: var(--smaller-font-size);
+  align-self: flex-end;
 }
 
 .card.announcementCard button:hover {
@@ -213,7 +198,6 @@
 
 /* Total Paid IT and CS Cards */
 .card.totalPaid, .card.totalPaidCS {
-  grid-column: span 1;
   background-color: #fff;
 }
 
@@ -234,11 +218,11 @@
 
 /* Gender and Total Paid cards have same size */
 .card.totalPaid, .card.totalPaidCS {
-  width: 90%;
+  width: 45%;
 }
 
 .card.genderCard {
-  width: 95%;
+  width: 100%;
 }
 
 /* Progress Bar */
@@ -248,7 +232,6 @@
   background-color: #e9ecef;
   border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 15px;
 }
 
 .progressBarGreen {
@@ -443,14 +426,6 @@ body {
 /* Header Styling for Medium Screens */
 
 /* Ensuring Responsive Cards */
-.card {
-  transition: transform 0.3s ease;
-}
-
-.card:hover {
-  transform: scale(1.02); /* Hover effect for card */
-}
-
 
 .card.announcementCard button {
   transition: background-color 0.3s ease;
@@ -520,4 +495,11 @@ p, h5, span, strong {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.total_paid {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: space-between;
 }

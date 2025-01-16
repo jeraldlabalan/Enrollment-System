@@ -1,9 +1,13 @@
 /* Overall container */
 .container {
-  background-color: #f8f9fa;
+  background-color: #DAF7A6;
   min-height: 100vh;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+}
+
+.title {
+  padding: 0 50px;
 }
 
 /*******************************/
@@ -58,49 +62,15 @@
 /************************************************/
 
 .dashboardHeader {
-  margin-bottom: -14px;
-}
+  width: 100%;
+  background-color: #030507;
 
-/* h1 styling */
-.dashboardHeader h1 {
-  font-size: 50px;
-  margin-left: 70px;
-  margin-top: 0px;
-  text-align: left;
-  color: #333;
-}
-
-/* Existing grid adjustments */
-.grid {
-  margin-top: 0;
+  h1 {
+    margin-left: 50px;
+  }
 }
 
 
-.logos {
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  width: 50px;
-  height: 50px;
-}
-
-.logoMargin {
-  margin-left: 10px;
-}
-
-.navLinks {
-  display: flex;
-  gap: 160px;
-  margin-right: 200px;
-}
-
-.navLink {
-  color: white;
-  text-decoration: none;
-  font-size: 21px;
-}
 
 .logout {
   color: white;
@@ -108,44 +78,44 @@
 
 /* Dashboard grid layout */
 .dashboardContent {
-  padding: 20px;
-  flex-grow: 1;
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  
 }
 
 /* Grid settings */
 .grid {
+  flex: 1;
   display: grid;
-  grid-template-columns: 50% 25% 25%;
-  grid-template-rows: auto auto;
+  grid-template-columns: 55% 35%;
+  grid-template-rows: 55% 35%;
   gap: 20px;
-  padding: 40px;
-  margin-top: -40px;
+  width: 100vh;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Card Styles */
 .card {
   background: white;
-  border: 1px solid #ddd;
+  border: 1px solid white;
   border-radius: 8px;
-  padding: 40px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  padding: 10px 20px;
 }
 
 .cardTitle, .cardTitles {
-  font-size: 20px;
-  margin-top: 0;
-  padding-top: 0;
-  position: relative;
-  top: -15px;
+  font-size: var(--h3-font-size);
+
 }
 
 /* Enrolled Students Card */
 .card.enrolledStudents {
-  grid-column: span 1;
   background-color: #f8f9fa;
+  width: 100%;
+  height: 100%;
 }
 
 .card.enrolledStudents p {
@@ -177,34 +147,49 @@
 
 /* Regular, Irregular Students and Gender Card */
 .card.regularIrregularGender {
-  grid-column: span 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  p {
+    font-size: var(--small-font-size);
+  }
+
+  h5 {
+    margin-top: 5px;
+  }
 }
 
 /* Announcement Card */
 .card.announcementCard {
-  grid-column: span 1;
   background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .card.announcementCard textarea {
-  width: 100%;
-  height: 120px;
-  border: 1px solid #ddd;
+  height: 150px;
+  border: 2px solid #000;
   border-radius: 10px;
   padding: 10px;
-  font-size: 16px;
+  font-size: var(--small-font-size);
+  overflow-y: auto;
+  resize: none;
+  outline: none;
 }
 
-.card.announcementCard button {
-  margin-top: 10px;
-  padding: 10px 45px;
+.announcementButton {
+  width: 120px;
+  height: 35px;
   background-color: #030507;
   color: white;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
-  float: right;
-  margin-right: 10px;
+  font-size: var(--smaller-font-size);
+  align-self: flex-end;
 }
 
 .card.announcementCard button:hover {
@@ -213,7 +198,6 @@
 
 /* Total Paid IT and CS Cards */
 .card.totalPaid, .card.totalPaidCS {
-  grid-column: span 1;
   background-color: #fff;
 }
 
@@ -234,11 +218,11 @@
 
 /* Gender and Total Paid cards have same size */
 .card.totalPaid, .card.totalPaidCS {
-  width: 90%;
+  width: 48%;
 }
 
 .card.genderCard {
-  width: 95%;
+  width: 100%;
 }
 
 /* Progress Bar */
@@ -248,7 +232,6 @@
   background-color: #e9ecef;
   border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 15px;
 }
 
 .progressBarGreen {
@@ -309,33 +292,7 @@ p, h5, span, strong {
   color: black;
 }
 
-.notificationWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  margin-right: 20px;
-  cursor: pointer;
-}
 
-.notificationIcon {
-  font-size: 24px;
-  color: white;
-}
-
-.notificationBadge {
-  position: absolute;
-  top: -5px;
-  right: -10px;
-  background-color: red;
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 50%;
-  padding: 2px 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 /* General Reset for Responsive Layout */
 * {
@@ -371,40 +328,6 @@ body {
   font-size: clamp(24px, 5vw, 40px); /* Responsive title font size */
 }
 
-
-
-
-/* .logos {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.logo {
-  width: 50px;
-  height: 50px;
-}
-
-.navLinks {
-  display: flex;
-  gap: 160px;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-}
-
-.navLink {
-  color: white;
-  text-decoration: none;
-  font-size: 21px;
-}
-
-.navLink:hover {
-  text-decoration: underline;
-}
-
-.logout {
-  color: rgb(255, 255, 255);
-} */
 
 /* General Reset for Responsive Layout */
 * {
@@ -443,14 +366,6 @@ body {
 /* Header Styling for Medium Screens */
 
 /* Ensuring Responsive Cards */
-.card {
-  transition: transform 0.3s ease;
-}
-
-.card:hover {
-  transform: scale(1.02); /* Hover effect for card */
-}
-
 
 .card.announcementCard button {
   transition: background-color 0.3s ease;
@@ -494,30 +409,85 @@ p, h5, span, strong {
   text-decoration: underline;
 }
 
-.notificationWrapper {
-  position: relative;
+.total_paid {
   display: flex;
-  align-items: center;
-  margin-right: 20px;
+  width: 100%;
+  height: 100%;
+  justify-content: space-between;
+}
+
+
+
+/* Dropdown Styling */
+
+.bell_button{
+  position: relative;
   cursor: pointer;
 }
 
-.notificationIcon {
-  font-size: 24px;
-  color: white;
+.dropdown_menu {
+  position: absolute;
+  top: 100%; /* Para palaging sa taas ng header nag-a-appear */
+  right: 0; /* Align to the right side */
+  background-color: #DDDDDD;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  z-index: 1000; /* Para ma-ensure na clickable */
+  width: 100%;
+  width: 325px; /* Adjust width as needed */
+  border-radius: 8px;
+  padding: 20px;
+  height: 300px; /* Set maximum height */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
 }
 
-.notificationBadge {
+.notification {
+  width: 100%;
+  padding: 2px;
+  border-radius: 8px;
+}
+
+
+.notification:hover {
+
+}
+
+.notification_subject {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  
+  p:first-child {
+    font-size: var(--small-font-size);
+    font-weight: var(--font-semi-bold);
+  }
+
+  p:last-child{
+    font-size: var(--tiny-font-size);
+  }
+}
+
+.notification_message {
+  p:first-child{
+    font-size: var(--tiny-font-size);
+  }
+}
+
+.notification_mark {
   position: absolute;
-  top: -5px;
-  right: -10px;
-  background-color: red;
+  background-color: #C00202;
+  padding: 1px 5px;
   color: white;
-  font-size: 14px;
+  font-size: .475rem;
   font-weight: bold;
   border-radius: 50%;
-  padding: 2px 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: 0;
+  right: 0;
 }

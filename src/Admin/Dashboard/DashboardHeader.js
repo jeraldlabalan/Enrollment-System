@@ -1,10 +1,19 @@
-import React, { useContext } from "react"; // Import useContext
+import React, { useContext, useState } from "react"; // Import useContext
 import { Link, useNavigate } from "react-router-dom";
 import { SessionContext } from '../../contexts/SessionContext';
 
 import styles from "./Dashboard.module.css"; // Import custom styles
 
 const DashboardHeader = () => {
+    const [activeDropdown, setActiveDropdown] = useState(null); // Manages active dropdown state
+    
+    const toggleDropdown = (menu) => {
+      setActiveDropdown((prev) => (prev === menu ? null : menu));
+    };
+    
+    
+    
+    
     const navigate = useNavigate(); // Hook for navigation
     const { setUser } = useContext(SessionContext); // Access setUser from context
 
@@ -67,10 +76,37 @@ const DashboardHeader = () => {
         >
           Log Out
         </a>
-        <a className={styles.navLink}>
-          <i className="fa-solid fa-bell"></i>
-        </a>
+
+        <div 
+        className={`${styles.navLink} ${styles.bell_button}`}
+        onClick={() => toggleDropdown("notification")}
+        >
+          <i  className={`fa-solid fa-bell`}></i>
+          <div className={styles.notification_mark}>
+            10
+          </div>
+          {activeDropdown === "notification" && (
+        <div className={styles.dropdown_menu}>
+          <div className={styles.notification}>    
+              <div className={styles.notification_subject}>
+                <p>
+                  Advising Date
+                </p>
+                <p>
+                  10:02AM
+                </p>
+              </div>
+              <div className={styles.notification_message}>
+              <p>
+              John Doe assigned enrollment date to: September 20
+              </p>
+              </div>
+          </div>
+        </div>
+      )}
+        </div>
       </nav>
+
     </div>
   );
 };

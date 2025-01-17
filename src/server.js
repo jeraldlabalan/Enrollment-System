@@ -47,7 +47,7 @@ app.use(
 const db = mysql.createPool({
   host: "localhost", // Replace with your DB host
   user: "root", // Replace with your MySQL username
-  password: "Wearefamily03", // Replace with your MySQL password
+  password: "Jerald_11783", // Replace with your MySQL password
   database: "enrollment_system", // Replace with your DB name
 });
 
@@ -73,13 +73,16 @@ app.get("/", (req, res) => {
   }
 });
 
-app.get("/session", (req, res) => {
-  if (req.session && req.session.user) {
-    // Return session data if the user is authenticated
-    res.status(200).json({ user: req.session.user });
-  } else {
-    // Return an error if no session exists
-    res.status(401).json({ message: "Unauthorized. No active session." });
+app.get("/session", async (req, res) => {
+  try {
+    if (req.session && req.session.user) {
+      // Return session data if the user is authenticated
+      return res.status(200).json({ user: req.session.user });
+    } 
+    throw new Error("Unauthorized. No active session.");
+  } catch (error) {
+    console.error("Session Error:", error.message);
+    res.status(401).json({ message: error.message });
   }
 });
 

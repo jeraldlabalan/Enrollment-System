@@ -17,44 +17,60 @@ const Home = () => {
 
   useEffect(() => {
     const initialize = async () => {
-      // Check if the session is valid and user is authenticated
-      if (!sessionLoading && !user) {
-        navigate("/login", { replace: true });
-        return;
-      }
-
+      const initialize = async () => {
+        // Check if the session is valid and user is authenticated
+        if (!sessionLoading && !user) {
+          navigate("/login", { replace: true });
+          return;
+        }
+  
+        if (userId) {
+          await fetchUserData(); // Fetch user data if the user is logged in
+        } else {
+          console.error("Missing userId.");
+          setError("Invalid userId.");
+          navigate("/login", { replace: true });
+        }
+      };
+  
+      const userId = user?.id; // Get from session instead of location.state
+  
       if (userId) {
-        await fetchUserData(); // Fetch user data if the user is logged in
+        console.log("Fetching data for userId:", userId);
+        await fetchUserData(userId);
       } else {
-        console.error("Missing userId.");
-        setError("Invalid userId.");
+        console.error("User ID is missing.");
+        setError("Invalid user session.");
         navigate("/login", { replace: true });
       }
     };
-
-    const fetchUserData = async () => {
+  
+    const fetchUserData = async (userId) => {
+      setIsLoading(true);
+      setError(null);
+    
       try {
         const response = await fetch(`http://localhost:5000/user/${userId}`, {
-          credentials: "include", // Include cookies/session
+          credentials: "include",
         });
-
+    
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || "Failed to fetch user data.");
         }
-
+    
         const data = await response.json();
-        setUserData(data); // Update state with user data
+        setUserData(data);
       } catch (err) {
         console.error("Error fetching user data:", err.message);
         setError(err.message);
       } finally {
-        setIsLoading(false); // Stop the loading spinner
+        setIsLoading(false);
       }
     };
-
-    initialize(); // Initialize the component state
-  }, [sessionLoading, user, userId, navigate]);
+  
+    initialize();
+  }, [sessionLoading, user, navigate]);
 
   const handleLogout = async () => {
     try {

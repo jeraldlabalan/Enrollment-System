@@ -133,15 +133,20 @@ const Advisee = () => {
 
   useEffect(() => {
     const fetchStudents = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/advisee");
-        const data = await response.json();
-        console.log("Fetched Students Data:", data);
-        setStudents(data);
-      } catch (error) {
-        console.error("Error fetching students:", error);
-      }
-    };
+  try {
+    const response = await fetch("http://localhost:5000/api/advisee");
+    const data = await response.json();
+    console.log("Fetched Students Data:", data); // Add this
+    if (Array.isArray(data)) {
+      setStudents(data);
+    } else {
+      console.error("Expected an array but got:", data);
+      setStudents([]); // Prevent errors
+    }
+  } catch (error) {
+    console.error("Error fetching students:", error);
+  }
+};
     fetchStudents();
   }, []);
 

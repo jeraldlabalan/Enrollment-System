@@ -43,3 +43,82 @@
 .nav i {
   font-size: var(--h1-font-size);
 }
+
+
+/* dropdown */
+
+.bell_button{
+  position: relative;
+  cursor: pointer;
+}
+
+.dropdown_menu {
+  position: absolute;
+  top: 100%; /* Para palaging sa taas ng header nag-a-appear */
+  right: 0; /* Align to the right side */
+  background-color: #DDDDDD;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  z-index: 1000; /* Para ma-ensure na clickable */
+  width: 100%;
+  width: 325px; /* Adjust width as needed */
+  border-radius: 8px;
+  padding: 20px;
+  height: 300px; /* Set maximum height */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+}
+
+.notification {
+  width: 100%;
+  padding: 2px;
+  border-radius: 8px;
+}
+
+
+.notification:hover {
+
+}
+
+.notification_subject {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  
+  p:first-child {
+    font-size: var(--small-font-size);
+    font-weight: var(--font-semi-bold);
+  }
+
+  p:last-child{
+    font-size: var(--tiny-font-size);
+  }
+}
+
+.notification_message {
+  p:first-child{
+    font-size: var(--tiny-font-size);
+  }
+}
+
+.notification_mark {
+  position: absolute;
+  background-color: #C00202;
+  padding: 1px 5px;
+  color: white;
+  font-size: .475rem;
+  font-weight: bold;
+  border-radius: 50%;
+  top: 0;
+  right: 0;
+}
+
+.activeNavLink {
+  color: blue;
+}

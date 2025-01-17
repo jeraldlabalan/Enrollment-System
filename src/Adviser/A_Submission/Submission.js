@@ -86,17 +86,22 @@ const Advisee = () => {
       const query = searchQuery.toLowerCase();
       const matchesSearch =
         (student.id && student.id.toString().toLowerCase().includes(query)) ||
-        (student.last_name && student.last_name.toLowerCase().includes(query)) ||
-        (student.first_name && student.first_name.toLowerCase().includes(query));
+        (student.last_name &&
+          student.last_name.toLowerCase().includes(query)) ||
+        (student.first_name &&
+          student.first_name.toLowerCase().includes(query));
 
-      const matchesType = filterType ? student.student_type === filterType : true;
+      const matchesType = filterType
+        ? student.student_type === filterType
+        : true;
       const matchesYear = filterYear ? student.year_level === filterYear : true;
 
       return matchesSearch && matchesType && matchesYear;
     })
     .sort((a, b) => {
       if (sortCriteria === "id") return a.id - b.id;
-      if (sortCriteria === "last_name") return a.last_name.localeCompare(b.last_name);
+      if (sortCriteria === "last_name")
+        return a.last_name.localeCompare(b.last_name);
       return 0;
     });
 
@@ -186,93 +191,97 @@ const Advisee = () => {
                 </tr>
               </thead>
               <tbody>
-              {filteredAndSortedStudents.length > 0 ? (
-  filteredAndSortedStudents.map((student) => (
-    <tr key={student.id}>
-      <td className={styles.td}>{student.student_id}</td>
-      <td className={styles.td}>{student.last_name}</td>
-      <td className={styles.td}>{student.first_name}</td>
-      <td className={styles.td}>{student.middle_name || "N/A"}</td>
-      <td className={styles.td}>{student.student_type}</td>
-      <td className={styles.td}>{student.year_level}</td>
-      <td className={styles.td}>
-      <button 
-                        className={styles.button} onClick={() => handleViewChecklist(student)}
-                      >
-                        View Checklist
-                      </button>
+                {filteredAndSortedStudents.length > 0 ? (
+                  filteredAndSortedStudents.map((student) => (
+                    <tr key={student.id}>
+                      <td className={styles.td}>{student.student_id}</td>
+                      <td className={styles.td}>{student.last_name}</td>
+                      <td className={styles.td}>{student.first_name}</td>
+                      <td className={styles.td}>
+                        {student.middle_name || "N/A"}
+                      </td>
+                      <td className={styles.td}>{student.student_type}</td>
+                      <td className={styles.td}>{student.year_level}</td>
+                      <td className={styles.td}>
+                        <button
+                          className={styles.button}
+                          onClick={() => handleViewChecklist(student)}
+                        >
+                          View Checklist
+                        </button>
 
-                      <button className={styles.button}>View ISCOR</button>
-                      <button
-                        className={styles.button}
-                        onClick={() => handleRejectClick(student)}
-                      >
-                        Reject
-                      </button>
-                      <button
-                        className={styles.button}
-                        onClick={() => handleAcceptClick(student)}  // Trigger accept modal
-                      >
-                        Accept
-                      </button>
-      </td>
-    </tr>
-  ))
-) : (
-  <tr>
-    <td colSpan="5">No students found.</td>
-  </tr>
-)}
+                        <button className={styles.button}>View ISCOR</button>
+                        <button
+                          className={styles.button}
+                          onClick={() => handleRejectClick(student)}
+                        >
+                          Reject
+                        </button>
+                        <button
+                          className={styles.button}
+                          onClick={() => handleAcceptClick(student)} // Trigger accept modal
+                        >
+                          Accept
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5">No students found.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
-          
         </div>
 
         <div className={styles.filterBar}>
-            <div className={styles.sort}>
-              <label className={styles.label}>Sort by:</label>
-              <select className={styles.select} value={sortCriteria} onChange={handleSortChange}>
-                <option value="id">Student ID</option>
-                <option value="lastName">Last Name</option>
-                <option value="firstName">First Name</option>
-              </select>
-            </div>
-
-            <div className={styles.sort}>
-              <label className={styles.label}>Student Type:</label>
-              <select
-                className={styles.select}
-                value={filterType}
-                onChange={handleFilterTypeChange}
-              >
-                <option value="">All</option>
-                <option value="S1">S1</option>
-                <option value="S2">S2</option>
-                <option value="S3">S3</option>
-                <option value="S4">S4</option>
-                <option value="S5">S5</option>
-                <option value="S6">S6</option>
-              </select>
-            </div>
-
-            <div className={styles.sort}>
-              <label className={styles.label}>Year Standing:</label>
-              <select
-                className={styles.select}
-                value={filterYear}
-                onChange={handleFilterYearChange}
-              >
-                <option value="">All</option>
-                <option value="1st year">1st Year</option>
-                <option value="2nd year">2nd Year</option>
-                <option value="3rd year">3rd Year</option>
-                <option value="4th year">4th Year</option>
-              </select>
-            </div>
-
-            
+          <div className={styles.sort}>
+            <label className={styles.label}>Sort by:</label>
+            <select
+              className={styles.select}
+              value={sortCriteria}
+              onChange={handleSortChange}
+            >
+              <option value="id">Student ID</option>
+              <option value="lastName">Last Name</option>
+              <option value="firstName">First Name</option>
+            </select>
           </div>
+
+          <div className={styles.sort}>
+            <label className={styles.label}>Student Type:</label>
+            <select
+              className={styles.select}
+              value={filterType}
+              onChange={handleFilterTypeChange}
+            >
+              <option value="">All</option>
+              <option value="S1">S1</option>
+              <option value="S2">S2</option>
+              <option value="S3">S3</option>
+              <option value="S4">S4</option>
+              <option value="S5">S5</option>
+              <option value="S6">S6</option>
+            </select>
+          </div>
+
+          <div className={styles.sort}>
+            <label className={styles.label}>Year Standing:</label>
+            <select
+              className={styles.select}
+              value={filterYear}
+              onChange={handleFilterYearChange}
+            >
+              <option value="">All</option>
+              <option value="1st year">1st Year</option>
+              <option value="2nd year">2nd Year</option>
+              <option value="3rd year">3rd Year</option>
+              <option value="4th year">4th Year</option>
+            </select>
+          </div>
+        </div>
       </div>
       {/* View Checklist Modal */}
       {showModal && selectedStudent && (
@@ -282,7 +291,10 @@ const Advisee = () => {
             <p>
               <strong>Student ID:</strong> {selectedStudent.id}
             </p>
-            <button className={styles.closeButton} onClick={() => setShowModal(false)}>
+            <button
+              className={styles.closeButton}
+              onClick={() => setShowModal(false)}
+            >
               Close
             </button>
           </div>
@@ -293,7 +305,9 @@ const Advisee = () => {
       {showRejectModal && selectedStudent && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
-            <h3><strong>Reject Submission</strong></h3>
+            <h3>
+              <strong>Reject Submission</strong>
+            </h3>
             <label>Reject Submission to</label>
             <select
               className={styles.select}
@@ -327,7 +341,9 @@ const Advisee = () => {
       {showAcceptModal && selectedStudent && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
-            <h3><strong>Accept Submission</strong></h3>
+            <h3>
+              <strong>Accept Submission</strong>
+            </h3>
             <label>Accept Submission to</label>
             <select
               className={styles.select}

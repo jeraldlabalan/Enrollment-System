@@ -113,8 +113,24 @@
 
 
 .td {
-  padding: 10px;
   border-bottom: 1px solid #ddd;
+  height: 100%;
+}
+
+.td div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  img {
+    width: 40px;
+  }
+  p {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-transform: capitalize;
+  }
 }
 
 .td:last-child {

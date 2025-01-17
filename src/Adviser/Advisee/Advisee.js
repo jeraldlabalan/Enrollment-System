@@ -133,20 +133,26 @@ const Advisee = () => {
 
   useEffect(() => {
     const fetchStudents = async () => {
-  try {
-    const response = await fetch("http://localhost:5000/api/advisee");
-    const data = await response.json();
-    console.log("Fetched Students Data:", data); // Add this
-    if (Array.isArray(data)) {
-      setStudents(data);
-    } else {
-      console.error("Expected an array but got:", data);
-      setStudents([]); // Prevent errors
-    }
-  } catch (error) {
-    console.error("Error fetching students:", error);
-  }
-};
+      try {
+        const response = await fetch("http://localhost:5000/api/advisee");
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Fetched Students:", data);
+
+        if (Array.isArray(data)) {
+          setStudents(data);
+        } else {
+          console.error("Invalid API response format:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching students:", error.message);
+      }
+    };
+
     fetchStudents();
   }, []);
 
@@ -236,25 +242,25 @@ const Advisee = () => {
 
   const [enrollmentDate, setEnrollmentDate] = useState("");
   const filteredAndSortedStudents = students
-    .filter((student) => {
-      const query = searchQuery.toLowerCase();
-      const matchesSearch =
-        (student.id && student.id.toString().toLowerCase().includes(query)) ||
-        (student.last_name && student.last_name.toLowerCase().includes(query)) ||
-        (student.first_name && student.first_name.toLowerCase().includes(query));
+  .filter((student) => {
+    const query = searchQuery.toLowerCase();
+    const matchesSearch =
+      (student.id && student.id.toString().toLowerCase().includes(query)) ||
+      (student.last_name && student.last_name.toLowerCase().includes(query)) ||
+      (student.first_name && student.first_name.toLowerCase().includes(query));
 
-      console.log("Search Match:", matchesSearch, student);
+    console.log("Search Match:", matchesSearch, student);
 
-      const matchesType = filterType ? student.student_type === filterType : true;
-      console.log("Type Match:", matchesType, student);
+    const matchesType = filterType ? student.student_type === filterType : true;
+    console.log("Type Match:", matchesType, student);
 
-      const matchesYear = filterYear
-        ? student.year_level === filterYear
-        : true;
-      console.log("Year Match:", matchesYear, student);
+    const matchesYear = filterYear
+      ? student.year_level === filterYear
+      : true;
+    console.log("Year Match:", matchesYear, student);
 
-      return matchesSearch && matchesType && matchesYear;
-    });
+    return matchesSearch && matchesType && matchesYear;
+  });
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -339,7 +345,7 @@ const Advisee = () => {
               <tbody>
               {filteredAndSortedStudents.length > 0 ? (
   filteredAndSortedStudents.map((student) => (
-    <tr key={student.id}>
+    <tr key={student.student_id}>
       <td className={styles.td}>{student.student_id}</td>
       <td className={styles.td}>{student.last_name}</td>
       <td className={styles.td}>{student.first_name}</td>

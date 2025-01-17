@@ -199,8 +199,10 @@ const Enrollees = () => {
                   <tr key={student.student_id}>
                     <td className={styles.td}>{student.student_id}</td>
                     <td className={styles.td}>
-                    {`${student.first_name} ${student.last_name}`}
-                    <img src={default_profile} alt="profile picture" />
+                    <div>
+                      <img src={default_profile} alt="profile picture" />
+                      <p>{student.first_name} {student.last_name}</p>
+                    </div>
                     </td>
                     <td className={styles.td}>{student.program_name}</td>
                     <td className={styles.td}>{student.student_type}</td>

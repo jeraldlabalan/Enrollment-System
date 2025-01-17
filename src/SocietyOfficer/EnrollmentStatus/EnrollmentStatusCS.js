@@ -4,6 +4,7 @@ import { SessionContext } from "../../contexts/SessionContext";
 import styles from "./EnrollmentStatus.module.css"; // Ensure this file exists
 import HeaderCS from "../Header/HeaderCS";
 import ReceiptPrint from "./ReceiptPrint";
+import default_profile from "../../assets/default-profile-photo.jpg";
 
 const EnrollmentStatusCS = () => {
   const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
@@ -19,6 +20,7 @@ const EnrollmentStatusCS = () => {
   const [rejectReason, setRejectReason] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  
 
   useEffect(() => {
     // Redirect to login if user is not authenticated
@@ -149,8 +151,7 @@ const EnrollmentStatusCS = () => {
               <thead>
                 <tr>
                   <th className={styles.thTd}>Student ID</th>
-                  <th className={styles.thTd}>Last Name</th>
-                  <th className={styles.thTd}>First Name</th>
+                  <th className={styles.thTd}>Name</th>
                   <th className={styles.thTd}>Student Type</th>
                   <th className={styles.thTd}>Year Standing</th>
                   <th className={styles.thTd}>Status</th>
@@ -162,8 +163,14 @@ const EnrollmentStatusCS = () => {
   filteredAndSortedStudents.map((student) => (
     <tr key={student.id}>
       <td className={styles.td}>{student.student_id}</td>
-      <td className={styles.td}>{student.last_name}</td>
-      <td className={styles.td}>{student.first_name}</td>
+      <td className={styles.td}>
+
+      <div>
+                      <img src={default_profile} alt="profile picture" />
+                      <p>{student.first_name} {student.last_name}</p>
+                    </div>
+      </td>
+    
       <td className={styles.td}>{student.student_type}</td>
       <td className={styles.td}>{student.year_level}</td>
       <td className={styles.td}>

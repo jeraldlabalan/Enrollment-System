@@ -159,8 +159,8 @@ button:hover {
   border-radius: 6px;
   width: 500px;
   height: 150x;
-  max-height: 150px;
-  overflow-y: scroll;
+  height: 150px;
+  overflow-y: auto;
   text-align: justify;
   display: flex;
   flex-direction: column;

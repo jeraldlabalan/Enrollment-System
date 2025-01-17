@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { SessionContext } from "../../contexts/SessionContext";
 import styles from "./Schedule.module.css" // Ensure this file exists
 import HeaderCS from "../Header/HeaderCS";
+import default_profile from "../../assets/default-profile-photo.jpg";
 
 const ScheduleCS = () => {
   const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
@@ -151,8 +152,7 @@ const ScheduleCS = () => {
               <thead>
                 <tr>
                   <th className={styles.thTd}>Student ID</th>
-                  <th className={styles.thTd}>Last Name</th>
-                  <th className={styles.thTd}>First Name</th>
+                  <th className={styles.thTd}>Name</th>
                   <th className={styles.thTd}>Student Type</th>
                   <th className={styles.thTd}>Year Standing</th>
                   <th className={styles.thTd}>Advising Date</th>
@@ -164,8 +164,12 @@ const ScheduleCS = () => {
   filteredAndSortedStudents.map((student) => (
     <tr key={student.id}>
       <td className={styles.td}>{student.student_id}</td>
-      <td className={styles.td}>{student.last_name}</td>
-      <td className={styles.td}>{student.first_name}</td>
+      <td className={styles.td}>
+      <div>
+                      <img src={default_profile} alt="profile picture" />
+                      <p>{student.first_name} {student.last_name}</p>
+                    </div>
+        </td>
       <td className={styles.td}>{student.student_type}</td>
       <td className={styles.td}>{student.year_level}</td>
       <td className={styles.td}>{new Date(student.Advising_date).toISOString().split("T")[0]}</td>

@@ -26,7 +26,7 @@ import Students from "./Admin/Students/Students";
 import EnrollmentStatusCS from "./SocietyOfficer/EnrollmentStatus/EnrollmentStatusCS";
 import ScheduleCS from "./SocietyOfficer/Schedule/ScheduleCS";
 import AdmissionAndFaqs from "./Student/AdmissionAndFaqs/AdmissionAndFaqs";
-
+import ODashboard from "./SocietyOfficer/O_Dashboard/ODashboard";
 
 function App() {
   return (
@@ -65,6 +65,7 @@ function App() {
         <Route path="/ScheduleCS" element={<ScheduleCS />} />
         <Route path="/AdmissionAndFaqs" element={<AdmissionAndFaqs />} />
         <Route path="/schedulecs" element={<ScheduleCS />} />
+        <Route path="/odashboard" element={<ScheduleCS />} />
       </Routes>
    
   );

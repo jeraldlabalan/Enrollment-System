@@ -47,9 +47,9 @@ const HeaderCS = () => {
         </Link>
       </div>
       <nav className={styles.nav}>
-        <Link to="">
+      
           <a className={styles.navLink}>Dashboard</a>
-        </Link>
+  
 
         <Link to="/schedulecs">
         <a className={styles.navLink}>Schedule</a>

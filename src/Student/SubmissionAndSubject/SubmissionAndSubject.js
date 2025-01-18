@@ -5,7 +5,8 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import { SessionContext } from "../../contexts/SessionContext";
 import { toast, ToastContainer } from "react-toastify";
 import upload_file from "../../assets/upload-file.png";
-import pdfIcon from "../../assets/pdf-icon.png"
+import pdfIcon from "../../assets/pdf-icon.png";
+import close from "../../assets/close-icon.png";
 
 const SubmissionAndSubject = () => {
   const [AdvisingDate, setAdvisingDate] = useState(""); // State for enrollment date
@@ -24,7 +25,7 @@ const SubmissionAndSubject = () => {
   const [recentFiles, setRecentFiles] = useState({
     curriculumChecklist: [],
     certificateOfRegistration: [],
-    transcriptOfRecords: []
+    transcriptOfRecords: [],
   });
   useEffect(() => {
     console.log("User state:", user);
@@ -34,11 +35,11 @@ const SubmissionAndSubject = () => {
   }, [sessionLoading, user, navigate]);
 
   const handleNext = () => {
-    setStep((prevStep) => prevStep + 1);
+    setStep((prevStep) => (prevStep < 3 ? prevStep + 1 : prevStep));
   };
 
   const handleBack = () => {
-    setStep((prevStep) => prevStep - 1);
+    setStep((prevStep) => (prevStep > 1 ? prevStep - 1 : prevStep));
   };
 
   const handleInputChange = (index, event) => {
@@ -77,7 +78,7 @@ const SubmissionAndSubject = () => {
     0
   ); // Calculate total units
 
-
+  // Logic for upload file
   const handleFileChange = (event, fileType) => {
     const file = event.target.files[0];
     if (file) {
@@ -85,9 +86,18 @@ const SubmissionAndSubject = () => {
         ...prevFiles,
         [fileType]: [...prevFiles[fileType], file.name],
       }));
+      // Reset the file input value to allow re-uploading the same file
+      event.target.value = "";
     }
   };
 
+  // Logic for remove uploaded file
+  const handleRemoveFile = (fileType, index) => {
+    setRecentFiles((prevFiles) => ({
+      ...prevFiles,
+      [fileType]: prevFiles[fileType].filter((_, i) => i !== index),
+    }));
+  };
 
   return (
     <div className={styles.container}>
@@ -305,17 +315,20 @@ const SubmissionAndSubject = () => {
         {step === 3 && (
           <div className={styles.step3_container}>
             <div className={styles.upload_file_section}>
-              
               <div className={styles.section}>
-                <h2 className={styles.sectionTitle}>Curriculum Curriculum Checklist</h2>
+                <h2 className={styles.sectionTitle}>
+                  Curriculum Curriculum Checklist
+                </h2>
                 <div className={styles.sectionContent}>
                   <label htmlFor="file" className={styles.uploadBox}>
                     <input
                       type="file"
                       className={styles.hiddenInput}
                       id="file"
-                      accept=".pdf"
-                      onChange={(e) => handleFileChange(e, 'curriculumChecklist')}
+                      // accept=".pdf"
+                      onChange={(e) =>
+                        handleFileChange(e, "curriculumChecklist")
+                      }
                     />
 
                     <img src={upload_file} />
@@ -324,26 +337,32 @@ const SubmissionAndSubject = () => {
                   <div className={styles.feedback}>
                     <p>FEEDBACK FROM</p>
                     <p>
-                      <span>Princess Mae Binalagbag</span>
+                      <span>{/* Author */}</span>
                     </p>
                     <p>
-                      <span>"Labo amputa send mo ulit"</span>
+                      <span>{/* Actual Feedback */}</span>
                     </p>
                   </div>
 
                   <div className={styles.recentFiles}>
-                    <p>Recently Uploaded File</p>
+                    <p className={styles.file_header}>Recently Uploaded File</p>
                     <ul>
-                    {recentFiles.curriculumChecklist.map((file, index) => (
-                      <li key={index} className={styles.file}>
-                        <img
-                          src="./images/pdf.png"
-                          alt="PDF"
-                          className={styles.pdfIcon}
-                        />
-                        {file}
-                      </li>
-                    ))}
+                      {recentFiles.curriculumChecklist.map((file, index) => (
+                        <li key={index} className={styles.file}>
+                          <img
+                            src={pdfIcon}
+                            alt="PDF"
+                            className={styles.pdfIcon}
+                          />
+                          <p>{file}</p>
+                          <img
+                            src={close}
+                            onClick={() =>
+                              handleRemoveFile("curriculumChecklist", index)
+                            }
+                          />
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -352,13 +371,15 @@ const SubmissionAndSubject = () => {
               <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>Last Issued COR</h2>
                 <div className={styles.sectionContent}>
-                  <label htmlFor="file" className={styles.uploadBox}>
+                  <label htmlFor="cor" className={styles.uploadBox}>
                     <input
                       type="file"
                       className={styles.hiddenInput}
-                      id="file"
-                      accept=".pdf"
-                      onChange={(e) => handleFileChange(e, 'curriculumChecklist')}
+                      id="cor"
+                      // accept=".pdf"
+                      onChange={(e) =>
+                        handleFileChange(e, "certificateOfRegistration")
+                      }
                     />
 
                     <img src={upload_file} />
@@ -367,26 +388,37 @@ const SubmissionAndSubject = () => {
                   <div className={styles.feedback}>
                     <p>FEEDBACK FROM</p>
                     <p>
-                      <span>Princess Mae Binalagbag</span>
+                      <span>{/* Author */}</span>
                     </p>
                     <p>
-                      <span>"Labo amputa send mo ulit"</span>
+                      <span>{/* Actual Feedback */}</span>
                     </p>
                   </div>
 
                   <div className={styles.recentFiles}>
-                    <p>Recently Uploaded File</p>
+                    <p className={styles.file_header}>Recently Uploaded File</p>
                     <ul>
-                    {recentFiles.certificateOfRegistration.map((file, index) => (
-                      <li key={index} className={styles.file}>
-                        <img
-                          src="./images/pdf.png"
-                          alt="PDF"
-                          className={styles.pdfIcon}
-                        />
-                        {file}
-                      </li>
-                    ))}
+                      {recentFiles.certificateOfRegistration.map(
+                        (file, index) => (
+                          <li key={index} className={styles.file}>
+                            <img
+                              src={pdfIcon}
+                              alt="PDF"
+                              className={styles.pdfIcon}
+                            />
+                            <p>{file}</p>
+                            <img
+                              src={close}
+                              onClick={() =>
+                                handleRemoveFile(
+                                  "certificateOfRegistration",
+                                  index
+                                )
+                              }
+                            />
+                          </li>
+                        )
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -395,13 +427,15 @@ const SubmissionAndSubject = () => {
               <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>Transcript of Records</h2>
                 <div className={styles.sectionContent}>
-                  <label htmlFor="file" className={styles.uploadBox}>
+                  <label htmlFor="tor" className={styles.uploadBox}>
                     <input
                       type="file"
                       className={styles.hiddenInput}
-                      id="file"
-                      accept=".pdf"
-                      onChange={(e) => handleFileChange(e, 'curriculumChecklist')}
+                      id="tor"
+                      // accept=".pdf"
+                      onChange={(e) =>
+                        handleFileChange(e, "transcriptOfRecords")
+                      }
                     />
 
                     <img src={upload_file} />
@@ -410,26 +444,35 @@ const SubmissionAndSubject = () => {
                   <div className={styles.feedback}>
                     <p>FEEDBACK FROM</p>
                     <p>
-                      <span>Princess Mae Binalagbag</span>
+                      <span>{/* Author */}</span>
                     </p>
                     <p>
-                      <span>"Labo amputa send mo ulit"</span>
+                      <span>{/* Actual Feedback */}</span>
                     </p>
                   </div>
 
                   <div className={styles.recentFiles}>
-                    <p>Recently Uploaded File</p>
+                    <p className={styles.file_header}>
+                      {" "}
+                      Recently Uploaded File
+                    </p>
                     <ul>
-                    {recentFiles.transcriptOfRecords.map((file, index) => (
-                      <li key={index} className={styles.file}>
-                        <img
-                          src="./images/pdf.png"
-                          alt="PDF"
-                          className={styles.pdfIcon}
-                        />
-                        {file}
-                      </li>
-                    ))}
+                      {recentFiles.transcriptOfRecords.map((file, index) => (
+                        <li key={index} className={styles.file}>
+                          <img
+                            src={pdfIcon}
+                            alt="PDF"
+                            className={styles.pdfIcon}
+                          />
+                          <p>{file}</p>
+                          <img
+                            src={close}
+                            onClick={() =>
+                              handleRemoveFile("transcriptOfRecords", index)
+                            }
+                          />
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -438,7 +481,7 @@ const SubmissionAndSubject = () => {
 
             <div className={styles.schedule_section}>
               <div className={styles.select_advising_date}>
-                <p>Select an advising date</p>
+                <h2>Select an Advising Date</h2>
                 <input
                   type="date"
                   className={styles.input}
@@ -451,20 +494,50 @@ const SubmissionAndSubject = () => {
         )}
 
         <div className={styles.navigate_buttons}>
-          <button
-            type="button"
-            className={`${styles.button} ${styles.back_button}`}
-            onClick={handleBack}
-          >
-            Back
-          </button>
-          <button
-            type="button"
-            className={`${styles.button} ${styles.next_button}`}
-            onClick={handleNext}
-          >
-            Next
-          </button>
+          {step === 1 && (
+            <button
+              type="button"
+              className={`${styles.button} ${styles.next_button}`}
+              onClick={handleNext}
+            >
+              Next
+            </button>
+          )}
+          {step === 2 && (
+            <>
+              <button
+                type="button"
+                className={`${styles.button} ${styles.back_button}`}
+                onClick={handleBack}
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                className={`${styles.button} ${styles.next_button}`}
+                onClick={handleNext}
+              >
+                Next
+              </button>
+            </>
+          )}
+          {step === 3 && (
+            <>
+              <button
+                type="button"
+                className={`${styles.button} ${styles.back_button}`}
+                onClick={handleBack}
+              >
+                Back
+              </button>
+              <button
+                type="submit"
+                className={`${styles.button} ${styles.submit_button}`}
+              >
+                Submit
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

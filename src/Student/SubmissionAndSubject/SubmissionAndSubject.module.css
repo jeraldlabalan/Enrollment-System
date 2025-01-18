@@ -320,7 +320,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  gap: 20px;
+  gap: 70px;
 }
 
 .step3_container .upload_file_section {
@@ -332,21 +332,20 @@
 
 .step3_container .schedule_section {
   display: flex;
-  height: auto;
 }
 
 .schedule_section .select_advising_date {
   display: flex;
-  width: 550px;
-  justify-content: space-between;
-  margin-left: 135px;
+  width: 100%;
+  justify-content: center;
   align-items: center;
+  gap: 20px;
 }
 
 
-.select_advising_date select {
+.select_advising_date input[type="date"] {
   height: 35px;
-  width: 300px;
+  width: 20%;
   border-radius: 8px;
   cursor: pointer;
 } 
@@ -365,6 +364,26 @@
   cursor: pointer;
   padding: 15px 40px;
   margin: 0 !important;
+}
+
+.file {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+
+    p {
+      flex: 1;
+      font-size: var(--normal-font-size);
+      text-overflow: ellipsis;
+      width: 10ch;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    img {
+      width: 15px;
+    }
 }
 
 .upload_button i {
@@ -450,7 +469,7 @@ thead tr th {
 .sectionContent {
   display: grid;
   grid-template-columns: 300px 1fr 1fr;
-  grid-template-rows: 125px;
+  grid-template-rows: 100px;
   gap: 10px;
 }
 
@@ -526,7 +545,7 @@ thead tr th {
   margin: 0 auto;
   overflow-y: auto;
 
-    p {
+    .file_header {
       font-size: var(--normal-font-size);
       text-transform: uppercase;
       font-weight: bold;

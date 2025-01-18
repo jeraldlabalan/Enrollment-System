@@ -65,7 +65,7 @@ function App() {
         <Route path="/ScheduleCS" element={<ScheduleCS />} />
         <Route path="/AdmissionAndFaqs" element={<AdmissionAndFaqs />} />
         <Route path="/schedulecs" element={<ScheduleCS />} />
-        <Route path="/odashboard" element={<ScheduleCS />} />
+        <Route path="/odashboard" element={<ODashboard />} />
       </Routes>
    
   );

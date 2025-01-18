@@ -155,6 +155,7 @@ const Enrollees = () => {
   
       const result = await response.json();
       alert(result.message);
+      window.location.reload();
     } catch (error) {
       console.error('Error updating enrollment status:', error);
     }

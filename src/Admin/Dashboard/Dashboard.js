@@ -113,8 +113,10 @@ const Dashboard = () => {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to post announcement.");
       }
+
       const result = await response.json();
-      alert(result.message);
+      window.location.reload();
+      toast.success(result.message);
       setAnnouncementText(""); // Clear the textarea
     } catch (error) {
       console.error("Failed to post announcement:", error);

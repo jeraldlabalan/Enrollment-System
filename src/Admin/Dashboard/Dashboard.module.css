@@ -492,6 +492,14 @@ p, h5, span, strong {
   right: 0;
 }
 
-.activeNavLink {
-  color: blue;
+
+
+/* Dashboard Active */
+
+.navLink {
+  color: #aaa !important; /* Color for inactive nav links */
+}
+
+.nav .activeNavLink {
+  color: white !important; /* Color for active nav links */
 }

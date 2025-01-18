@@ -1,39 +1,36 @@
-import React, { useContext, useState, useEffect } from "react"; // Import useContext
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Link, useNavigate, NavLink } from "react-router-dom";
 import { SessionContext } from '../../contexts/SessionContext';
-
 import styles from "./Dashboard.module.css"; // Import custom styles
 
 const DashboardHeader = () => {
-    const [activeDropdown, setActiveDropdown] = useState(null); // Manages active dropdown state
-     const location = useLocation();
-    
-    const toggleDropdown = (menu) => {
-      setActiveDropdown((prev) => (prev === menu ? null : menu));
-    };
-    
-    const navigate = useNavigate(); // Hook for navigation
-    const { setUser } = useContext(SessionContext); // Access setUser from context
+  const [activeDropdown, setActiveDropdown] = useState(null); // Manages active dropdown state
+  const navigate = useNavigate(); // Hook for navigation
+  const { setUser } = useContext(SessionContext); // Access setUser from context
 
-    const handleLogout = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/logout", {
-          method: "POST",
-          credentials: "include", // Include cookies
-        });
-  
-        if (response.ok) {
-          // Clear user session context
-          setUser(null); // Update session context to null (logged out)
-          // Redirect to login page
-          navigate("/login");
-        } else {
-          console.error("Logout failed with status:", response.status);
-        }
-      } catch (error) {
-        console.error("Error during logout:", error);
+  const toggleDropdown = (menu) => {
+    setActiveDropdown((prev) => (prev === menu ? null : menu));
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/logout", {
+        method: "POST",
+        credentials: "include", // Include cookies
+      });
+
+      if (response.ok) {
+        // Clear user session context
+        setUser(null); // Update session context to null (logged out)
+        // Redirect to login page
+        navigate("/login");
+      } else {
+        console.error("Logout failed with status:", response.status);
       }
-    };
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
 
   return (
     <div className={styles.header}>
@@ -54,20 +51,30 @@ const DashboardHeader = () => {
         </Link>
       </div>
       <nav className={styles.nav}>
-        <Link to="/dashboard" id="dashboard" className={`${styles.navLink}`}
-          >
+        <NavLink 
+          to="/dashboard" 
+          className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeNavLink}` : styles.navLink}
+        >
           Dashboard
-        </Link>
-        <Link to="/enrollees" className={styles.navLink}>
+        </NavLink>
+        <NavLink 
+          to="/enrollees" 
+          className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeNavLink}` : styles.navLink}
+        >
           Enrollees
-        </Link>
-        <Link to="/students" className={styles.navLink}>
-          <a className={styles.navLink}>Students</a>
-        </Link>
-
-        <Link to="/enrollmentteam">
-          <a className={styles.navLink}>Enrollment Team</a>
-        </Link>
+        </NavLink>
+        <NavLink 
+          to="/students" 
+          className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeNavLink}` : styles.navLink}
+        >
+          Students
+        </NavLink>
+        <NavLink 
+          to="/enrollmentteam" 
+          className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeNavLink}` : styles.navLink}
+        >
+          Enrollment Team
+        </NavLink>
         <a
           className={styles.navLink}
           onClick={handleLogout}
@@ -77,35 +84,34 @@ const DashboardHeader = () => {
         </a>
 
         <div 
-        className={`${styles.navLink} ${styles.bell_button}`}
-        onClick={() => toggleDropdown("notification")}
+          className={`${styles.navLink} ${styles.bell_button}`}
+          onClick={() => toggleDropdown("notification")}
         >
-          <i  className={`fa-solid fa-bell`}></i>
+          <i className={`fa-solid fa-bell`}></i>
           <div className={styles.notification_mark}>
             10
           </div>
           {activeDropdown === "notification" && (
-        <div className={styles.dropdown_menu}>
-          <div className={styles.notification}>    
-              <div className={styles.notification_subject}>
-                <p>
-                  Advising Date
-                </p>
-                <p>
-                  10:02AM
-                </p>
+            <div className={styles.dropdown_menu}>
+              <div className={styles.notification}>    
+                <div className={styles.notification_subject}>
+                  <p>
+                    Advising Date
+                  </p>
+                  <p>
+                    10:02AM
+                  </p>
+                </div>
+                <div className={styles.notification_message}>
+                  <p>
+                    John Doe assigned enrollment date to: September 20
+                  </p>
+                </div>
               </div>
-              <div className={styles.notification_message}>
-              <p>
-              John Doe assigned enrollment date to: September 20
-              </p>
-              </div>
-          </div>
-        </div>
-      )}
+            </div>
+          )}
         </div>
       </nav>
-
     </div>
   );
 };

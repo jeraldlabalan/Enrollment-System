@@ -47,7 +47,7 @@ app.use(
 const db = mysql.createPool({
   host: "localhost", // Replace with your DB host
   user: "root", // Replace with your MySQL username
-  password: "Jerald_11783", // Replace with your MySQL password
+  password: "aji123", // Replace with your MySQL password
   database: "enrollment_system", // Replace with your DB name
 });
 

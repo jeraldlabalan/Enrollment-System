@@ -1,64 +1,28 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-import { checkSession, logout } from "../../utils/session";
-import styles from "./Home.module.css";
+import { useNavigate, Link } from "react-router-dom";
 import { SessionContext } from "../../contexts/SessionContext";
+import styles from "./Home.module.css";
 import Header from "../Header/Header";
 
 const Home = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
-
-  const userId = location.state?.userId;
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const initialize = async () => {
-      const initialize = async () => {
-        // Check if the session is valid and user is authenticated
-        if (!sessionLoading && !user) {
-          navigate("/login", { replace: true });
-          return;
-        }
-  
-        if (userId) {
-          await fetchUserData(); // Fetch user data if the user is logged in
-        } else {
-          console.error("Missing userId.");
-          setError("Invalid userId.");
-          navigate("/login", { replace: true });
-        }
-      };
-  
-      const userId = user?.id; // Get from session instead of location.state
-  
-      if (userId) {
-        console.log("Fetching data for userId:", userId);
-        await fetchUserData(userId);
-      } else {
-        console.error("User ID is missing.");
-        setError("Invalid user session.");
-        navigate("/login", { replace: true });
-      }
-    };
-  
-    const fetchUserData = async (userId) => {
-      setIsLoading(true);
-      setError(null);
-    
+    const fetchUserData = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/user/${userId}`, {
+        const response = await fetch(`http://localhost:5000/user/${user.user_id}`, {
           credentials: "include",
         });
-    
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || "Failed to fetch user data.");
         }
-    
+
         const data = await response.json();
         setUserData(data);
       } catch (err) {
@@ -68,8 +32,12 @@ const Home = () => {
         setIsLoading(false);
       }
     };
-  
-    initialize();
+
+    if (!sessionLoading && user) {
+      fetchUserData();
+    } else if (!sessionLoading && !user) {
+      navigate("/login", { replace: true }); // Redirect to login if no session
+    }
   }, [sessionLoading, user, navigate]);
 
   const handleLogout = async () => {

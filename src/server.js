@@ -72,17 +72,35 @@ app.get("/", (req, res) => {
     res.send("Welcome! Refresh to count views.");
   }
 });
+app.get("/user/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  const query = `
+    SELECT * FROM tbl_user_account WHERE user_id = ?
+  `;
+
+  try {
+    const [results] = await db.query(query, [userId]);
+    if (results.length === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+    res.status(200).json(results[0]);
+  } catch (error) {
+    console.error("Error fetching user data:", error.message);
+    res.status(500).json({ message: "Database error." });
+  }
+});
 
 app.get("/session", async (req, res) => {
   try {
+    console.log("Session Retrieved:", req.session);
     if (req.session && req.session.user) {
-      // Return session data if the user is authenticated
       return res.status(200).json({ user: req.session.user });
-    } 
-    throw new Error("Unauthorized. No active session.");
+    }
+    return res.status(401).json({ message: "Unauthorized" });
   } catch (error) {
-    console.error("Session Error:", error.message);
-    res.status(401).json({ message: error.message });
+    console.error("Error retrieving session:", error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 

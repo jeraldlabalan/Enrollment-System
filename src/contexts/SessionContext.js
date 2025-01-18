@@ -1,45 +1,61 @@
-// src/context/SessionContext.js
 import React, { createContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
-// Create the context
 export const SessionContext = createContext();
 
-// Session Provider Component
 export const SessionProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Store session user
-  const [isLoading, setIsLoading] = useState(true); // Loading state for session check
-  const navigate = useNavigate(); // Access navigate function for redirection
+  const [user, setUser] = useState(null); // Stores the logged-in user data
+  const [isLoading, setIsLoading] = useState(true); // Indicates whether session data is being fetched
+  const [error, setError] = useState(null); // Stores session-related errors, if any
 
-  // Function to check the session on page load
-  const fetchSession = async () => {
+  // Function to check the session from the backend
+  const checkSession = async () => {
+    setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/check-session", {
-        method: "GET",
-        credentials: "include", // Include cookies
+      const response = await fetch("http://localhost:5000/session", {
+        credentials: "include", // Include cookies for authentication
       });
 
       if (response.ok) {
         const data = await response.json();
-        setUser(data.user); // Set the user from the session
+        setUser(data.user); // Save user data from the session
       } else {
-        setUser(null); // No valid session
+        setUser(null);
+        console.error("Session check failed.");
       }
-    } catch (error) {
-      console.error("Error fetching session:", error);
+    } catch (err) {
+      console.error("Error checking session:", err);
+      setError(err.message);
       setUser(null);
     } finally {
-      setIsLoading(false); // Stop loading after the request
+      setIsLoading(false);
     }
   };
 
-  // Run fetchSession on component mount
+  // Function to log out the user
+  const logout = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        setUser(null); // Clear session data on logout
+      } else {
+        console.error("Logout failed.");
+        throw new Error("Failed to log out.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
-    fetchSession();
+    checkSession(); // Automatically check session on app load
   }, []);
 
   return (
-    <SessionContext.Provider value={{ user, setUser, isLoading, navigate }}>
+    <SessionContext.Provider value={{ user, isLoading, logout, error }}>
       {children}
     </SessionContext.Provider>
   );

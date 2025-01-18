@@ -1,31 +1,38 @@
-
 import styles from "./SubmissionAndSubject.module.css";
 import Header from "../Header/Header";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { SessionContext } from "../../contexts/SessionContext";
+import { toast, ToastContainer } from "react-toastify";
+import upload_file from "../../assets/upload-file.png";
+import pdfIcon from "../../assets/pdf-icon.png"
 
 const SubmissionAndSubject = () => {
   const [AdvisingDate, setAdvisingDate] = useState(""); // State for enrollment date
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout, validateSession, sessionLoading } = useContext(SessionContext);
+  const { user, logout, validateSession, sessionLoading } =
+    useContext(SessionContext);
   const [step, setStep] = useState(1);
-  const [subjectRows, setSubjectRows] = useState([
-    { id: 1, subject: "", units: "" },
-  ]);
+  const [subjectRows, setSubjectRows] = useState([{ subject: "", units: 3 }]); // Example initial state
+  const lastRowRef = useRef(null);
+
   const userId = location.state?.userId;
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  // Validate session on component mount
+  const [recentFiles, setRecentFiles] = useState({
+    curriculumChecklist: [],
+    certificateOfRegistration: [],
+    transcriptOfRecords: []
+  });
   useEffect(() => {
-      console.log("User state:", user);
-      if (!sessionLoading && !user) {
-        navigate("/login", { replace: true });
-      }
-    }, [sessionLoading, user, navigate]);
-    
+    console.log("User state:", user);
+    if (!sessionLoading && !user) {
+      navigate("/login", { replace: true });
+    }
+  }, [sessionLoading, user, navigate]);
+
   const handleNext = () => {
     setStep((prevStep) => prevStep + 1);
   };
@@ -42,15 +49,16 @@ const SubmissionAndSubject = () => {
   };
 
   const addSubjectRow = () => {
-    if (subjectRows.length >= 12) {
-      alert("You can only add up to 12 subjects.");
+    const totalUnits = subjectRows.reduce(
+      (sum, row) => sum + parseFloat(row.units || 0),
+      0
+    );
+    if (totalUnits > 35) {
+      toast.error("You can only take up to 35 units.");
       return;
     }
 
-    setSubjectRows([
-      ...subjectRows,
-      { id: Date.now(), subject: "", units: "" },
-    ]);
+    setSubjectRows([...subjectRows, { subject: "", units: 3 }]); // Add a new row with default units
   };
 
   const handleRemoveRow = (index) => {
@@ -58,13 +66,48 @@ const SubmissionAndSubject = () => {
     setSubjectRows(newRows);
   };
 
+  useEffect(() => {
+    if (lastRowRef.current) {
+      lastRowRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [subjectRows]);
+
+  const totalUnits = subjectRows.reduce(
+    (sum, row) => sum + parseFloat(row.units || 0),
+    0
+  ); // Calculate total units
+
+
+  const handleFileChange = (event, fileType) => {
+    const file = event.target.files[0];
+    if (file) {
+      setRecentFiles((prevFiles) => ({
+        ...prevFiles,
+        [fileType]: [...prevFiles[fileType], file.name],
+      }));
+    }
+  };
+
+
   return (
     <div className={styles.container}>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <header className={styles.header}>
         <Header />
       </header>
 
-      <h1 className={styles.title}>Subjects and Submission</h1>
+      <div className={styles.page_title}>
+        <h1>Submission and Subjects</h1>
+      </div>
 
       <div className={styles.content}>
         {step === 1 && (
@@ -94,9 +137,11 @@ const SubmissionAndSubject = () => {
                   <div>
                     <input type="radio" id="S1" name="category" value="S1" />
                     <label className={styles.radio_label} htmlFor="S1">
+                      <span className={styles.custom_radio}></span>
                       S1
                     </label>
                   </div>
+
                   <div>
                     <input type="radio" id="S2" name="category" value="S2" />
                     <label className={styles.radio_label} htmlFor="S2">
@@ -130,6 +175,7 @@ const SubmissionAndSubject = () => {
                 </div>
               </div>
             </div>
+
             <div className={styles.student_info_right}>
               <div className={styles.enrollment_data}>
                 <div className={styles.field}>
@@ -138,41 +184,34 @@ const SubmissionAndSubject = () => {
                     type="text"
                     id="studentId"
                     name="studentId"
-                    placeholder=""
+                    placeholder="Format: 202511111"
                     className={styles.input}
                   />
                 </div>
 
                 <div className={styles.field}>
                   <label className={styles.label}>Year Level</label>
-                  <input
-                    type="text"
-                    id="yearlvl"
-                    name="studentId"
-                    placeholder=""
-                    className={styles.input}
-                  />
+                  <select className={styles.input}>
+                    <option value="" disabled>
+                      Select
+                    </option>
+                    <option value="first year">First Year</option>
+                    <option value="second year">Second Year</option>
+                    <option value="third year">Third Year</option>
+                    <option value="fourth year">Fourth Year</option>
+                  </select>
                 </div>
 
                 <div className={styles.field}>
                   <label className={styles.label}>Program</label>
-                  <input
-                    type="text"
-                    id="program"
-                    name="program"
-                    placeholder=""
-                    className={styles.input}
-                  />
+                  <select className={styles.input}>
+                    <option value="" disabled>
+                      Select
+                    </option>
+                    <option value="first year">Computer Science</option>
+                    <option value="second year">Information Technology</option>
+                  </select>
                 </div>
-              </div>
-              <div className={styles.next_button}>
-                <button
-                  type="button"
-                  className={styles.submitbtn}
-                  onClick={handleNext}
-                >
-                  Next
-                </button>
               </div>
             </div>
           </div>
@@ -181,12 +220,13 @@ const SubmissionAndSubject = () => {
         {step === 2 && (
           <div className={styles.step2_container}>
             <div className={styles.step2_header}>
-              <h1>Select subjects</h1>
+              <h2>Select Subjects</h2>
               <p>
                 Minimum of 15 units. Please note that the selected subjects will
                 be subjected to advising. It will change depending on schedule
                 discrepancies and prerequisite subject conflicts.
               </p>
+              <p>Total units: {totalUnits}</p>
             </div>
 
             <div className={styles.step2_content}>
@@ -223,14 +263,13 @@ const SubmissionAndSubject = () => {
                             </select>
                           </td>
                           <td>
-                            <input
-                              type="text"
-                              name="units"
-                              placeholder="3.00"
+                            <div
                               className={styles.num_units}
                               value={row.units}
                               onChange={(e) => handleInputChange(index, e)}
-                            />
+                            >
+                              <p>3</p>
+                            </div>
                           </td>
                           <td>
                             {index === 0 ? (
@@ -260,88 +299,176 @@ const SubmissionAndSubject = () => {
                 </div>
               </div>
             </div>
-            <div className={styles.navigate_buttons}>
-              <button
-                type="button"
-                className={`${styles.button} ${styles.back_button}`}
-                onClick={handleBack}
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                className={`${styles.button} ${styles.next_button}`}
-                onClick={handleNext}
-              >
-                Next
-              </button>
-            </div>
           </div>
         )}
 
         {step === 3 && (
           <div className={styles.step3_container}>
             <div className={styles.upload_file_section}>
-              <div className={styles.upload_checklist}>
-                <p className={styles.upload_description}>
-                  Submit a signed copy of the curriculum checklist.
-                </p>
-                <label className={styles.upload_button}>
-                <i class="fa-solid fa-plus"></i>
-                  Upload File
-                  <input
-                    type="file"
-                    className={styles.hidden_input}
-                    accept=".jpg,.jpeg,.png,.pdf"
-                  />
-                </label>
+              
+              <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>Curriculum Curriculum Checklist</h2>
+                <div className={styles.sectionContent}>
+                  <label htmlFor="file" className={styles.uploadBox}>
+                    <input
+                      type="file"
+                      className={styles.hiddenInput}
+                      id="file"
+                      accept=".pdf"
+                      onChange={(e) => handleFileChange(e, 'curriculumChecklist')}
+                    />
+
+                    <img src={upload_file} />
+                  </label>
+
+                  <div className={styles.feedback}>
+                    <p>FEEDBACK FROM</p>
+                    <p>
+                      <span>Princess Mae Binalagbag</span>
+                    </p>
+                    <p>
+                      <span>"Labo amputa send mo ulit"</span>
+                    </p>
+                  </div>
+
+                  <div className={styles.recentFiles}>
+                    <p>Recently Uploaded File</p>
+                    <ul>
+                    {recentFiles.curriculumChecklist.map((file, index) => (
+                      <li key={index} className={styles.file}>
+                        <img
+                          src="./images/pdf.png"
+                          alt="PDF"
+                          className={styles.pdfIcon}
+                        />
+                        {file}
+                      </li>
+                    ))}
+                    </ul>
+                  </div>
+                </div>
               </div>
 
-              <div className={styles.upload_cor}>
-                <p className={styles.upload_description}>
-                  Submit the last semester's certificate of registration.
-                </p>
-                <label className={styles.upload_button}>
-                <i class="fa-solid fa-plus"></i>
-                  Upload File
-                  <input
-                    type="file"
-                    className={styles.hidden_input}
-                    accept=".jpg,.jpeg,.png,.pdf"
-                  />
-                </label>
+              <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>Last Issued COR</h2>
+                <div className={styles.sectionContent}>
+                  <label htmlFor="file" className={styles.uploadBox}>
+                    <input
+                      type="file"
+                      className={styles.hiddenInput}
+                      id="file"
+                      accept=".pdf"
+                      onChange={(e) => handleFileChange(e, 'curriculumChecklist')}
+                    />
+
+                    <img src={upload_file} />
+                  </label>
+
+                  <div className={styles.feedback}>
+                    <p>FEEDBACK FROM</p>
+                    <p>
+                      <span>Princess Mae Binalagbag</span>
+                    </p>
+                    <p>
+                      <span>"Labo amputa send mo ulit"</span>
+                    </p>
+                  </div>
+
+                  <div className={styles.recentFiles}>
+                    <p>Recently Uploaded File</p>
+                    <ul>
+                    {recentFiles.certificateOfRegistration.map((file, index) => (
+                      <li key={index} className={styles.file}>
+                        <img
+                          src="./images/pdf.png"
+                          alt="PDF"
+                          className={styles.pdfIcon}
+                        />
+                        {file}
+                      </li>
+                    ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>Transcript of Records</h2>
+                <div className={styles.sectionContent}>
+                  <label htmlFor="file" className={styles.uploadBox}>
+                    <input
+                      type="file"
+                      className={styles.hiddenInput}
+                      id="file"
+                      accept=".pdf"
+                      onChange={(e) => handleFileChange(e, 'curriculumChecklist')}
+                    />
+
+                    <img src={upload_file} />
+                  </label>
+
+                  <div className={styles.feedback}>
+                    <p>FEEDBACK FROM</p>
+                    <p>
+                      <span>Princess Mae Binalagbag</span>
+                    </p>
+                    <p>
+                      <span>"Labo amputa send mo ulit"</span>
+                    </p>
+                  </div>
+
+                  <div className={styles.recentFiles}>
+                    <p>Recently Uploaded File</p>
+                    <ul>
+                    {recentFiles.transcriptOfRecords.map((file, index) => (
+                      <li key={index} className={styles.file}>
+                        <img
+                          src="./images/pdf.png"
+                          alt="PDF"
+                          className={styles.pdfIcon}
+                        />
+                        {file}
+                      </li>
+                    ))}
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
 
             <div className={styles.schedule_section}>
-            <div className={styles.select_advising_date}>
+              <div className={styles.select_advising_date}>
                 <p>Select an advising date</p>
                 <input
-              type="date"
-              className={styles.input}
-              value={AdvisingDate}
-              onChange={(e) => setAdvisingDate(e.target.value)}
-            />
+                  type="date"
+                  className={styles.input}
+                  value={AdvisingDate}
+                  onChange={(e) => setAdvisingDate(e.target.value)}
+                />
               </div>
-            </div>
-
-            <div className={styles.button_container_section}>
-              <button
-                type="button"
-                className={styles.back_button}
-                onClick={handleBack}
-              >
-                Back
-              </button>
-              <button type="button" className={styles.submit_button}>
-                Submit
-              </button>
             </div>
           </div>
         )}
+
+        <div className={styles.navigate_buttons}>
+          <button
+            type="button"
+            className={`${styles.button} ${styles.back_button}`}
+            onClick={handleBack}
+          >
+            Back
+          </button>
+          <button
+            type="button"
+            className={`${styles.button} ${styles.next_button}`}
+            onClick={handleNext}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default SubmissionAndSubject;

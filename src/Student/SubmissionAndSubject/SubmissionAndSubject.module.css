@@ -7,11 +7,17 @@
   align-items: center;
 }
 
-.title {
- width: 100%;
- margin-left: 100px;
-}
+.page_title {
+  display: flex;
+  padding: 0 50px;
+  margin: 0;
+  width: 100%;
 
+  h1 {
+    color: #000;
+    margin-bottom: 0;
+  }
+}
 .container .header {
   width: 100%;
   background-color: #1a1a1a;
@@ -59,25 +65,33 @@
 }
 
 .container .content {
+  flex: 1;
   width: 100%;
-  height: 600px;
-  padding: 0 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 100px;
+  gap: 20px;
+  
 }
 
 .container .category {
   display: flex;
-  justify-content: space-evenly;
-  align-items: center;
+  justify-content: space-between;
+  align-items: stretch;
+  width: 100%;
   height: 100%;
+  flex: 1;
 }
 
 .category .student_info_left {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  height: 100%;
+  gap: 20px;
   width: 50%;
-  padding: 0 50px;
+  
 
 }
 
@@ -90,10 +104,17 @@
 
 .student_type .student_category {
     display: flex;
-    flex-direction: row;
-    gap: 10px; 
-    align-items: center; 
-    margin: 0 auto;
+    gap: 20px;
+      div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+      }
+
+    
+
+      
 }
 
 .student_type .student_type_label {
@@ -101,7 +122,7 @@
 }
 
 .student_category .radio_label {
-  font-size: var(--h3-font-size);
+  font-size: var(--normal-font-size);
   margin: 0 2px;
   align-items: center;
   vertical-align: middle;
@@ -110,31 +131,29 @@
 .student_category input[type="radio"] {
   margin: 0 !important;
   align-items: center;
-  vertical-align: middle;
 }
 
 .category .student_info_right {
-  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
   width: 50%;
-  padding: 0 50px;
 }
 
 .student_info_right .enrollment_data{
-  width: 75%;
+  width: 50%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 50%;
-  margin-top: 50px;
+  justify-content: space-evenly;
+  height: 100%;
 
 }
 
 .enrollment_data .label {
   margin-bottom: 8px;
+  font-size: var(--normal-font-size);
+  color: #000;
 }
 
 .enrollment_data .input {
@@ -175,8 +194,9 @@
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  height: 575px;
-  padding: 0 50px;
+  flex: 1;
+  padding: 50px 100px;
+  gap: 20px;
 }
 
 .step2_container .step2_content {
@@ -190,10 +210,8 @@
   justify-content: center;
 }
 
-.step2_container .step2_header h1 {
+.step2_container .step2_header h2 {
   margin: 0;
-  margin-top: 10px;
-
 }
 
 .step2_container .step2_header p {
@@ -213,26 +231,35 @@
 
 .add_subject .dropdown,
 .add_subject .num_units {
-  height: 30px;
+  height: 35px;
   border-radius: 8px;
-  padding: 5px;
-  border: 1px solid black;
+  padding:  0 5px;
+  border: 2px solid black;
+  outline: none;
+  font-size: var(--normal-font-size);
+  text-align: center;
+  color: black;
 }
 
 .add_subject .dropdown {
-  width: 350px;
+  width: 300px;
 }
 
 .add_subject .num_units {
   width: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
 }
 
 .subject_container .add_subject_button {
-  height: 30px;
+  height: 35px;
   padding: 0 20px;
   background-color: var(--title-color);
   border-radius: 8px;
   color: white;
+  border: none;
 }
 
 .subject_container .add_subject_button:hover {
@@ -241,15 +268,23 @@
 }
 
 .subject_table .remove_button {
-  background-color: none !important;
+  background-color: #e9e7e7;
   border: none;
   color: var(--title-color);
 }
 
 .subject_table .remove_button:hover {
 
-  background-color: none !important;
+  background-color: #e9e7e7;
   color: var(--title-color-dark) !important;
+}
+
+.navigate_buttons {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
 }
 
 
@@ -259,7 +294,8 @@
   background-color: var(--title-color);
   color: white;
   border-radius: 8px;
-  margin: 0 5px;
+
+  border: none;
 }
 
 .navigate_buttons .button:hover {
@@ -278,16 +314,20 @@
 .step3_container {
   background-color: #e9e7e7;
   border-radius: 12px;
-  height: 575px;
-  padding: 0 100px;
+  width: 100%;
+  flex: 1;
+  padding: 50px 100px;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  gap: 20px;
 }
 
 .step3_container .upload_file_section {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .step3_container .schedule_section {
@@ -360,14 +400,168 @@
 
 .input {
   width: 50%;
-  padding: 5px;
-  
-  border: 1px solid #ccc;
-  
+  padding: 0 5px;
+  border: 2px solid black;
+  outline: none;
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.3s ease;
+}
+
+.student_category_code {
+  font-size: var(--normal-font-size);
+}
+
+thead tr th {
+  color: black;
+  font-size: var(--normal-font-size);
 }
 
 
 
+.section {
+  width: 100%; 
+  border: 2px dashed #000;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: white; /* Optional: Add a background color */
+  
+}
+
+.preEnrollment {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+  margin-top: 20px;
+  width: 80%;
+  max-width: 1400px;
+}
+
+.paragraph {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+.sectionTitle {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.sectionContent {
+  display: grid;
+  grid-template-columns: 300px 1fr 1fr;
+  grid-template-rows: 125px;
+  gap: 10px;
+}
+
+.uploadBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  border-radius: 8px;
+  background-color: #a5a4a4;
+  cursor: pointer;
+  
+  img {
+    width: 60px;
+  }
+}
+
+
+.uploadButton {
+  font-size: 5rem; /* Slightly larger */
+  color: #333; /* Neutral color */
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.uploadButton:hover {
+  background-color: none !important;
+}
+
+
+.hiddenInput {
+  display: none;
+}
+
+.feedback {
+  margin: 0 auto;
+  overflow-y: auto;
+  
+  p {
+    font-size: var(--normal-font-size);
+  }
+
+  p:first-of-type {
+    font-weight: bold;
+    color: #057008 !important;
+  }
+
+  p:nth-of-type(2) {
+    font-weight: var(--font-semi-bold);
+    font-style: italic;
+  }
+
+  p span {
+    font-size: var(--normal-font-size);
+  }
+  
+}
+
+
+.feedbackStatus {
+  display: inline-block;
+  background-color: #a1e9a1;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.recentFiles {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  overflow-y: auto;
+
+    p {
+      font-size: var(--normal-font-size);
+      text-transform: uppercase;
+      font-weight: bold;
+      color: #C00202;
+    }
+
+  ul li {
+    font-size: var(--normal-font-size);
+  }
+}
+
+.file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.pdfIcon {
+  width: 20px;
+  height: 20px;
+  color: #C00202;
+}
+
+.formButtons {
+  display: flex;
+  gap: 15px;
+}
+
+.formButton {
+  padding: 10px 20px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}

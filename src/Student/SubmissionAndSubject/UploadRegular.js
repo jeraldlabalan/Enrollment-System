@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import styles from './Upload.module.css';
 import Header from "../Header/Header";
 
-const SubmissionsAndSubjects = () => {
+  const SubmissionsAndSubjects = () => {
   const fileInputRef = useRef(null);
 
   const handleUploadClick = () => {

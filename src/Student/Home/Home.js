@@ -3,10 +3,15 @@ import { useNavigate, Link } from "react-router-dom";
 import { SessionContext } from "../../contexts/SessionContext";
 import styles from "./Home.module.css";
 import Header from "../Header/Header";
+import default_profile from "../../assets/default-profile-photo.jpg"
 
 const Home = () => {
   const navigate = useNavigate();
-  const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
+  const {
+    user,
+    isLoading: sessionLoading,
+    logout,
+  } = useContext(SessionContext);
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,9 +19,12 @@ const Home = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/user/${user.user_id}`, {
-          credentials: "include",
-        });
+        const response = await fetch(
+          `http://localhost:5000/user/${user.user_id}`,
+          {
+            credentials: "include",
+          }
+        );
 
         if (!response.ok) {
           const errorData = await response.json();
@@ -76,49 +84,62 @@ const Home = () => {
       <header className={styles.header}>
         <Header />
       </header>
-      <h1 className={styles.title}>Home</h1>
+      <div className={styles.page_title}>
+        <h1>Home</h1>
+      </div>
       <main className={styles.content}>
         <div className={styles.profileCard}>
-          <div className={styles.avatar}></div>
-          <strong className={styles.infoName}>Name</strong>
-          <p className={`${styles.info} ${styles.marginBelow}`}>
-            {userData.last_name}, {userData.first_name} {userData.middle_name}
-          </p>
-          <strong className={styles.infoName}>Student Number</strong>
-          <p className={`${styles.info} ${styles.marginBelow}`}>N/A</p>
-          <strong className={styles.info}>Program</strong>
-          <p className={`${styles.info} ${styles.marginBelow}`}>N/A</p>
-          <strong className={styles.info}>Year Level</strong>
-          <p className={`${styles.info} ${styles.marginBelow}`}>N/A</p>
-          <Link to="/profile" target="_blank">
-          <button className={styles.view_button}>View Details</button>
-          </Link>
+          <div className={styles.avatar}>
+            <img src={default_profile} alt="profile picture">
+            </img>
+          </div>
+
+          <div className={styles.info_container}>
+            <strong className={styles.infoName}>Name</strong>
+            <p className={`${styles.info} ${styles.marginBelow}`}>
+              {userData.last_name}, {userData.first_name} {userData.middle_name}
+            </p>
+            <strong className={styles.infoName}>Student Number</strong>
+            <p className={`${styles.info} ${styles.marginBelow}`}>N/A</p>
+            <strong className={styles.info}>Program</strong>
+            <p className={`${styles.info} ${styles.marginBelow}`}>N/A</p>
+            <strong className={styles.info}>Year Level</strong>
+            <p className={`${styles.info} ${styles.marginBelow}`}>N/A</p>
+            <Link to="/profile" target="_blank">
+              <button className={styles.view_button}>View Details</button>
+            </Link>
+          </div>
         </div>
 
         <div className={styles.content_right}>
           <div className={styles.statusCard}>
+
             <div className={styles.statusGroup}>
               <h3 className={styles.boldHeader}>Enrollment Status</h3>
               <h1 className={styles.enrollmentStatus}>Not Enrolled</h1>
               <p className={styles.statusInfo}>No Enrollment Schedule Date</p>
             </div>
+
             <div className={styles.buttonGroup}>
               <button className={styles.printButton}>Print COR</button>
               <button className={styles.printButton}>Print COE</button>
             </div>
+
           </div>
 
           <div className={styles.announcementCard}>
             <h3 className={styles.announcementTitle}>Announcements</h3>
             <div className={styles.announcementContainer}>
-              <h4>Society President</h4>
-              <p className={styles.announcementContent}>
-                Sa mga students na late mag-enroll... Paano kayo maggrow niyan,
-                hindi kayo naghihiwalay.
-              </p>
-              <div className={styles.viewAllButtonContainer}>
-                <button className={styles.viewAllButton}>VIEW ALL</button>
+              <div className={styles.announcement_item}>
+                <h4>Society President</h4>
+                <p className={styles.announcementContent}>
+                  Sa mga students na late mag-enroll... Paano kayo maggrow niyan,
+                  hindi kayo naghihiwalay.
+                </p>
               </div>
+            </div>
+            <div className={styles.viewAllButtonContainer}>
+              <button className={styles.viewAllButton}>VIEW ALL</button>
             </div>
           </div>
         </div>

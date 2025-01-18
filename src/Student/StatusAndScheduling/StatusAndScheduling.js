@@ -41,7 +41,9 @@ function StatusAndScheduling() {
       <Header />
     </div>
     
-      <h1 className={styles.status_title}>Status and Scheduling</h1>
+      <div className={styles.page_title}>
+        <h1>Status and Scheduling</h1>
+      </div>
       
       <section className={styles.status_section}>
         <h2 className={styles.section_title}>Enrollment Status</h2>

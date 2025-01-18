@@ -62,17 +62,13 @@ const Login = () => {
             toast.warning("Incomplete profile. Please complete your profile.");
             navigate("/profile", { state: { userId: user.user_id } });
           } else {
-            toast.success("Login successful!");
             navigate("/home", { state: { userId: user.user_id } });
           }
         } else if (role === "admin") {
-          toast.success("Login successful!");
           navigate("/dashboard", { state: { userId: user.user_id } });
         } else if (role === "adviser") {
-          toast.success("Login successful!");
           navigate("/aDashboard", { state: { userId: user.user_id } });
         } else if (role === "officer") {
-          toast.success("Login successful!");
           navigate("/EnrollmentStatusCS", { state: { userId: user.user_id } });
         } else {
           throw new Error("Unexpected role received.");
@@ -80,6 +76,8 @@ const Login = () => {
       } else {
         throw new Error(result.message || "Login failed.");
       }
+
+      window.location.reload();
     } catch (error) {
       console.error("Error during login:", error.message);
       toast.error(error.message || "Failed to connect to server.");

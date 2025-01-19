@@ -4,6 +4,8 @@ import styles from './StatusAndScheduling.module.css'
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import React, { useState, useContext, useEffect } from "react";
 import { SessionContext } from "../../contexts/SessionContext";
+import { ToastContainer, toast } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 const RescheduleModal = ({ isOpen, onClose }) => {
   const location = useLocation();
@@ -34,17 +36,17 @@ const RescheduleModal = ({ isOpen, onClose }) => {
     }
 
     if (!selectedDate || !reason.trim()) {
-      setError("Please select a date and provide a reason for rescheduling.");
+      toast.warning("Please select a date and provide a reason for rescheduling.");
       return;
     }
 
     if (selectedDate === "September 15") {
-      setError("Selected date is full, please choose another date.");
+      toast.error("Selected date is full, please choose another date.");
       return;
     }
 
     setError("");
-    console.log("Reschedule confirmed with date:", selectedDate, "and reason:", reason);
+    toast.success("Reschedule confirmed with date:", selectedDate, "and reason:", reason);
     onClose();
   };
 
@@ -66,8 +68,8 @@ const RescheduleModal = ({ isOpen, onClose }) => {
     <div className={styles.modal_overlay}>
       <div className={styles.modal_content}>
         <h2 className={styles.modal_title}>Reschedule Enrollment Date</h2>
-        
         <div className={styles.modal_form}>
+        <hr />
           <div className={styles.form_group}>
             <label>Select an advising date</label>
             <div className={styles.select_wrapper}>
@@ -82,11 +84,10 @@ const RescheduleModal = ({ isOpen, onClose }) => {
               </select>
               <ChevronDown className={styles.select_icon} />
             </div>
-            {error && <span className={styles.error_message}>{error}</span>}
           </div>
 
           <div className={styles.form_group}>
-            <label>Reason for Rescheduling Date</label>
+            <label className={styles.reason}>Reason for Rescheduling Date</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
@@ -94,7 +95,7 @@ const RescheduleModal = ({ isOpen, onClose }) => {
               rows={4}
             />
           </div>
-
+          {/* {error && <span className={styles.error_message}>{error}</span>} */}
           <div className={styles.modal_actions}>
             <button className={`${styles.modal_button} ${styles.confirm}`} onClick={handleConfirm}>
               Confirm
@@ -105,6 +106,7 @@ const RescheduleModal = ({ isOpen, onClose }) => {
           </div>
         </div>
       </div>
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
     </div>
   );
 };

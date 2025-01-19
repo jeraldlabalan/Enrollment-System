@@ -4,9 +4,15 @@ import styles from "./CORPrint.module.css";
 
 const CORPrint = ({ student, onClose }) => {
   useEffect(() => {
-    window.print(); // Trigger print dialog
-    if (onClose) onClose(); // Close the modal after printing
-  }, [onClose]);
+    const handlePrint = () => {
+      window.print(); // Trigger print dialog
+      setTimeout(() => {
+        if (onClose) onClose(); // Close the modal after printing
+      }, 500); // Delay to ensure print dialog has time to open and close
+    };
+
+    handlePrint();
+  }, [onClose]);;
 
   return ReactDOM.createPortal(
     <div className={styles.printContainer}>

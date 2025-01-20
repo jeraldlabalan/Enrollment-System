@@ -163,9 +163,8 @@ button:hover {
   overflow-y: auto;
   text-align: justify;
   display: flex;
-  flex-direction: column;
-  gap: 20px;
   justify-content: space-between;
+  flex-direction: column;
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.8);
 
 }
@@ -190,7 +189,18 @@ button:hover {
 }
 
 .actual_announcement {
+  overflow: hidden;
+
+  h5 {
+    margin: 0;
+  }
   
+}
+
+.actual_announcement_announcement {
+  width: 50ch;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 /* Announcement Title */

@@ -57,7 +57,9 @@ function Landingpage() {
               {latestAnnouncement ? (
                 <>
                   <h5>{latestAnnouncement.author || 'Unknown Author'}</h5>
-                  <p>{latestAnnouncement.content}</p>
+                  <p className={styles.actual_announcement_announcement}>
+                    {latestAnnouncement.content}
+                  </p>
                   <p>{format(new Date(latestAnnouncement.date), 'MMMM d, yyyy @ h:mm a')}</p>
                 </>
               ) : (

@@ -4,7 +4,7 @@
 }
 
 .navbar {
-  background-color: #000;
+  background-color: #1e1e1e;
   color: rgb(2, 2, 2);
   display: flex;
   align-items: center;
@@ -22,8 +22,6 @@
   margin-right: 10px;
 }
 
-
-
 .enrollment_header {
   display: flex;
   justify-content: space-between;
@@ -35,74 +33,233 @@
 }
 
 .enrollment_content {
-  padding: 20px 100px;
+  padding: 50px 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   h1 {
     font-size: var(--big-font-size);
   }
 }
 
-.enrollment_content h1,
-.enrollment_content h2 {
-  margin-bottom: 15px;
+.enrollment_wrapper {
+  background-color: white;
+  padding: 0 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 1200px;
+
+  h1 {
+    font-size: var(--h1-font-size);
+    margin-top: 10px;
+    margin-bottom: 0;
+  }
+
+  h2 {
+    font-size: var(--normal-font-size);
+    margin-top: 10px;
+
+    span {
+      font-weight: normal;
+      margin-left: 2px;
+      font-size: var(--normal-font-size);
+    }
+  }
+
+  ul, ol {
+    margin-left: 25px;
+  }
+
+  li {
+    font-size: var(--normal-font-size);
+    color: #000;
+  }
+} 
+
+.enrollment_steps {
+  margin: 40px 0 40px 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 30px;
+
+  h2, h3 {
+    font-size: var(--normal-font-size);
+  }
+
+  .regular_students {
+
+  }
 }
 
-ul, ol {
-  margin: 10px 0;
-  padding-left: 20px;
+.faqs_wrapper{
+  width: 100%;
+
+  .faqs {
+    margin-top: 0;
+    text-transform: capitalize;
+  }
 }
 
 .faq_box {
-  border: 2px solid #020202; /* A vibrant border color */
-  padding: 20px;
-  border-radius: 10px; /* Soft rounded corners */
-  background-color: #f4f9fd; /* Light blue background */
+  background-color: white; /* Light blue background */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for a floating effect */
-  transition: all 0.3s ease; /* Smooth transition for hover effect */
+  transition: all 0.3s ease-in-out; /* Smooth transition for hover effect */
+  margin: 40px auto 40px auto;
+  display: flex;
+  flex-direction: column;
+  width: 70%;
+  gap: 15px;
 }
 
 .faq_item {
   display: flex;
   align-items: center;
-  padding: 15px 0; /* Increased padding for better spacing */
-  border-bottom: 1px solid #e2e2e2; /* Lighter border for separation */
-  cursor: pointer; /* Change cursor to pointer for interactivity */
-}
+  padding: 15px;
+  cursor: pointer; 
+  border: 3px solid hsl(0, 0%, 60%);
+  gap: 15px;
+  
+  p {
+    font-size: var(--normal-font-size);
+    color: #000;
+  }
 
-.faq_item:last-child {
-  border-bottom: none;
+  .faq_question {
+    font-weight: var(--font-semi-bold);
+  }
+
+  .faq_answer {
+    text-align: justify;
+  }
 }
 
 .faq_symbol {
   font-size: 24px;
   font-weight: bold;
-  margin-right: 15px;
   color: #020202; /* Color of the plus sign */
   transition: transform 0.3s ease; /* Smooth transition for rotation */
 }
 
-.faq_question {
-  font-size: 18px;
-  color: #333; /* Darker text for better readability */
-  margin: 0;
-  flex-grow: 1; /* Allow the question to expand and fill available space */
-}
 
 .faq_item:hover {
-  background-color: #e9f3fc; /* Light blue hover effect */
+  background-color: hsl(0, 0%, 90%); /* Light blue hover effect */
 }
 
-.faq_item:hover .faq_symbol {
-  transform: rotate(45deg); /* Rotate the plus sign on hover */
+.consent_form_box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
-.faq_item.active {
-  background-color: #d1e7ff; /* Slightly darker background when active */
+.consent_from {
+  background-color: #F1F1F1;
+  width: 90%;
+  border-radius: 16px;
+  height: 400px;
+  padding: 15px 20px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  margin-top: 10px;
+  margin-bottom: 40px;
+
+    ol {
+      margin: 0;
+    }
+
+    li {
+      list-style: none;
+      margin-top: 25px;
+      
+    }
+
+    li:first-of-type {
+      margin-top: 0;
+    }
+
+    ol li p{
+      font-size: var(--normal-font-size);
+      text-align: justify;
+    }
+
+    .title {
+      font-weight: var(--font-semi-bold);
+
+    }
 }
 
-.faq_item.active .faq_symbol {
-  transform: rotate(45deg); /* Keep the rotated symbol when active */
+.agree_consent {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+
+  button {
+    width: max-content;
+    align-self: flex-end;
+    background-color: var(--title-color);
+    border: none;
+    border-radius: 5px;
+    height: 35px;
+    padding: 1px 25px;
+    text-align: center;
+    color: white;
+  }
+
+  button:hover {
+    background-color: var(--title-color-dark);
+  }
 }
+
+.agree_section {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  padding: 0 50px;
+  
+    p {
+      font-size: var(--tiny-font-size);
+      text-align: center;
+      text-decoration: wavy;
+      
+      i {
+        color: black;
+      }
+    }
+
+    input[type="checkbox"] {
+      appearance: none;
+      width: 25px;
+      height: 15px;
+      border: 1px solid black;
+      background-color: white;
+      cursor: pointer;
+      outline: none;
+      border-radius: 3px;
+  
+  }
+
+  input[type="checkbox"]:checked {
+    background-color: black;
+    color: white;
+  }
+
+  input[type="checkbox"]:checked::before {
+    content: "✔";
+    color: white;
+    font-size: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
 
 .confirmation_container {
   display: flex;
@@ -123,4 +280,129 @@ ul, ol {
 
 .proceed_button:hover {
   background-color: #000;
+}
+
+
+/* Scrollbar styles */
+.consent_from::-webkit-scrollbar {
+  width: 8px;
+}
+
+.consent_from::-webkit-scrollbar-track {
+  background: #D9D9D9;
+  border-radius: 10px;
+}
+
+.consent_from::-webkit-scrollbar-thumb {
+  background: #1e1e1e;
+  border-radius: 10px;
+}
+
+.consent_from::-webkit-scrollbar-thumb:hover {
+  background: #000;
+}
+
+
+@media (max-width: 992px) {
+  .enrollment_content {
+    padding: 20px 80px;
+  }
+
+  .faq_box {
+    width: 100%;
+
+    .faq_item {
+      width: 100%;
+    }
+  }
+
+  .consent_form_box {
+    width: 100%;
+
+    .consent_from {
+      width: 100%;
+    }
+
+    .agree_section {
+      input[type="checkbox"] {
+        width: 50px;
+      }
+  }
+
+}
+
+}
+
+@media (max-width: 768px) {
+  .enrollment_content {
+    padding: 20px 60px;
+  }
+
+  .enrollment_wrapper {
+    h1 {
+      margin: 0 auto;
+      text-align: center;
+    }
+  }
+
+  .faqs_wrapper {
+    h1 {
+      margin: 0 auto;
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  .agree_consent {
+    button {
+      align-self: center;
+    }
+  }
+
+  .agree_section {
+    input[type="checkbox"] {
+      width: 40px;
+    }
+  }
+
+}
+
+
+@media (max-width: 576px) {
+
+  * {
+    font-size: var(--small-font-size);
+  }
+
+  .enrollment_content {
+    padding: 20px 40px;
+  }
+
+  .agree_section {
+    input[type="checkbox"] {
+      width: 50px;
+    }
+
+    i {
+      font-size: var(--tiny-font-size);
+    }
+  }
+
+}
+
+@media (max-width: 350px) {
+  .enrollment_content {
+    padding: 20px 20px;
+  }
+
+  .agree_section {
+    input[type="checkbox"] {
+      width: 70px;
+    }
+
+    i {
+      font-size: var(--tiny-font-size);
+    }
+  }
+
 }

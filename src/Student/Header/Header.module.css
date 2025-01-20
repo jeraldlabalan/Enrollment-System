@@ -33,10 +33,10 @@
   gap: 150px;
 }
 
-.navLink {
+.nav .navLink {
   color: white;
   text-decoration: none;
-  font-size: 1.3rem;
+  font-size: 1rem;
   margin-right: 20px;
   transition: color 0.3s;
 }
@@ -51,14 +51,13 @@
   color: white;
   font-size: 2rem;
   cursor: pointer;
- 
   z-index: 999; /* Ensure the parent container is layered properly */
 }
 
 .notification_mark {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: 0;
+  right: -10px;
   background-color: #C00202;
   padding: 2px 6px;
   color: white;
@@ -69,6 +68,21 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+}
+
+.notification_mark_mobile {
+  position: absolute;
+  top: 0;
+  right: -10px;
+  background-color: #C00202;
+  padding: 2px 6px;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Hamburger Menu Container */
@@ -107,7 +121,7 @@
 }
 
 .dropdown_menu {
-  position: fixed; /* Ensure dropdown appears independently */
+  position: absolute; /* Ensure dropdown appears independently */
   top: 80px; /* Position below the header */
   right: 10px; /* Align to the right edge */
   background-color: #ffffff; /* Add background for visibility */
@@ -309,20 +323,15 @@
     font-size: 1rem; /* Smaller font size for very small screens */
   }
 
-  .hamburger {
-    font-size: 1.5rem; /* Adjust hamburger size */
+  .hamburger i {
+    font-size: var(--h1-font-size);
   }
 
-  .notification {
-    font-size: 1.8rem; /* Adjust the bell icon size for smaller screens */
-    margin-right: 15px; /* Adjust spacing for the bell */
+  .notification i {
+    font-size: var(--h1-font-size);
   }
 
-  .notification_mark {
-    top: 20px; /* Adjust position for smaller bell */
-    right: 55px;
-    font-size: 0.7rem; /* Resize text for smaller screens */
-    padding: 2px 5px; /* Adjust padding */
-  }
+  
+
 
 }

@@ -120,18 +120,14 @@ function Header() {
 
       {/* Hamburger menu and Notification bell */}
       <div className={styles.hamburgerContainer}>
-      <div className={styles.notification}  onClick={() => toggleDropdown("notification")}>
-          <i className="fa-solid fa-bell"></i>
-        </div>
-        <button className={styles.hamburger} onClick={toggleMenu}>
-          <i className="fa-solid fa-bars"></i>
-         
-        </button>     
-        <div className={styles.notification_mark}>
-            10
-          </div>  
-      </div>
-      {activeDropdown === "notification" && (
+
+
+          <div className={styles.notification}  onClick={() => toggleDropdown("notification")}>
+              <i className="fa-solid fa-bell"></i>
+              <div className={styles.notification_mark_mobile}>
+                10
+              </div>  
+              {activeDropdown === "notification" && (
         <div className={styles.dropdown_menu}>
           <div className={styles.notification}>    
               <div className={styles.notification_subject}>
@@ -150,6 +146,13 @@ function Header() {
           </div>
         </div>
       )}
+
+          </div>
+
+            <button className={styles.hamburger} onClick={toggleMenu}>
+              <i className="fa-solid fa-bars"></i>
+            </button>     
+      </div>
       {/* Mobile navigation overlay */}
       <div
         className={`${styles.navOverlay} ${

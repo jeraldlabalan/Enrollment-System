@@ -11,7 +11,7 @@
 
 .profile_container {
   display: flex;
-  width: 90%;
+  width:100%;
   justify-content: center;
   min-height: 600px;
   gap: 20px;
@@ -535,4 +535,201 @@ select {
   font-size: var(--normal-font-size);
   margin-top: 15px;
   color: #1e1e1e;
+}
+
+
+/* For screens with a max-width of 992px */
+@media (max-width: 992px) {
+  .profile_container {
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .profile_sidebar,
+  .profile_content {
+    width: 100%;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+
+  .tabs a {
+    margin-bottom: 10px;
+  }
+
+  .form_row {
+    flex-direction: column;
+  }
+
+  .form_field {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  
+  .siblings {
+    width: 100%;
+  }
+
+  .add_siblings_table th,
+  .add_siblings_table td {
+    padding: 8px;
+  }
+
+  .add_siblings_name,
+  .add_siblings_age {
+    padding: 8px;
+  }
+
+  .add_sibling_button,
+  .remove_button {
+    padding: 5px 8px;
+  }
+}
+
+/* For screens with a max-width of 768px */
+@media (max-width: 768px) {
+
+  .profile_container {
+    flex-direction: column;
+    padding: 0;
+  }
+
+
+  .profile_sidebar,
+  .profile_content {
+    width: 100%;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+
+  .tabs a {
+    margin-bottom: 10px;
+  }
+
+  .form_row {
+    flex-direction: column;
+  }
+
+  .form_field {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .siblings {
+    width: 100%;
+  }
+
+  .add_siblings_table th,
+  .add_siblings_table td {
+    padding: 6px;
+  }
+
+  .add_siblings_name,
+  .add_siblings_age {
+    padding: 6px;
+  }
+
+  .add_sibling_button,
+  .remove_button {
+    padding: 4px 6px;
+  }
+}
+
+/* For screens with a max-width of 567px */
+@media (max-width: 567px) {
+  .profile_container {
+    flex-direction: column;
+  }
+
+  .profile_sidebar,
+  .profile_content {
+    width: 100%;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+
+  .tabs a {
+    margin-bottom: 10px;
+  }
+
+  .form_row {
+    flex-direction: column;
+  }
+
+  .form_field {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .siblings {
+    width: 100%;
+  }
+
+  .add_siblings_table th,
+  .add_siblings_table td {
+    padding: 4px;
+  }
+
+  .add_siblings_name,
+  .add_siblings_age {
+    padding: 4px;
+  }
+
+  .add_sibling_button,
+  .remove_button {
+    padding: 3px 5px;
+  }
+}
+
+@media (max-width: 375px) {
+  .profile_container {
+    flex-direction: column;
+  }
+
+  .profile_sidebar,
+  .profile_content {
+    width: 100%;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+
+  .tabs a {
+    margin-bottom: 10px;
+  }
+
+  .form_row {
+    flex-direction: column;
+  }
+
+  .form_field {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .siblings {
+    width: 100%;
+  }
+
+  .add_siblings_table th,
+  .add_siblings_table td {
+    padding: 2px;
+  }
+
+  .add_siblings_name,
+  .add_siblings_age {
+    padding: 2px;
+  }
+
+  .add_sibling_button,
+  .remove_button {
+    padding: 2px 4px;
+  }
 }

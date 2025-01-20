@@ -345,10 +345,6 @@ const Enrollees = () => {
                 <option value="4th year">4th Year</option>
               </select>
             </div>
-
-            <button className={styles.export_button}>
-              Export as Spreadsheet
-            </button>
           </div>
         </div>
       </div>

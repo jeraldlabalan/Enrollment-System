@@ -321,7 +321,7 @@ const Advisee = () => {
           <div className={styles.searchContainer}>
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search advisee"
               className={styles.input}
               value={searchQuery}
               onChange={handleSearchChange}
@@ -381,7 +381,7 @@ const Advisee = () => {
   ))
 ) : (
   <tr>
-    <td colSpan="5">No students found.</td>
+    <td className={styles.no_entry}><i>No students found.</i></td>
   </tr>
 )}
               </tbody>

@@ -337,16 +337,22 @@ const Advisee = () => {
             <h3>
               <strong>Reject Submission</strong>
             </h3>
-            <label>Reject Submission to</label>
-            <select
-              className={styles.select}
-              value={rejectTo}
-              onChange={(e) => setRejectTo(e.target.value)}
-            >
-              <option value="Both">Both</option>
-              <option value="COR Only">COR Only</option>
-              <option value="Checklist Only">Checklist Only</option>
-            </select>
+            <hr />
+            
+            <div className={styles.form_section}>
+              <label>Reject Submission to</label>
+              <select
+                className={styles.select}
+                value={rejectTo}
+                onChange={(e) => setRejectTo(e.target.value)}
+              >
+                <option value="Both">Both</option>
+                <option value="COR Only">COR Only</option>
+                <option value="Checklist Only">Checklist Only</option>
+              </select>
+            </div>
+
+            <div className={styles.form_section}>
             <label>Feedback</label>
             <textarea
               className={styles.textarea}
@@ -354,12 +360,15 @@ const Advisee = () => {
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
             ></textarea>
+            </div>
+
             <div className={styles.buttonGroup}>
-              <button className={styles.submit} onClick={handleRejectSubmit}>
-                Submit
-              </button>
               <button className={styles.closeButton} onClick={closeRejectModal}>
                 Cancel
+              </button>
+
+              <button className={styles.submit} onClick={handleRejectSubmit}>
+                Submit
               </button>
             </div>
           </div>
@@ -373,6 +382,10 @@ const Advisee = () => {
             <h3>
               <strong>Accept Submission</strong>
             </h3>
+
+            <hr />
+            
+            <div className={styles.form_section}>
             <label>Accept Submission to</label>
             <select
               className={styles.select}
@@ -383,12 +396,14 @@ const Advisee = () => {
               <option value="COR Only">COR Only</option>
               <option value="Checklist Only">Checklist Only</option>
             </select>
+            </div>
             <div className={styles.buttonGroup}>
-              <button className={styles.submit} onClick={handleAcceptSubmit}>
-                Confirm
-              </button>
               <button className={styles.closeButton} onClick={closeAcceptModal}>
                 Cancel
+              </button>
+
+              <button className={styles.submit} onClick={handleAcceptSubmit}>
+                Confirm
               </button>
             </div>
           </div>

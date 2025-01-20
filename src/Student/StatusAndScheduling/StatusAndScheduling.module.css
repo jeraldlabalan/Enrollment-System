@@ -231,6 +231,7 @@
       }
     }
     .status_container {
+      gap: 20px;
       ul {
         grid-template-columns: 1fr;
         padding: 0 100px;
@@ -490,7 +491,7 @@
 
           .progress::after {
               width: 5px;
-              height: 60px;
+              height: 55px;
               bottom: 10px;
               left: 50%;
               transform: translateX(-50%);

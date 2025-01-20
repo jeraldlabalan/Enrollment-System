@@ -62,3 +62,7 @@
     display: inline-block;
     width: 150px;
   }
+
+  .accept_schedule_button {
+    background-color: #057008 !important;
+  }

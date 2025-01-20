@@ -272,5 +272,15 @@
   color: white;
 }
 
+.mark_as_enrolled {
+  background-color: hsl(122, 91%, 30%);
+  color: white;
+}
+
+.mark_as_enrolled:hover {
+  background-color: #057008;
+  color: white;
+}
+
 
 

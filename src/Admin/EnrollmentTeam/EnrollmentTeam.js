@@ -259,26 +259,33 @@ function EnrollmentTeam() {
  {showModal && selectedStudent && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
-            <h3>Edit Role for {selectedStudent.firstName} {selectedStudent.lastName}</h3>
-            <label htmlFor="role-select" className={styles.dateLabel}>
-              Select Role
-            </label>
-            <select
-              id="role-select"
-              className={styles.input}
-              value={selectedStudent.role || ""}
-              onChange={handleRoleChange}
-            >
-              <option value="admin">Admin</option>
-              <option value="adviser">Adviser</option>
-              <option value="officer">Officer</option>
-            </select>
+            <h3>Edit Role for 
+              <span>
+            {selectedStudent.firstName} {selectedStudent.lastName}</span> 
+            <hr/>
+            </h3>
+            <div className={styles.form_section}>
+              <label htmlFor="role-select" className={styles.dateLabel}>
+                Select Role
+              </label>
+              <select
+                id="role-select"
+                className={styles.select}
+                value={selectedStudent.role || ""}
+                onChange={handleRoleChange}
+              >
+                <option value="admin">Admin</option>
+                <option value="adviser">Adviser</option>
+                <option value="officer">Officer</option>
+              </select>
+            </div>
             <div className={styles.buttonGroup}>
-              <button className={styles.closeButton} onClick={saveChanges}>
-                Save
-              </button>
               <button className={styles.closeButton} onClick={handleModalClose}>
                 Cancel
+              </button>
+
+              <button className={styles.saveChanges} onClick={saveChanges}>
+                Save
               </button>
             </div>
           </div>

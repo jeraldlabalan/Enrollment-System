@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { SessionContext } from "../../contexts/SessionContext";
-import styles from "./Schedule.module.css" // Ensure this file exists
+import styles from "./Schedule.module.css"; // Ensure this file exists
 import HeaderCS from "../Header/HeaderCS";
 import default_profile from "../../assets/default-profile-photo.jpg";
 
 const ScheduleCS = () => {
-  const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
+  const {
+    user,
+    isLoading: sessionLoading,
+    logout,
+  } = useContext(SessionContext);
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -123,8 +127,6 @@ const ScheduleCS = () => {
     setRedesignateSchedule("");
   };
 
-  
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -160,45 +162,53 @@ const ScheduleCS = () => {
                 </tr>
               </thead>
               <tbody>
-              {filteredAndSortedStudents.length > 0 ? (
-  filteredAndSortedStudents.map((student) => (
-    <tr key={student.id}>
-      <td className={styles.td}>{student.student_id}</td>
-      <td className={styles.td}>
-      <div>
-                      <img src={default_profile} alt="profile picture" />
-                      <p>{student.first_name} {student.last_name}</p>
-                    </div>
-        </td>
-      <td className={styles.td}>{student.student_type}</td>
-      <td className={styles.td}>{student.year_level}</td>
-      <td className={styles.td}>{new Date(student.Advising_date).toISOString().split("T")[0]}</td>
-      <td className={styles.td}>
-      <button 
-                        className={styles.button}
-                      >
-                        Accept Schedule
-                      </button>
+                {filteredAndSortedStudents.length > 0 ? (
+                  filteredAndSortedStudents.map((student) => (
+                    <tr key={student.id}>
+                      <td className={styles.td}>{student.student_id}</td>
+                      <td className={styles.td}>
+                        <div>
+                          <img src={default_profile} alt="profile picture" />
+                          <p>
+                            {student.first_name} {student.last_name}
+                          </p>
+                        </div>
+                      </td>
+                      <td className={styles.td}>{student.student_type}</td>
+                      <td className={styles.td}>{student.year_level}</td>
+                      <td className={styles.td}>
+                        {
+                          new Date(student.Advising_date)
+                            .toISOString()
+                            .split("T")[0]
+                        }
+                      </td>
+                      <td className={styles.td}>
+                        <button className={`${styles.button} ${styles.accept_schedule_button}`}>
+                          Accept Schedule
+                        </button>
 
-                      <button 
-                        className={styles.button} onClick={() => handleSetRedesignateScheduleClick(student)}
-                      >
-                        Redesignate Schedule
-                      </button>
-      </td>
-    </tr>
-  ))
-) : (
-  <tr>
-    <td colSpan="5">No students found.</td>
-  </tr>
-)}
+                        <button
+                          className={`${styles.button}`}
+                          onClick={() =>
+                            handleSetRedesignateScheduleClick(student)
+                          }
+                        >
+                          Redesignate Schedule
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5">No students found.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
           <div className={styles.filterBar}>
-
-          <div className={styles.sort}>
+            <div className={styles.sort}>
               <label className={styles.label}>Schedule Date:</label>
               <select
                 className={styles.select}
@@ -246,7 +256,6 @@ const ScheduleCS = () => {
                 <option value="4th year">4th Year</option>
               </select>
             </div>
-
           </div>
         </div>
       </div>
@@ -293,20 +302,29 @@ const ScheduleCS = () => {
         </div>
       )}
 
-{showModal && selectedStudent && (
+      {showModal && selectedStudent && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
-            <h3>Redesignate Sched  </h3>
-            <h2>{selectedStudent.firstName} {selectedStudent.lastName}</h2>
-            <label for="date-input" className={styles.dateLabel} >Select Date</label>
+            <h3>Redesignate Sched </h3>
+            <h2>
+              {selectedStudent.firstName} {selectedStudent.lastName}
+            </h2>
+
+            <div className={styles.form_section}>
+            <label for="date-input" className={styles.dateLabel}>
+              Select Date
+            </label>
             <input
               type="date"
-              className={styles.input}
+              className={styles.select_date}
               value={RedesignateSchedule}
               onChange={(e) => setRedesignateSchedule(e.target.value)}
             />
+            </div>
             <div className={styles.buttonGroup}>
-              
+              <button className={styles.closeButton} onClick={handleModalClose}>
+                Cancel
+              </button>
               <button className={styles.closeButton} onClick={handleModalClose}>
                 Done
               </button>
@@ -314,7 +332,6 @@ const ScheduleCS = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

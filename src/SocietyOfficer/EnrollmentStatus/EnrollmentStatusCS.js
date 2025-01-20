@@ -181,7 +181,7 @@ const EnrollmentStatusCS = () => {
                     </td>
       <td className={styles.td}>
       <button 
-                        className={styles.button}
+                        className={`${styles.button} ${styles.mark_as_enrolled}`}
                       >
                         Mark as Enrolled
                       </button>

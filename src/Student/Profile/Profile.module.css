@@ -197,6 +197,7 @@
 
 select {
   border: 2px solid black;
+  padding: 0;
 }
 
 /* Family Background */
@@ -482,7 +483,13 @@ select {
   margin-top: 10px;
 }
 
-.navigation_buttons .change_password {
+.change_password {
+  border: none;
+  background-color: var(--title-color) !important;
+}
+
+.change_password:hover {
+  background-color: var(--title-color-dark) !important;
 }
 
 /* Active button */

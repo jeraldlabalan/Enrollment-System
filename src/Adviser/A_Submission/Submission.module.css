@@ -163,6 +163,30 @@
   .button:nth-child(4) {
     background-color: rgb(0, 154, 0);
   }
+
+  .form_section {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    label {
+      font-size: var(--normal-font-size);
+      color: black;
+    }
+
+    textarea {
+      resize: none;
+      overflow-y: auto;
+      overflow-x: hidden;
+      font-size: var(--normal-font-size);
+      color: black;
+      width: 100%;
+      border: 2px solid black;
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+  }
+
   
   /* Filter bar */
 
@@ -227,75 +251,73 @@
     background-color: white;
     padding: 20px;
     border-radius: 8px;
-    width: 400px;
+    min-width: 300px;
+    width: 500px;
+    max-width: 500px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;  /* Stack the buttons vertically */
-    gap: 10px;  /* Add space between buttons */
+    gap: 20px;  /* Add space between buttons */
+
   }
   
   .closeButton {
-    background-color: #d9534f;
+    background-color: var(--title-color);
     color: white;
-    padding: 8px 12px;
+    padding: 1px 12px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px;
+    max-width: max-content;
+    text-align: center;
+    font-size: var(--normal-font-size);
     
     transition: background-color 0.3s ease;
   }
   
   .closeButton:hover {
-    background-color: #c9302c;
+    background-color: var(--title-color-dark);
+    color: white;
   }
   
   .select {
     resize: vertical;
     cursor: pointer;
     color: #1e1e1e;
-    width: 300px;
+    width: 100%;
     height: 40px;
     padding: 0px;
     border-radius: 10px;
-  }
-  .textarea {
-    resize: vertical;
-    color: #000000;
-    width: 360px;
-    height: 100px;
-    padding: 8px;
-    border-radius: 10px;
-    border-color: #000000;
-    border-width: 2px;
-    
-    
+
   }
 
+
   .submit{
-    background-color: #000000;
+    background-color: var(--title-color);
     color: white;
-    padding: 8px 12px;
+    padding: 0 12px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px;
     transition: background-color 0.3s ease;
+    width: max-content;
+    text-align: center;
+    font-size: var(--normal-font-size);
     
 
   }
 
   .submit:hover {
-    background-color: #181717;
+    background-color: var(--title-color-dark);
     color: white;
   }
   
   
   .buttonGroup {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    margin-top: 10px;
+    gap: 10px;
     
   }
   

@@ -5,6 +5,8 @@ import styles from "./EnrollmentStatus.module.css"; // Ensure this file exists
 import HeaderCS from "../Header/HeaderCS";
 import ReceiptPrint from "./ReceiptPrint";
 import default_profile from "../../assets/default-profile-photo.jpg";
+import enrolled_icon from "../../assets/enroll.png";
+import print_icon from "../../assets/print.png";
 
 const EnrollmentStatusCS = () => {
   const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
@@ -183,13 +185,15 @@ const EnrollmentStatusCS = () => {
       <button 
                         className={`${styles.button} ${styles.mark_as_enrolled}`}
                       >
-                        Mark as Enrolled
+                        <img src={enrolled_icon} alt="view" />
+                        <p>Mark as Enrolled</p>
                       </button>
 
                       <button 
                         className={styles.button} onClick={() => handleReceiptPrint(student)}
                       >
-                        Print Receipt
+                        <img src={print_icon} alt="view" />
+                        <p>Print Receipt</p>
                       </button>
       </td>
     </tr>

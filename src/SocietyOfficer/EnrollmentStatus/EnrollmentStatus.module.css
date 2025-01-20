@@ -101,6 +101,7 @@
 .table tbody tr td {
   text-align: center;
   color: var(--title-color-dark);
+  vertical-align: middle;
 }
 
 .thTd {
@@ -146,26 +147,27 @@
 
 /* Buttons in the table */
 .button {
-  background-color: #ffb100;
-  color: black;
-  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
   border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  background-color: white;
+  align-items: center;
+  justify-content: space-between;
+
+  p {
+    font-size: var(--tiny-font-size);
+    text-transform: capitalize;
+  }
+
+  img {
+    width: 20px;
+  }
 }
 
 .button:hover {
-  background-color: #ffb100;
+  transform: translateY(-3px);
 }
 
-.button:nth-child(3) {
-  background-color: rgb(0, 154, 0);
-}
-
-.button:nth-child(4) { 
-  background-color: rgb(201, 48, 44);
-}
 
 /* Filter bar */
 .filterBar {
@@ -272,15 +274,6 @@
   color: white;
 }
 
-.mark_as_enrolled {
-  background-color: hsl(122, 91%, 30%);
-  color: white;
-}
-
-.mark_as_enrolled:hover {
-  background-color: #057008;
-  color: white;
-}
 
 
 

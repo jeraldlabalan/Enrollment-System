@@ -4,6 +4,9 @@ import { SessionContext } from "../../contexts/SessionContext";
 import styles from "./Submission.module.css";
 import Header from "../Header/Header";
 import default_profile from "../../assets/default-profile-photo.jpg";
+import view_icon from "../../assets/view.jpg";
+import reject_icon from "../../assets/reject.png";
+import accept_icon from "../../assets/accept.png";
 
 const Advisee = () => {
   const { user, isLoading: sessionLoading } = useContext(SessionContext);
@@ -215,25 +218,29 @@ const Advisee = () => {
                           className={styles.button}
                           onClick={() => handleViewChecklist(student)}
                         >
-                          View Checklist
+                          <img src={view_icon} alt="view" />
+                          <p>View Checklist</p>
                         </button>
 
                         <button className={styles.button}
                            onClick={() => handleViewCOR(student)}
                         >
-                          View ISCOR
+                          <img src={view_icon} alt="view" />
+                          <p>View COR</p>
                         </button>
                         <button
                           className={styles.button}
                           onClick={() => handleRejectClick(student)}
                         >
-                          Reject
+                          <img src={reject_icon} alt="view" />
+                          <p>Reject</p>
                         </button>
                         <button
                           className={styles.button}
                           onClick={() => handleAcceptClick(student)} // Trigger accept modal
                         >
-                          Accept
+                          <img src={accept_icon} alt="view" />
+                          <p>Accept</p>
                         </button>
                       </td>
                     </tr>

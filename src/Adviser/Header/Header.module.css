@@ -1,3 +1,4 @@
+/* Header Base Styles */
 .header {
   width: 100%;
   background-color: #1a1a1a;
@@ -5,84 +6,137 @@
   justify-content: space-between;
   align-items: center;
   height: 90px;
+  padding: 0 20px;
+  position: relative;
+  z-index: 10;
 }
 
 .logos {
   display: flex;
-  justify-content: flex-start;
   align-items: center;
-  
 }
 
+.logo_shield,
 .logo_its {
   width: 50px;
   height: 50px;
   margin: 0 10px;
 }
 
-.logo_shield {
-  width: 60px;
-  height: 60px;
-  margin-left: 20px;
+/* Navigation Links (Desktop) */
+.nav {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  justify-content: space-between; /* Space between nav links and bell */
+  margin-left: 0px;
+  gap: 150px;
 }
 
-.header .nav {
+.nav .navLink {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  margin-right: 20px;
+  transition: color 0.3s;
+}
+
+.navLink:hover {
+  color: #00bcd4;
+}
+
+/* Notification Bell (Desktop) */
+.notification {
+  position: relative;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 999; /* Ensure the parent container is layered properly */
+}
+
+.notification_mark {
+  position: absolute;
+  top: 0;
+  right: -10px;
+  background-color: #C00202;
+  padding: 2px 6px;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 50%;
   display: flex;
-  width: 100%;
-  justify-content: space-evenly;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.notification_mark_mobile {
+  position: absolute;
+  top: 0;
+  right: -10px;
+  background-color: #C00202;
+  padding: 2px 6px;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
   align-items: center;
 }
 
+/* Hamburger Menu Container */
+.hamburgerContainer {
+  display: none; /* Hidden on larger screens */
+  align-items: center;
+  gap: 15px;
+}
 
-.nav a,
-.nav i {
+.hamburger {
+  background: none;
+  border: none;
   color: white;
-  font-size: 1.10rem;
-}
-
-.nav i {
-  font-size: var(--h1-font-size);
-}
-
-
-/* dropdown */
-
-.bell_button{
-  position: relative;
+  font-size: 1.5rem;
   cursor: pointer;
+  z-index: 11;
+}
+
+/* Mobile Navigation Overlay */
+.navOverlay {
+  visibility: hidden;
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(26, 26, 26, 0.95);
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  z-index: 10; /* Lower than the dropdown menu */
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s;
 }
 
 .dropdown_menu {
-  position: absolute;
-  top: 100%; /* Para palaging sa taas ng header nag-a-appear */
-  right: 0; /* Align to the right side */
-  background-color: #DDDDDD;
-  border: 1px solid #ddd;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  z-index: 1000; /* Para ma-ensure na clickable */
-  width: 100%;
-  width: 325px; /* Adjust width as needed */
+  position: absolute; /* Ensure dropdown appears independently */
+  top: 80px; /* Position below the header */
+  right: 10px; /* Align to the right edge */
+  background-color: #ffffff; /* Add background for visibility */
+  border: 1px solid #ddd; /* Define a border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+  z-index: 3000; /* Higher than other elements */
+  width: 90%; /* Adjust width for smaller screens */
+  max-width: 350px;
+  padding: 20px; /* Add padding inside the dropdown */
   border-radius: 8px;
-  padding: 20px;
-  height: 300px; /* Set maximum height */
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 20px;
-}
-
-.notification {
-  width: 100%;
-  padding: 2px;
-  border-radius: 8px;
-}
-
-
-.notification:hover {
-
+  height: auto; /* Adjust height dynamically */
+  overflow-y: auto; /* Allow scrolling for long content */
+  visibility: visible; /* Ensure it’s visible */
+  opacity: 1; /* Full opacity */
+  transition: opacity 0.3s ease-in-out;
 }
 
 .notification_subject {
@@ -107,18 +161,202 @@
   }
 }
 
-.notification_mark {
-  position: absolute;
-  background-color: #C00202;
-  padding: 1px 5px;
-  color: white;
-  font-size: .475rem;
-  font-weight: bold;
-  border-radius: 50%;
-  top: 0;
-  right: 0;
+button:hover {
+  background-color: none !important;
 }
 
-.activeNavLink {
-  color: blue;
+
+
+
+.navOverlayOpen {
+  visibility: visible;
+  display: flex;
+  opacity: 1;
+}
+
+@media (max-width: 2200px) {
+  .nav {
+    margin-right: 0px; /* Adjusted for better responsiveness */
+    gap: 20px;
+  }
+
+  .navLink {
+    color: white;
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: color 0.3s;
+    flex: 1; /* Allow each link to take equal space */
+    text-align: center; /* Center text in each link */
+  }
+
+  .notification {
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    margin-left: auto; /* Push bell to the far right */
+    margin-right: 30px;
+    
+  }
+
+}
+
+
+
+
+
+@media (max-width: 1700px) {
+  .nav {
+    margin-right: 0px; /* Adjusted for better responsiveness */
+    gap: 20px;
+  }
+
+  .navLink {
+    color: white;
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: color 0.3s;
+    flex: 1; /* Allow each link to take equal space */
+    text-align: center; /* Center text in each link */
+  }
+}
+
+
+
+/* Media query for smaller screens */
+@media (max-width: 1400px) {
+  .nav {
+    margin-right: 70px; /* Adjusted for better responsiveness */
+    gap: 19px;
+  }
+
+  .navLink {
+    color: white;
+    text-decoration: none;
+    font-size: 1.0rem;
+    transition: color 0.3s;
+    flex: 1; /* Allow each link to take equal space */
+    text-align: center; /* Center text in each link */
+  }
+}
+
+@media (max-width: 1200px) {
+  .nav {
+    margin-right: 50px; /* Adjusted for better responsiveness */
+    gap: 18px;
+  }
+}
+
+@media (max-width: 992px) {
+  .nav {
+    margin-right: 30px; /* Adjusted for better responsiveness */
+    gap: 17px;
+  }
+
+  
+}
+
+@media (max-width: 980px) {
+  .nav {
+    display: none; /* Hide the nav by default */
+    flex-direction: column;
+    gap: 20px;
+    background-color: #333;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    width: 100%;
+    padding: 20px;
+  }
+
+  
+
+
+  .navLink {
+    font-size: 1.2rem;
+    flex: none; /* Reset flex for mobile view */
+    text-align: left; /* Align text to the left */
+  }
+
+  .hamburgerContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .hamburger {
+    display: block; /* Show hamburger menu */
+    
+  }
+
+  .notification {
+    display: block; /* Ensure notification bell is always visible */
+  }
+
+  .notification {
+    font-size: 1.8rem; /* Adjust the bell icon size for smaller screens */
+    margin-right: 15px; /* Adjust spacing for the bell */
+  }
+
+  .dropdown_menu {
+    position: absolute;
+    top: 100%; /* Para palaging sa taas ng header nag-a-appear */
+    right: 0; /* Align to the right side */
+    background-color: #DDDDDD;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    z-index: 1000; /* Para ma-ensure na clickable */
+    width: 100%;
+    width: 325px; /* Adjust width as needed */
+    border-radius: 8px;
+    padding: 20px;
+    height: 300px; /* Set maximum height */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* Notification Bell on Smaller Screens */
+  .notification {
+    font-size: 2rem;
+    position: relative;
+    margin-right: 20px; /* Adjust spacing */
+  }
+
+  .notification_mark {
+    top: 20px; /* Adjust badge position */
+    right: 64px;
+    font-size: 0.7rem;
+    padding: 2px 5px;
+  }
+
+  .nav {
+    display: none; /* Hide nav links on mobile */
+  }
+
+  .nav.active {
+    display: flex; /* Show nav links when active */
+  }
+}
+
+@media (max-width: 576px) {
+  .navLink {
+    font-size: 1rem; /* Smaller font size for very small screens */
+  }
+
+  .hamburger i {
+    font-size: var(--h1-font-size);
+  }
+
+  .notification i {
+    font-size: var(--h1-font-size);
+  }
+
+  
+
+
 }

@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { SessionContext } from "../../contexts/SessionContext";
 import styles from "./Advisee.module.css";
 import Header from "../Header/Header";
+import view_icon from "../../assets/view.jpg";
+import calendar_icon from "../../assets/calendar.jpg";
+import edit_icon from "../../assets/edit.jpg";
 
 const PreEnrollmentModal = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -10,6 +13,9 @@ const PreEnrollmentModal = () => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 };
+
+
+
 
 const EditSubjectsModal = ({ student, onClose, onSubmit }) => {
   const [subjects, setSubjects] = useState([
@@ -103,6 +109,8 @@ const Advisee = () => {
   const printContentRef = useRef(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEnrollmentModalOpen, setIsEnrollmentModalOpen] = useState(false);
+  const [showCORModal, setShowCORModal] = useState("")
+  const [showChecklistModal, setShowChecklistModal] = useState("")
 
   const fetchProtectedEndpoint = async () => {
     try {
@@ -155,6 +163,18 @@ const Advisee = () => {
 
     fetchStudents();
   }, []);
+
+  const handleViewChecklist = (student) => {
+    setSelectedStudent(student);
+    setShowChecklistModal(true);
+  };
+
+  const handleViewCOR = (student) => {
+    setSelectedStudent(student);
+    setSelectedStudent(student);
+    setShowCORModal(true);
+
+  }
 
   const handleEditSubjectClick = (student) => {
     setSelectedStudent(student);
@@ -277,12 +297,7 @@ const Advisee = () => {
   const handleFilterYearChange = (e) => {
     setFilterYear(e.target.value);
   };
-
-  const handleViewChecklist = (student) => {
-    setSelectedStudent(student);
-    setShowModal(true);
-  };
-
+  
   const handleSetEnrollmentDateClick = (student) => {
     setSelectedStudent(student);
     setShowModal(true);
@@ -353,27 +368,48 @@ const Advisee = () => {
       <td className={styles.td}>{student.year_level}</td>
       <td className={styles.td}>{student.Advising_status}</td>
       <td className={styles.td}>
-      <button className={styles.button}>View Subject</button>
       <button 
                         className={styles.button} onClick={() => handleEditSubjectClick(student)}
                       >
+                        <img className={styles.edit} src={edit_icon} alt="edit" />
+                        <p>
                         Edit Subject
+                        </p>
                       </button>
-                      <button className={styles.button}>Edit Subject</button>
-                      <button className={styles.button}>Update Status</button>
-                      <button className={styles.button}>View Checklist</button>
-                      <button className={styles.button}>View ISCOR</button>
+                      <button className={styles.button}
+                        onClick={() => handleViewChecklist(student)}
+                      >
+                      <img src={view_icon} alt="edit" />
+                        <p>
+                        view checklist
+                        </p>
+                        
+                        </button>
+                      <button className={styles.button} 
+                        onClick={() => handleViewCOR(student)}
+                      >
+                      <img src={view_icon} alt="edit" />
+                        <p>
+                        view cor
+                        </p>
+                        </button>
                       <button
                         className={styles.button}
                         onClick={handleViewPreEnrollmentClick}
                       >
+                        <img src={view_icon} alt="edit" />
+                        <p>
                         View Pre-Enrollment Form
+                        </p>
                       </button>
                       <button
                         className={styles.button}
                         onClick={() => handleSetEnrollmentDateClick(student)}
                       >
-                        Set Enrollment Date
+                        <img className={styles.calendar} src={calendar_icon} alt="edit" />
+                        <p>
+                        set enrollment date
+                        </p>
                       </button>
                       
       </td>
@@ -435,7 +471,8 @@ const Advisee = () => {
           </div>
         </div>
       </div>
-      {/* View Checklist Modal */}
+
+      {/* Set Enrollment Date */}
       {showModal && selectedStudent && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
@@ -454,24 +491,73 @@ const Advisee = () => {
         </div>
       )}
 
+      {/* View Checklist Modal */}
+
+{showChecklistModal && selectedStudent && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h3>Student Details</h3>
+            <p>
+              <strong>Student ID:</strong> {selectedStudent.id}
+            </p>
+            <button
+              className={styles.closeButton}
+              onClick={() => setShowChecklistModal(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+
+      {/* View COR Modal */}
+      {showCORModal && selectedStudent && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h3>Student Details</h3>
+            <p>
+              <strong>Student ID:</strong> {selectedStudent.id}
+            </p>
+            <button
+              className={styles.closeButton}
+              onClick={() => setShowCORModal(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Set Enrollment Date Modal */}
       {showModal && selectedStudent && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
-            <h3>Set Enrollment Date </h3>
+            <h3>Set Enrollment Date
+              </h3>
             <h2>
+              <p>
               {selectedStudent.firstName} {selectedStudent.lastName}
+              </p>
             </h2>
+            
+            <div className={styles.form_section}>
+      
             <label for="date-input" className={styles.dateLabel}>
               Select Date
             </label>
             <input
               type="date"
-              className={styles.input}
+              className={styles.select_date}
               value={enrollmentDate}
               onChange={(e) => setEnrollmentDate(e.target.value)}
             />
+            </div>
+
             <div className={styles.buttonGroup}>
+              <button className={styles.closeButton} onClick={handleModalClose}>
+                Cancel
+              </button>
               <button className={styles.closeButton} onClick={handleModalClose}>
                 Done
               </button>
@@ -479,6 +565,8 @@ const Advisee = () => {
           </div>
         </div>
       )}
+
+
       {showBondPaperModal && (
         <div className={styles.Premodal}>
           <div className={styles.PremodalContent} ref={printContentRef}>

@@ -1,12 +1,34 @@
-import React, { useContext, useState } from "react"; // Import useContext
-import { Link, useNavigate } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Link, useNavigate, NavLink } from "react-router-dom";
+import { SessionContext } from '../../contexts/SessionContext';
 import styles from "./Header.module.css";
-import { NavLink } from "react-router-dom";
+
 
 function Header() {
 
           const [activeDropdown, setActiveDropdown] = useState(null); // Manages active dropdown state
+        const navigate = useNavigate(); // Hook for navigation
+        const { setUser } = useContext(SessionContext); // Access setUser from context
+
+          const handleLogout = async () => {
+            try {
+              const response = await fetch("http://localhost:5000/logout", {
+                method: "POST",
+                credentials: "include", // Include cookies
+              });
         
+              if (response.ok) {
+                // Clear user session context
+                setUser(null); // Update session context to null (logged out)
+                // Redirect to login page
+                navigate("/login");
+              } else {
+                console.error("Logout failed with status:", response.status);
+              }
+            } catch (error) {
+              console.error("Error during logout:", error);
+            }
+          };
             
             const toggleDropdown = (menu) => {
               setActiveDropdown((prev) => (prev === menu ? null : menu));
@@ -43,7 +65,13 @@ function Header() {
           <a className={styles.navLink}>Status and Scheduling</a>
         </NavLink>
         <NavLink to="">
-          <a className={styles.navLink}>Log Out</a>
+        <a
+          className={styles.navLink}
+          onClick={handleLogout}
+          style={{ cursor: "pointer" }}
+        >
+          Log Out
+        </a>
         </NavLink>
 
         <div 

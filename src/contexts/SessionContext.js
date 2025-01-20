@@ -7,6 +7,8 @@ export const SessionProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true); // Indicates whether session data is being fetched
   const [error, setError] = useState(null); // Stores session-related errors, if any
 
+
+
   // Function to check the session from the backend
   const checkSession = async () => {
     setIsLoading(true);
@@ -32,30 +34,31 @@ export const SessionProvider = ({ children }) => {
   };
 
   // Function to log out the user
-  const logout = async () => {
+  const handleLogout = async () => {
     try {
       const response = await fetch("http://localhost:5000/logout", {
         method: "POST",
-        credentials: "include",
+        credentials: "include", // Include cookies
       });
-
+  
       if (response.ok) {
-        setUser(null); // Clear session data on logout
+        console.log("Logout successful");
+        setUser(null); // Update user context to null
       } else {
-        console.error("Logout failed.");
-        throw new Error("Failed to log out.");
+        console.error("Logout failed with status:", response.status);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error("Error during logout:", error);
     }
   };
+  
 
   useEffect(() => {
     checkSession(); // Automatically check session on app load
   }, []);
 
   return (
-    <SessionContext.Provider value={{ user, isLoading, logout, error }}>
+    <SessionContext.Provider value={{ user, isLoading, handleLogout, error }}>
       {children}
     </SessionContext.Provider>
   );

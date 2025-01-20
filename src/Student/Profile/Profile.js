@@ -2,14 +2,19 @@ import React, { useState, useEffect, useContext } from "react";
 import { SessionContext } from "../../contexts/SessionContext";
 import { checkSession, logout } from "../../utils/session";
 import { useLocation, useNavigate, Link } from "react-router-dom";
+import defaultProfilePhoto from '../../assets/default-profile-photo.jpg'; // Go up 2 levels to access the assets folder
 import styles from "./Profile.module.css";
 import axios from 'axios';
 
 const Profile = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isLoading: sessionLoading } = useContext(SessionContext);
-  const userId = location.state?.userId;
+   const {
+      user,
+      isLoading: sessionLoading,
+      logout,
+    } = useContext(SessionContext);
+  const [userData, setUserData] = useState(null);
   const [profile, setProfile] = useState({});
 
   const [isLoading, setIsLoading] = useState(true);
@@ -19,60 +24,90 @@ const Profile = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/user/${user.user_id}`, {
+          credentials: "include", // Include cookies if required for authentication
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to fetch user data.");
+        }
+
+        const data = await response.json();
+        setUserData(data);
+        setProfile(data);
+      } catch (err) {
+        console.error("Error fetching user data:", err.message);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     const initialize = async () => {
       if (!sessionLoading && !user) {
         navigate("/login", { replace: true });
         return;
       }
 
-      if (userId) {
-        await fetchProfile();
-      } else {
-        console.error("Missing userId.");
-        setError("Invalid userId.");
-        navigate("/login", { replace: true });
-      }
-    };
-
-    const fetchProfile = async () => {
-      try {
-        const response = await axios.get(`/profile/${userId}`);
-        setProfile(response.data);
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
+      if (user) {
+        await fetchUserData();
       }
     };
 
     initialize();
-  }, [sessionLoading, user, userId, navigate]);
+  }, [sessionLoading, user, navigate]);
+
 
   const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append("profilePicture", file);
+  const file = e.target.files[0];
+  const formData = new FormData();
+  formData.append("profilePicture", file);
 
-    try {
-      const response = await axios.post(`/upload-profile-picture/${userId}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      setProfile({ ...profile, profile_picture: response.data.profilePicture });
-    } catch (error) {
-      console.error("Error uploading profile picture:", error);
+  try {
+    const response = await fetch(`/upload-profile-picture/${user.user_id}`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        "Accept": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to upload image.");
     }
-  };
+
+    const data = await response.json();
+    setProfile({ ...profile, profile_picture: data.profilePicture });
+  } catch (err) {
+    console.error("Error uploading profile picture:", err.message);
+    alert("Failed to upload profile picture. Please try again.");
+  }
+};
+
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
+  
     try {
-      await axios.put(`/profile/${userId}`, profile);
+      const response = await fetch(`http://localhost:5000/profile/${user.user_id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(profile), // Manually convert `profile` to JSON
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update profile."); // Handle non-2xx responses
+      }
+  
       alert("Profile updated successfully.");
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("Error updating profile:", error.message);
       alert("Failed to update profile.");
     }
   };
@@ -92,15 +127,15 @@ const Profile = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case "personal":
-        return <PersonalDetails />;
+        return <PersonalDetails profile={profile} setProfile={setProfile} />;
       case "family":
-        return <FamilyBackground />;
+        return <FamilyBackground profile={profile} setProfile={setProfile} />;
       case "education":
-        return <Education />;
+        return <Education profile={profile} setProfile={setProfile} />;
       case "account":
         return <AccountSettings />;
       default:
-        return <PersonalDetails />;
+        return <PersonalDetails profile={profile} setProfile={setProfile} />;
     }
   };
 
@@ -117,23 +152,32 @@ const Profile = () => {
 
       <div className={styles.profile_container}>
         <div className={styles.profile_sidebar}>
-          <div className={styles.profile_photo}>
-            {/* Display uploaded image or default placeholder */}
-            <img
-              src={profileImage || "profile-photo-placeholder.jpg"}
-              alt="Profile"
-              className={styles.uploaded_image}
-            />
-            <div className={styles.cameraIconWrapper}>
-              <i className={`${styles.cameraIcon}  fa-solid fa-camera`}></i>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className={styles.file_input}
-              />
-            </div>
-          </div>
+        <div className={styles.profile_photo}>
+  {/* Display uploaded image or default placeholder */}
+  {profile.profile_picture ? (
+    <img
+      src={profile.profile_picture || defaultProfilePhoto}
+      alt="Profile"
+      className={styles.uploaded_image}
+    />
+  ) : (
+    <img
+      src={defaultProfilePhoto}
+      alt="Default Profile"
+      className={styles.uploaded_image}
+    />
+  )}
+  <div className={styles.cameraIconWrapper}>
+    <i className={`${styles.cameraIcon} fa-solid fa-camera`}></i>
+    <input
+      id="profileUpload"
+      type="file"
+      accept="image/*"
+      onChange={handleImageChange}
+      className={styles.file_input}
+    />
+  </div>
+</div>
           <div className={styles.profile_info}></div>
         </div>
 
@@ -186,7 +230,9 @@ const Profile = () => {
       </div>
 
       <div className={styles.navigation_buttons}>
-        <button type="submit">Save Changes</button>
+        <form onSubmit={handleProfileUpdate}>
+         <button type="submit">Save Changes</button>
+        </form>
       </div>
 
     </div>
@@ -194,166 +240,209 @@ const Profile = () => {
 };
 
 // Sample components for each tab
-const PersonalDetails = () => (
-  <div className={styles.personal_details_wrapper}>
-    <div className={styles.form_row}>
-      <div className={styles.form_field}>
-        <label htmlFor="firstName">First Name</label>
-        <input
-          type="text"
-          name="firstName"
-          id="firstName"
-          className={styles.input}
-        />
+const PersonalDetails = ({ profile, setProfile }) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile((prevProfile) => ({ ...prevProfile, [name]: value }));
+  };
+
+  return (
+    <div className={styles.personal_details_wrapper}>
+      <div className={styles.form_row}>
+        <div className={styles.form_field}>
+          <label htmlFor="firstName">First Name</label>
+          <input
+            type="text"
+            name="firstName"
+            id="firstName"
+            className={styles.input}
+            value={profile.firstName || ""}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className={styles.form_field}>
+          <label htmlFor="middleName">Middle Name</label>
+          <input
+            type="text"
+            name="middleName"
+            id="middleName"
+            className={styles.input}
+            value={profile.middleName || ""}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className={styles.form_field}>
+          <label htmlFor="lastName">Last Name</label>
+          <input
+            type="text"
+            name="lastName"
+            id="lastName"
+            className={styles.input}
+            value={profile.lastName || ""}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className={styles.form_field}>
+          <label htmlFor="suffix">Suffix</label>
+          <input
+            type="text"
+            name="suffix"
+            id="suffix"
+            className={styles.input}
+            value={profile.suffix || ""}
+            onChange={handleChange}
+          />
+        </div>
       </div>
 
-      <div className={styles.form_field}>
-        <label htmlFor="middleName">Middle Name</label>
-        <input
-          type="text"
-          name="middleName"
-          id="middleName"
-          className={styles.input}
-        />
-      </div>
+      <div className={`${styles.form_row}`}>
+        <div className={`${styles.form_field}`}>
+          <label htmlFor="dob">Date of Birth</label>
+          <input
+            type="date"
+            name="dob"
+            id="dob"
+            className={styles.input}
+            value={profile.dob || ""}
+            onChange={handleChange}
+          />
+        </div>
 
-      <div className={styles.form_field}>
-        <label htmlFor="lastName">Last Name</label>
-        <input
-          type="text"
-          name="lastName"
-          id="lastName"
-          className={styles.input}
-        />
-      </div>
-
-      <div className={styles.form_field}>
-        <label htmlFor="suffix">Suffix</label>
-        <input
-          type="text"
-          name="suffix"
-          id="suffix"
-          className={styles.input}
-        />
-      </div>
-    </div>
-
-    <div className={`${styles.form_row}`}>
-      <div className={`${styles.form_field}`}>
-        <label htmlFor="dob">Date of Birth</label>
-        <input type="date" name="dob" id="dob" className={styles.input} />
-      </div>
-
-      <div className={styles.form_field}>
-        <label htmlFor="sex" className={styles.radio_title}>
-          Sex
-        </label>
-        <div className={styles.radio_container}>
-          <div className={styles.radio}>
-            <input type="radio" name="sex" id="Male" value="Male" />
-            <label>Male</label>
-          </div>
-          <div className={styles.radio}>
-            <input type="radio" name="sex" id="Female" value="Female" />
-            <label>Female</label>
+        <div className={styles.form_field}>
+          <label htmlFor="sex" className={styles.radio_title}>
+            Sex
+          </label>
+          <div className={styles.radio_container}>
+            <div className={styles.radio}>
+              <input
+                type="radio"
+                name="sex"
+                id="Male"
+                value="Male"
+                checked={profile.sex === "Male"}
+                onChange={handleChange}
+              />
+              <label>Male</label>
+            </div>
+            <div className={styles.radio}>
+              <input
+                type="radio"
+                name="sex"
+                id="Female"
+                value="Female"
+                checked={profile.sex === "Female"}
+                onChange={handleChange}
+              />
+              <label>Female</label>
+            </div>
           </div>
         </div>
       </div>
+
+      <div className={`${styles.form_row}`}>
+        <div className={`${styles.form_field} ${styles.two_rows}`}>
+          <input
+            type="text"
+            name="address"
+            id="address"
+            className={styles.input}
+            placeholder="House No."
+            value={profile.address || ""}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className={`${styles.form_field} ${styles.two_rows}`}>
+          <input
+            type="text"
+            name="barangay"
+            id="barangay"
+            className={styles.input}
+            placeholder="Barangay"
+            value={profile.barangay || ""}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+
+      <div className={`${styles.form_row}`}>
+        <div className={`${styles.form_field} ${styles.two_rows}`}>
+          <input
+            type="text"
+            name="city"
+            id="city"
+            className={styles.input}
+            placeholder="City"
+            value={profile.city || ""}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className={`${styles.form_field} ${styles.two_rows}`}>
+          <input
+            type="text"
+            name="province"
+            id="province"
+            className={styles.input}
+            placeholder="Province"
+            value={profile.province || ""}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+
+      <div className={`${styles.form_row}`}>
+        <div className={`${styles.form_field} ${styles.two_rows}`}>
+          <input
+            type="text"
+            name="postal"
+            id="postal"
+            className={styles.input}
+            placeholder="Postal Code"
+            value={profile.postal || ""}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className={`${styles.form_field} ${styles.two_rows}`}>
+          <input
+            type="text"
+            name="country"
+            id="country"
+            className={styles.input}
+            placeholder="Country"
+            value={profile.country || ""}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+
+      <div className={`${styles.form_row}`}>
+        <div className={`${styles.form_field} ${styles.solo_row}`}>
+          <label htmlFor="contactNumber">Contact Number</label>
+          <input
+            type="text"
+            name="contactNumber"
+            id="contactNumber"
+            className={styles.input}
+            value={profile.contactNumber || ""}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
     </div>
+  );
+};
 
+const FamilyBackground = ({ profile, setProfile }) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile((prevProfile) => ({ ...prevProfile, [name]: value }));
+  };
 
-    {/* This is supposedly a two fields in a row */}
-
-
-    <div className={`${styles.form_row}`}>
-      <div className={`${styles.form_field} ${styles.two_rows}`}>
-        <input
-          type="text"
-          name="address"
-          id="address"
-          className={styles.input}
-          placeholder="House No."
-        />
-      </div>
-
-      <div className={`${styles.form_field} ${styles.two_rows}`}>
-        <input
-          type="text"
-          name="barangay"
-          id="barangay"
-          className={styles.input}
-          placeholder="Barangay"
-        />
-      </div>
-    </div>  
-
-    <div className={`${styles.form_row}`}>
-      
-      <div className={`${styles.form_field} ${styles.two_rows}`}>
-        <input
-          type="text"
-          name="city"
-          id="city"
-          className={styles.input}
-          placeholder="City"
-        />
-      </div>
-
-      <div className={`${styles.form_field} ${styles.two_rows}`}>
-        <input
-          type="text"
-          name="Province"
-          id="province"
-          className={styles.input}
-          placeholder="Province"
-        />
-      </div>
-    </div>  
-
-    <div className={`${styles.form_row}`}>
-      <div className={`${styles.form_field} ${styles.two_rows}`}>
-        <input
-          type="text"
-          name="postal"
-          id="postal"
-          className={styles.input}
-          placeholder="Postal Code"
-        />
-      </div>
-
-      <div className={`${styles.form_field} ${styles.two_rows}`}>
-        <input
-          type="text"
-          name="country"
-          id="country"
-          className={styles.input}
-          placeholder="Country"
-        />
-      </div>
-
-      
-
-    </div>
-
-    {/* Up until above this. Input tag where name attribute is equal to "country" */}
-
-    <div className={`${styles.form_row}`}>
-      <div className={`${styles.form_field} ${styles.solo_row}`}>
-        <label htmlFor="contact">Contact Number</label>
-        <input
-          type="text"
-          name="contactNumber"
-          id="contact"
-          className={styles.input}
-        />
-      </div>
-    </div>
-    <div className={styles.navigation_buttons}>
-  </div>
-  </div>
-);
-
-const FamilyBackground = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
 
@@ -404,32 +493,41 @@ const FamilyBackground = () => {
               <h1>Parent 1</h1>
             </div>
             <div className={styles.field}>
-              <label htmlFor="parent1Name">Full Name</label>
-              <input type="text" className={styles.input} id="parents_name" name="parents_name" />
+              <label htmlFor="parents_name">Full Name</label>
+              <input
+                type="text"
+                className={styles.input}
+                id="parents_name"
+                name="parents_name"
+                value={profile.parents_name || ""}
+                onChange={handleChange}
+              />
             </div>
             <div className={styles.field}>
-              <label htmlFor="parent1Relationship">Relationship</label>
-              <select className={styles.input}>
-                <option disabled>
-                  Select
-                </option>
-                <option value="uncle">
-                  Uncle
-                </option>
-                <option value="auntie">
-                  Auntie
-                </option>
-                <option value="grandparent">
-                  Grand Parent
-                </option>
-                <option value="relative">
-                  Other Relatives
-                </option>
+              <label htmlFor="parents_relationship">Relationship</label>
+              <select
+                className={styles.input}
+                id="parents_relationship"
+                name="parents_relationship"
+                value={profile.parents_relationship || ""}
+                onChange={handleChange}
+              >
+                <option disabled>Select</option>
+                <option value="uncle">Uncle</option>
+                <option value="auntie">Auntie</option>
+                <option value="grandparent">Grand Parent</option>
+                <option value="relative">Other Relatives</option>
               </select>
             </div>
             <div className={styles.field}>
-              <label htmlFor="parent1Education">Highest Education</label>
-              <select className={styles.input} id="parent1Education">
+              <label htmlFor="parents_education">Highest Education</label>
+              <select
+                className={styles.input}
+                id="parents_education"
+                name="parents_education"
+                value={profile.parents_education || ""}
+                onChange={handleChange}
+              >
                 <option disabled selected>
                   Choose
                 </option>
@@ -440,8 +538,15 @@ const FamilyBackground = () => {
               </select>
             </div>
             <div className={styles.field}>
-              <label htmlFor="parent1Contact">Contact Number</label>
-              <input type="text" className={styles.input} id="parent1Contact" />
+              <label htmlFor="parents_contact_number">Contact Number</label>
+              <input
+                type="text"
+                className={styles.input}
+                id="parents_contact_number"
+                name="parents_contact_number"
+                value={profile.parents_contact_number || ""}
+                onChange={handleChange}
+              />
             </div>
           </div>
 
@@ -450,32 +555,41 @@ const FamilyBackground = () => {
               <h1>Parent 2</h1>
             </div>
             <div className={styles.field}>
-              <label htmlFor="parent2Name">Full Name</label>
-              <input type="text" className={styles.input} id="parent2Name" />
+              <label htmlFor="parents_name1">Full Name</label>
+              <input
+                type="text"
+                className={styles.input}
+                id="parents_name1"
+                name="parents_name1"
+                value={profile.parents_name1 || ""}
+                onChange={handleChange}
+              />
             </div>
             <div className={styles.field}>
-              <label htmlFor="parent2Relationship">Relationship</label>
-              <select className={styles.input}>
-                <option disabled>
-                  Select
-                </option>
-                <option value="uncle">
-                  Uncle
-                </option>
-                <option value="auntie">
-                  Auntie
-                </option>
-                <option value="grandparent">
-                  Grand Parent
-                </option>
-                <option value="relative">
-                  Other Relatives
-                </option>
+              <label htmlFor="parents_relationship1">Relationship</label>
+              <select
+                className={styles.input}
+                id="parents_relationship1"
+                name="parents_relationship1"
+                value={profile.parents_relationship1 || ""}
+                onChange={handleChange}
+              >
+                <option disabled>Select</option>
+                <option value="uncle">Uncle</option>
+                <option value="auntie">Auntie</option>
+                <option value="grandparent">Grand Parent</option>
+                <option value="relative">Other Relatives</option>
               </select>
             </div>
             <div className={styles.field}>
-              <label htmlFor="parent2Education">Highest Education</label>
-              <select className={styles.input} id="parent2Education">
+              <label htmlFor="parents_education1">Highest Education</label>
+              <select
+                className={styles.input}
+                id="parents_education1"
+                name="parents_education1"
+                value={profile.parents_education1 || ""}
+                onChange={handleChange}
+              >
                 <option disabled selected>
                   Choose
                 </option>
@@ -486,8 +600,15 @@ const FamilyBackground = () => {
               </select>
             </div>
             <div className={styles.field}>
-              <label htmlFor="parent2Contact">Contact Number</label>
-              <input type="text" className={styles.input} id="parent2Contact" />
+              <label htmlFor="parents_contact_number1">Contact Number</label>
+              <input
+                type="text"
+                className={styles.input}
+                id="parents_contact_number1"
+                name="parents_contact_number1"
+                value={profile.parents_contact_number1 || ""}
+                onChange={handleChange}
+              />
             </div>
           </div>
         </div>
@@ -502,42 +623,54 @@ const FamilyBackground = () => {
             </div>
             <div className={styles.row_field}>
               <div className={styles.field}>
-                <label htmlFor="guardianName">Name</label>
-                <input type="text" className={styles.input} id="guardianName" />
+                <label htmlFor="guardians_name">Name</label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  id="guardians_name"
+                  name="guardians_name"
+                  value={profile.guardians_name || ""}
+                  onChange={handleChange}
+                />
               </div>
               <div className={styles.field}>
-                <label htmlFor="guardianRelationship">Relationship</label>
-                <select className={styles.input}>
-                <option disabled>
-                  Select
-                </option>
-                <option value="uncle">
-                  Uncle
-                </option>
-                <option value="auntie">
-                  Auntie
-                </option>
-                <option value="grandparent">
-                  Grand Parent
-                </option>
-                <option value="relative">
-                  Other Relatives
-                </option>
-              </select>
+                <label htmlFor="guardians_relationship">Relationship</label>
+                <select
+                  className={styles.input}
+                  id="guardians_relationship"
+                  name="guardians_relationship"
+                  value={profile.guardians_relationship || ""}
+                  onChange={handleChange}
+                >
+                  <option disabled>Select</option>
+                  <option value="uncle">Uncle</option>
+                  <option value="auntie">Auntie</option>
+                  <option value="grandparent">Grand Parent</option>
+                  <option value="relative">Other Relatives</option>
+                </select>
               </div>
             </div>
             <div className={styles.row_field}>
               <div className={styles.field}>
-                <label htmlFor="guardianEmployer">Employer</label>
+                <label htmlFor="guardians_employer">Employer</label>
                 <input
                   type="text"
                   className={styles.input}
-                  id="guardianEmployer"
+                  id="guardians_employer"
+                  name="guardians_employer"
+                  value={profile.guardians_employer || ""}
+                  onChange={handleChange}
                 />
               </div>
               <div className={styles.field}>
-                <label htmlFor="guardianEducation">Highest Education</label>
-                <select className={styles.input} id="guardianEducation">
+                <label htmlFor="guardians_education">Highest Education</label>
+                <select
+                  className={styles.input}
+                  id="guardians_education"
+                  name="guardians_education"
+                  value={profile.guardians_education || ""}
+                  onChange={handleChange}
+                >
                   <option disabled selected>
                     Choose
                   </option>
@@ -550,11 +683,14 @@ const FamilyBackground = () => {
             </div>
             <div className={styles.row_field}>
               <div className={styles.field}>
-                <label htmlFor="guardianContact">Contact Number</label>
+                <label htmlFor="guardians_contact_number">Contact Number</label>
                 <input
                   type="text"
                   className={styles.input}
-                  id="guardianContact"
+                  id="guardians_contact_number"
+                  name="guardians_contact_number"
+                  value={profile.guardians_contact_number || ""}
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -591,8 +727,8 @@ const FamilyBackground = () => {
                       <td>
                         <input
                           type="text"
-                          name="name"
-                          value={sibling.name}
+                          name="siblings_name"
+                          value={sibling.siblings_name || ""}
                           placeholder="Enter name"
                           className={styles.add_siblings_name}
                           onChange={(e) => handleInputChange(e, index)}
@@ -601,8 +737,8 @@ const FamilyBackground = () => {
                       <td>
                         <input
                           type="number"
-                          name="age"
-                          value={sibling.age}
+                          name="siblings_age"
+                          value={sibling.siblings_age || ""}
                           placeholder="Age"
                           className={styles.add_siblings_age}
                           onChange={(e) => handleInputChange(e, index)}
@@ -662,96 +798,161 @@ const FamilyBackground = () => {
   );
 };
 
-const Education = () => (
-  <div className={styles.educational_attainment_wrapper}>
-    <div className={styles.title}>
-      <h1>Educational Attainment</h1>
+const Education = ({ profile, setProfile }) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile((prevProfile) => ({ ...prevProfile, [name]: value }));
+  };
+
+  return (
+    <div className={styles.educational_attainment_wrapper}>
+      <div className={styles.title}>
+        <h1>Educational Attainment</h1>
+      </div>
+
+      <div className={styles.elementary}>
+        <div className={styles.subtitle}>
+          <h3>Elementary</h3>
+        </div>
+        <div className={styles.elementary_fields}>
+          <div className={styles.last_school_attended}>
+            <label htmlFor="elementary_school">Last School Attended</label>
+            <input
+              type="text"
+              id="elementary_school"
+              name="elementary_school"
+              value={profile.elementary_school || ""}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className={styles.type_of_school}>
+            <label htmlFor="elementary_school_type">Type of School</label>
+            <select
+              id="elementary_school_type"
+              name="elementary_school_type"
+              value={profile.elementary_school_type || ""}
+              onChange={handleChange}
+            >
+              <option disabled>Choose</option>
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+
+          <div className={styles.year_graduated}>
+            <label htmlFor="elementary_year_graduated">Year Graduated</label>
+            <input
+              type="number"
+              id="elementary_year_graduated"
+              name="elementary_year_graduated"
+              value={profile.elementary_year_graduated || ""}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.junior_hs}>
+        <div className={styles.subtitle}>
+          <h3>Junior High School</h3>
+        </div>
+        <div className={styles.junior_hs_fields}>
+          <div className={styles.last_school_attended}>
+            <label htmlFor="junior_high_school">Last School Attended</label>
+            <input
+              type="text"
+              id="junior_high_school"
+              name="junior_high_school"
+              value={profile.junior_high_school || ""}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className={styles.type_of_school}>
+            <label htmlFor="junior_high_school_type">Type of School</label>
+            <select
+              id="junior_high_school_type"
+              name="junior_high_school_type"
+              value={profile.junior_high_school_type || ""}
+              onChange={handleChange}
+            >
+              <option disabled>Choose</option>
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+
+          <div className={styles.year_graduated}>
+            <label htmlFor="junior_high_school_year_graduated">Year Graduated</label>
+            <input
+              type="number"
+              id="junior_high_school_year_graduated"
+              name="junior_high_school_year_graduated"
+              value={profile.junior_high_school_year_graduated || ""}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.senior_hs}>
+        <div className={styles.subtitle}>
+          <h3>Senior High School</h3>
+        </div>
+        <div className={styles.senior_hs_fields}>
+          <div className={styles.last_school_attended}>
+            <label htmlFor="senior_high_school">School Attended</label>
+            <input
+              type="text"
+              id="senior_high_school"
+              name="senior_high_school"
+              value={profile.senior_high_school || ""}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className={styles.type_of_school}>
+            <label htmlFor="senior_high_school_type">Type of School</label>
+            <select
+              id="senior_high_school_type"
+              name="senior_high_school_type"
+              value={profile.senior_high_school_type || ""}
+              onChange={handleChange}
+            >
+              <option disabled>Choose</option>
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+
+          <div className={styles.strand}>
+            <label htmlFor="strand">Strand</label>
+            <input
+              type="text"
+              id="strand"
+              name="strand"
+              placeholder="Ex. STEM"
+              value={profile.strand || ""}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className={styles.year_graduated}>
+            <label htmlFor="senior_high_school_year_graduated">Year Graduated</label>
+            <input
+              type="number"
+              id="senior_high_school_year_graduated"
+              name="senior_high_school_year_graduated"
+              value={profile.senior_high_school_year_graduated || ""}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+      </div>
     </div>
-
-    <div className={styles.elementary}>
-      <div className={styles.subtitle}>
-        <h3>Elementary</h3>
-      </div>
-      <div className={styles.elementary_fields}>
-        <div className={styles.last_school_attended}>
-          <label htmlFor="elementary">Last School Attended</label>
-          <input type="text" id="elementary" name="elementary" />
-        </div>
-
-        <div className={styles.type_of_school}>
-          <label htmlFor="type-of-school">Type of School</label>
-          <select>
-            <option disabled>Choose</option>
-            <option value="public">Public</option>
-            <option value="private">Private</option>
-          </select>
-        </div>
-
-        <div className={styles.year_graduated}>
-          <label htmlFor="year">Year Graduated</label>
-          <input type="number" id="year" name="year" />
-        </div>
-      </div>
-    </div>
-
-    <div className={styles.junior_hs}>
-      <div className={styles.subtitle}>
-        <h3>Junior High School</h3>
-      </div>
-      <div className={styles.junior_hs_fields}>
-        <div className={styles.last_school_attended}>
-          <label htmlFor="junior-hs">Last School Attended</label>
-          <input type="text" id="junior-hs" name="junior-hs" />
-        </div>
-
-        <div className={styles.type_of_school}>
-          <label htmlFor="type-of-school">Type of School</label>
-          <select>
-            <option disabled>Choose</option>
-            <option value="public">Public</option>
-            <option value="private">Private</option>
-          </select>
-        </div>
-
-        <div className={styles.year_graduated}>
-          <label htmlFor="year">Year Graduated</label>
-          <input type="number" id="year" name="year" />
-        </div>
-      </div>
-    </div>
-
-    <div className={styles.senior_hs}>
-      <div className={styles.subtitle}>
-        <h3>Senior High School</h3>
-      </div>
-      <div className={styles.senior_hs_fields}>
-        <div className={styles.last_school_attended}>
-          <label htmlFor="senior-hs">School Attended</label>
-          <input type="text" id="senior-hs" name="senior-hs" />
-        </div>
-
-        <div className={styles.type_of_school}>
-          <label htmlFor="type-of-school">Type of School</label>
-          <select>
-            <option disabled>Choose</option>
-            <option value="public">Public</option>
-            <option value="private">Private</option>
-          </select>
-        </div>
-
-        <div className={styles.strand}>
-          <label htmlFor="strand">Strand</label>
-          <input type="text" id="strand" name="strand" placeholder="Ex. STEM" />
-        </div>
-
-        <div className={styles.year_graduated}>
-          <label htmlFor="year">Year Graduated</label>
-          <input type="number" id="year" name="year" />
-        </div>
-      </div>
-    </div>
-  </div>
-);
+  );
+};
 
 const AccountSettings = () => (
   <div className={styles.account_settings_wrapper}>

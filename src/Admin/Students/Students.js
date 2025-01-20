@@ -219,10 +219,10 @@ const Students = () => {
           </div>
         </div>
       </div>
+      {/* Render CORPrint when a student is selected */}
       {selectedStudent && (
         <CORPrint student={selectedStudent} onClose={handlePrintClose} />
       )}
-
      
     </div>
   );

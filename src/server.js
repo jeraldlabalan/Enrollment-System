@@ -10,6 +10,10 @@ const nodemailer = require("nodemailer"); // Import Nodemailer
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const sessionStore = require('../src/sessionStore.js'); // Adjust the path as needed
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
 
 app.use(bodyParser.json());
 
@@ -47,7 +51,7 @@ app.use(
 const db = mysql.createPool({
   host: "localhost", // Replace with your DB host
   user: "root", // Replace with your MySQL username
-  password: "Jerald_11783", // Replace with your MySQL password
+  password: "Wearefamily03", // Replace with your MySQL password
   database: "enrollment_system", // Replace with your DB name
 });
 
@@ -61,6 +65,27 @@ const db = mysql.createPool({
   }
 })();
 
+const uploadDir = path.resolve(__dirname, "../uploads");
+console.log("Resolved upload directory:", uploadDir);
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log("Created uploads directory:", uploadDir);
+}
+
+
+
+const storage = multer.memoryStorage(); // Stores files in memory as Buffer objects
+
+const upload = multer({ storage });
+
+// No selection was provided, so I'll generate a code snippet that can be inserted at the cursor position.
+
+// Example of a well-structured and readable code snippet
+// This is a simple function that takes a user ID as input and returns the
+
+
+app.use("/uploads", express.static("uploads"));
 
 // Routes
 app.get("/", (req, res) => {
@@ -837,14 +862,15 @@ app.get("/api/enrollees", async (req, res) => {
     // Execute the SQL query
     const [students, metadata] = await db.query(
       `
-    SELECT 
+   SELECT 
   tbl_student_data.student_id, 
   tbl_user_account.first_name, 
   tbl_user_account.last_name, 
   tbl_user_account.email,
   tbl_program.program_name,
   tbl_student_data.student_type,
-  tbl_student_data.year_level
+  tbl_student_data.student_status,
+  tbl_year_level.year_level
 FROM 
   tbl_student_data
 JOIN 
@@ -855,6 +881,10 @@ JOIN
   tbl_program 
 ON 
   tbl_student_data.program = tbl_program.program_id
+JOIN 
+  tbl_year_level
+ON 
+  tbl_student_data.year_level = tbl_year_level.year_level_id
 WHERE
   tbl_student_data.status = 'not enrolled';
       `
@@ -869,6 +899,80 @@ WHERE
   }
 });
 
+app.put("/api/students/:user_id", async (req, res) => {
+  const { user_id } = req.params;
+  const { first_name, last_name, program, student_status, year_level } = req.body;
+
+  console.log("Request body:", req.body);
+if (!first_name || !last_name || !program_id || !student_status || !year_level) {
+  return res.status(400).json({ message: "Missing required fields." });
+}
+
+  try {
+    console.log("Request body:", req.body);
+    console.log("User ID:", user_id);
+
+    const query = `
+      UPDATE tbl_student_data 
+      JOIN tbl_user_account ON tbl_student_data.user_id = tbl_user_account.user_id
+      SET 
+        tbl_user_account.first_name = ?, 
+        tbl_user_account.last_name = ?, 
+        tbl_student_data.program = ?, 
+        tbl_student_data.student_status = ?, 
+        tbl_student_data.year_level = ?, 
+      WHERE 
+        tbl_student_data.user_id = ?;
+    `;
+
+    await db.query(query, [
+      first_name,
+      last_name,
+      program,
+      student_status,
+      year_level,
+      user_id,
+    ]);
+
+    res.status(200).json({ message: "Student updated successfully." });
+  } catch (error) {
+    console.error("Error updating student:", error.message, error.stack);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+
+
+
+
+app.put('/students/:id/enroll', async (req, res) => {
+  console.log('Raw student_id received:', req.params.id); // Debugging log
+
+  const student_id = parseInt(req.params.id, 10); // Convert to integer
+  console.log('Parsed student_id:', student_id);
+
+  if (isNaN(student_id)) {
+    return res.status(400).json({ message: 'Invalid student_id provided.' });
+  }
+
+  try {
+    const [result] = await db.query(
+      'UPDATE tbl_student_data SET status = ? WHERE student_id = ?',
+      ['enrolled', student_id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Student not found or already enrolled.' });
+    }
+
+    res.status(200).json({ message: 'Student successfully enrolled.' });
+  } catch (error) {
+    console.error('Error enrolling student:', error);
+    res.status(500).json({ message: 'Failed to enroll student.' });
+  }
+});
+
+
 app.get("/api/students", async (req, res) => {
   try {
     // Execute the SQL query
@@ -879,7 +983,15 @@ app.get("/api/students", async (req, res) => {
   tbl_user_account.first_name, 
   tbl_user_account.last_name, 
   tbl_user_account.middle_name,
+  tbl_user_account.suffix,
+  tbl_user_account.email, 
+  tbl_user_account.date_of_birth, 
+  tbl_user_account.phone_number,
   tbl_program.program_name,
+  tbl_address.house_number,
+  tbl_address.street,
+  tbl_address.barangay,
+  tbl_address.city,
   tbl_student_data.student_type,
   tbl_student_data.year_level
 FROM 
@@ -892,6 +1004,10 @@ JOIN
   tbl_program 
 ON 
   tbl_student_data.program = tbl_program.program_id
+JOIN 
+  tbl_address
+ON 
+  tbl_student_data.address = tbl_address.address_id
 WHERE
   tbl_student_data.status = 'enrolled';
       `
@@ -907,8 +1023,16 @@ WHERE
 });
 
 app.get("/api/enrollment-team", async (req, res) => {
+
+  const roleMapping = {
+    admin: 1,
+    adviser: 2,
+    officer: 3,
+  };
   try {
     // Execute the SQL query
+    const roleName = req.query.role; // Example: ?role=admin
+    const roleInt = roleMapping[roleName] || null;
     const [students, metadata] = await db.query(
       `
 SELECT 
@@ -916,8 +1040,8 @@ SELECT
   first_name AS first_name, 
   middle_name AS middle_name, 
   last_name AS last_name,
-  position as position
-  
+  position AS position,
+  account_role AS account_role  -- Added comma here
 FROM 
   tbl_officer_data
 
@@ -928,8 +1052,8 @@ SELECT
   first_name AS first_name, 
   middle_name AS middle_name, 
   last_name AS last_name,
-  position as position
-  
+  position AS position,
+  NULL AS account_role  -- Placeholder for account_role in the adviser data
 FROM 
   tbl_adviser_data;
       `
@@ -1011,6 +1135,31 @@ ON
     // Handle any errors
     console.error("Error fetching students:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.put('/api/enrollment-team/:id', async (req, res) => {
+  const studentId = req.params.id; // Get student ID from URL params
+  const { role } = req.body; // Get the new role from the request body
+
+  // SQL query to update the student's role
+  const query = `
+    UPDATE tbl_officer_data
+    SET account_role = ?
+    WHERE officer_id = ?
+  `;
+
+  try {
+    const [result] = await pool.promise().query(query, [role, studentId]);
+
+    if (result.affectedRows > 0) {
+      res.status(200).json({ message: 'Role updated successfully' });
+    } else {
+      res.status(404).json({ message: 'Student not found' });
+    }
+  } catch (error) {
+    console.error('Error updating role:', error);
+    res.status(500).json({ message: 'Error updating role' });
   }
 });
 
@@ -1165,7 +1314,6 @@ app.put("/profile/:userId", async (req, res) => {
     sex,
     dob,
     contactNumber,
-    email,
     address,
     barangay,
     city,
@@ -1180,66 +1328,61 @@ app.put("/profile/:userId", async (req, res) => {
     junior_high_year_graduated,
     senior_high_school,
     senior_high_school_type,
-    senior_high_school_strand,
+    strand,
     senior_high_year_graduated,
     parents_name,
     parents_relationship,
-    parents_occupation,
+    parents_education,
     parents_contact_number,
     parents_name1,
     parents_relationship1,
-    parents_occupation1,
+    parents_education1,
     parents_contact_number1,
     guardians_name,
     guardians_relationship,
-    guardians_occupation,
-    guardians_contact_number,
     guardians_employer,
-    siblings_name,
-    siblings_age,      
-    profilePicture,
+    guardians_education,
+    guardians_contact_number,
+    siblings,
+    profile_picture,
   } = req.body;
 
-  if (
-    !firstName ||
-    !lastName ||
-    !dob ||
-    !sex ||
-    !contactNumber ||
-    !email ||
-    !address ||
-    !barangay ||
-    !city ||
-    !province ||
-    !postal ||
-    !country ||
-    !elementary_school ||
-    !elementary_school_type ||
-    !elementary_year_graduated ||
-    !junior_high_school ||
-    !junior_high_school_type ||
-    !junior_high_year_graduated ||
-    !senior_high_school ||
-    !senior_high_school_type ||
-    !senior_high_school_strand ||
-    !senior_high_year_graduated ||
-    !parents_name ||
-    !parents_relationship ||
-    !parents_occupation ||
-    !parents_contact_number ||
-    !parents_name1 ||
-    !parents_relationship1||
-    !parents_occupation1 ||
-    !parents_contact_number1 ||
-    !guardians_name ||
-    !guardians_relationship ||
-    !guardians_occupation ||
-    !guardians_contact_number ||
-    !guardians_employer ||
-    !siblings_name ||
-    !siblings_age ||
-    !profilePicture
-  ) {
+  const requiredFields = [
+    "firstName",
+    "lastName",
+    "dob",
+    "sex",
+    "contactNumber",
+    "address",
+    "barangay",
+    "city",
+    "province",
+    "postal",
+    "country",
+    "elementary_school",
+    "elementary_school_type",
+    "elementary_year_graduated",
+    "junior_high_school",
+    "junior_high_school_type",
+    "junior_high_year_graduated",
+    "senior_high_school",
+    "senior_high_school_type",
+    "strand",
+    "senior_high_year_graduated",
+    "parents_name",
+    "parents_relationship",
+    "parents_education",
+    "parents_contact_number",
+    "guardians_name",
+    "guardians_relationship",
+    "guardians_employer",
+    "guardians_education",
+    "guardians_contact_number",
+    "siblings",
+    "profile_picture",
+  ];
+
+  if (requiredFields.some((field) => !req.body[field])) {
     return res.status(400).json({ message: "All fields are required." });
   }
 
@@ -1248,11 +1391,11 @@ app.put("/profile/:userId", async (req, res) => {
 
     const updateUserQuery = `
       UPDATE tbl_user_account
-      SET first_name = ?, middle_name = ?, last_name = ?, date_of_birth = ?, phone_number = ?, email = ?, profile_picture = ?
+      SET first_name = ?, middle_name = ?, last_name = ?, suffix = ?, sex = ?, date_of_birth = ?, phone_number = ?, profile_picture = ?
       WHERE user_id = ?
     `;
 
-    await db.query(updateUserQuery, [firstName, middleName, lastName, dob, contactNumber, email, profilePicture, userId]);
+    await db.query(updateUserQuery, [firstName, middleName, lastName, suffix, sex, dob, contactNumber, profile_picture, userId]);
 
     const updateAddressQuery = `
       UPDATE tbl_address
@@ -1262,79 +1405,323 @@ app.put("/profile/:userId", async (req, res) => {
 
     await db.query(updateAddressQuery, [house_number, street, barangay, city, province, country, postal, userId]);
 
-    // Update educational attainment
-    if (education) {
-      const deleteEducationQuery = `INSERT INTO tbl_profile (educational_attainment_id) VALUES (?) WHERE personal_information_id = (SELECT personal_information_id FROM tbl_profile WHERE user_id = ?)`;
-      await db.query(deleteEducationQuery, [userId]);
+    const updateEducationQuery = `
+      UPDATE tbl_educational_attainment
+      SET elementary_school = ?, elementary_school_type = ?, elementary_year_graduated = ?, junior_high_school = ?, junior_high_school_type = ?, junior_high_year_graduated = ?, senior_high_school = ?, senior_high_school_type = ?, strand = ?, senior_high_year_graduated = ?
+      WHERE educational_attainment_id = (SELECT educational_attainment_id FROM tbl_profile WHERE user_id = ?)
+    `;
 
-      const insertEducationQuery = `
-        INSERT INTO tbl_education (educational_attainment_id, elementary_id, junior_high_id, senior_high_id)
-        VALUES (?, ?, ?, ?)
-      `;
-      for (const edu of education) {
-        const [elementaryResult] = await db.query(`INSERT INTO tbl_elementary (school_name, school_type ,year_graduated) VALUES (?, ?, ?)`, [edu.elementary_school, edu.elementary_year_graduated]);
-        const [juniorHighResult] = await db.query(`INSERT INTO tbl_junior_high (school_name, school_type ,year_graduated) VALUES (?, ?, ?)`, [edu.junior_high_school, edu.junior_high_year_graduated]);
-        const [seniorHighResult] = await db.query(`INSERT INTO tbl_senior_high (school_name, school_type, strand ,year_graduated) VALUES (?, ?, ?, ?)`, [edu.senior_high_school, edu.senior_high_year_graduated]);
+    await db.query(updateEducationQuery, [elementary_school, elementary_school_type, elementary_year_graduated, junior_high_school, junior_high_school_type, junior_high_year_graduated, senior_high_school, senior_high_school_type, strand, senior_high_year_graduated, userId]);
 
-        await db.query(insertEducationQuery, [userId, edu.degree, edu.institution, edu.year_graduated, elementaryResult.insertId, juniorHighResult.insertId, seniorHighResult.insertId]);
-      }
-    }
+    const updateFamilyQuery = `
+      UPDATE tbl_family_background
+      SET parents_name = ?, parents_relationship = ?, parents_education = ?, parents_contact_number = ?, parents_name1 = ?, parents_relationship1 = ?, parents_education1 = ?, parents_contact_number1 = ?, guardians_name = ?, guardians_relationship = ?, guardians_employer = ?, guardians_education = ?, guardians_contact_number = ?, siblings = ?
+      WHERE family_background_id = (SELECT family_background_id FROM tbl_profile WHERE user_id = ?)
+    `;
 
-    // Update family background
-    if (family) {
-      const deleteFamilyQuery = `INSERT INTO tbl_profile (family_background_id, user_id) VALUES (?,?)`;
-      await db.query(deleteFamilyQuery, [userId]);
-
-      const insertFamilyQuery = `
-        INSERT INTO tbl_family_background (family_background_id, parent_id, guardian_id, sibling_id)
-        VALUES (?, ?, ?, ?)
-      `;
-      const [familyResult] = await db.query(insertFamilyQuery, [userId, family.parent_id, family.guardian_id, family.sibling_id]);
-
-      const familyBackgroundId = familyResult.insertId;
-
-      // Insert parents
-      if (family.parents && family.parents.length > 0) {
-        const insertParentQuery = `
-          INSERT INTO tbl_parents (parent_id, name, relationship, highest_education, contact_number)
-          VALUES (?, ?, ?, ?,?)
-        `;
-        for (const parent of family.parents) {
-          await db.query(insertParentQuery, [familyBackgroundId, parent.name, parent.occupation]);
-        }
-      }
-
-      // Insert guardians
-      if (family.guardians && family.guardians.length > 0) {
-        const insertGuardianQuery = `
-          INSERT INTO tbl_guardians (guardian_id, name, relationship, employer,  highest_education, contact_number)
-          VALUES (?, ?, ?, ?, ?, ?)
-        `;
-        for (const guardian of family.guardians) {
-          await db.query(insertGuardianQuery, [familyBackgroundId, guardian.name, guardian.occupation]);
-        }
-      }
-
-      // Insert siblings
-      if (family.siblings && family.siblings.length > 0) {
-        const insertSiblingQuery = `
-          INSERT INTO tbl_siblings (sibling_id, name, occupation)
-          VALUES (?, ?, ?)
-        `;
-        for (const sibling of family.siblings) {
-          await db.query(insertSiblingQuery, [familyBackgroundId, sibling.name, sibling.occupation]);
-        }
-      }
-    }
+    await db.query(updateFamilyQuery, [parents_name, parents_relationship, parents_education, parents_contact_number, parents_name1, parents_relationship1, parents_education1, parents_contact_number1, guardians_name, guardians_relationship, guardians_employer, guardians_education, guardians_contact_number, JSON.stringify(siblings), userId]);
 
     res.status(200).json({ message: "Profile updated successfully." });
   } catch (error) {
-    console.error("Error updating profile:", error.message);
+    console.error("Error updating profile:", error.message, error.stack);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+app.post("/profile/edit/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const {
+    firstName,
+    middleName,
+    lastName,
+    suffix,
+    sex,
+    dob,
+    contactNumber,
+    address,
+    barangay,
+    city,
+    province,
+    postal,
+    country,
+    elementary_school,
+    elementary_school_type,
+    elementary_year_graduated,
+    junior_high_school,
+    junior_high_school_type,
+    junior_high_year_graduated,
+    senior_high_school,
+    senior_high_school_type,
+    strand,
+    senior_high_year_graduated,
+    parents_name,
+    parents_relationship,
+    parents_education,
+    parents_contact_number,
+    parents_name1,
+    parents_relationship1,
+    parents_education1,
+    parents_contact_number1,
+    guardians_name,
+    guardians_relationship,
+    guardians_employer,
+    guardians_education,
+    guardians_contact_number,
+    siblings,
+    profile_picture,
+  } = req.body;
+
+  try {
+    // Check if the user_id already exists
+    const checkUserQuery = "SELECT COUNT(*) AS count FROM tbl_user_account WHERE user_id = ?";
+    const [checkResult] = await db.query(checkUserQuery, [userId]);
+
+    if (checkResult.count > 0) {
+      return res.status(400).json({ message: "User ID already exists. Data insertion skipped." });
+    }
+
+    const { house_number, street } = splitAddress(address);
+
+    // Insert into tbl_user_account
+    const insertUserQuery = `
+      INSERT INTO tbl_user_account (user_id, first_name, middle_name, last_name, suffix, sex, date_of_birth, phone_number, profile_picture)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    await db.query(insertUserQuery, [userId, firstName, middleName, lastName, suffix, sex, dob, contactNumber, profile_picture]);
+
+    // Insert into tbl_address
+    const insertAddressQuery = `
+      INSERT INTO tbl_address (house_number, street, barangay, city, province, country, postal_code)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    const [addressResult] = await db.query(insertAddressQuery, [house_number, street, barangay, city, province, country, postal]);
+
+    // Insert into tbl_educational_attainment
+    const insertEducationQuery = `
+      INSERT INTO tbl_educational_attainment (elementary_school, elementary_school_type, elementary_year_graduated, junior_high_school, junior_high_school_type, junior_high_year_graduated, senior_high_school, senior_high_school_type, strand, senior_high_year_graduated)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const [educationResult] = await db.query(insertEducationQuery, [
+      elementary_school,
+      elementary_school_type,
+      elementary_year_graduated,
+      junior_high_school,
+      junior_high_school_type,
+      junior_high_year_graduated,
+      senior_high_school,
+      senior_high_school_type,
+      strand,
+      senior_high_year_graduated,
+    ]);
+
+    // Insert into tbl_family_background
+    const insertFamilyQuery = `
+      INSERT INTO tbl_family_background (parents_name, parents_relationship, parents_education, parents_contact_number, parents_name1, parents_relationship1, parents_education1, parents_contact_number1, guardians_name, guardians_relationship, guardians_employer, guardians_education, guardians_contact_number, siblings)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    await db.query(insertFamilyQuery, [
+      parents_name,
+      parents_relationship,
+      parents_education,
+      parents_contact_number,
+      parents_name1,
+      parents_relationship1,
+      parents_education1,
+      parents_contact_number1,
+      guardians_name,
+      guardians_relationship,
+      guardians_employer,
+      guardians_education,
+      guardians_contact_number,
+      JSON.stringify(siblings),
+    ]);
+
+    res.status(201).json({ message: "Profile inserted successfully." });
+  } catch (error) {
+    console.error("Error inserting profile:", error.message, error.stack);
     res.status(500).json({ message: "Internal server error." });
   }
 });
 
 
+app.post("/upload-profile-picture/:userId", async (req, res) => {
+  try {
+    await upload(req, res);
+    if (!req.file) {
+      console.error("No file uploaded.");
+      return res.status(400).json({ message: "No file uploaded." });
+    }
+
+    const filePath = `/uploads/${req.file.filename}`;
+    console.log("File uploaded successfully:", filePath);
+
+    // Proceed with database update
+    const { userId } = req.params;
+    const query = "UPDATE tbl_user_account SET profile_picture = ? WHERE user_id = ?";
+    const [result] = await db.query(query, [filePath, userId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    console.log("Database update successful.");
+    res.status(200).json({ profilePicture: filePath });
+  } catch (err) {
+    console.error("Error uploading profile picture:", err.message);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+app.put("/api/user", async (req, res) => {
+  try {
+    const { user_id, studentCategory, studentId, yearLevel, program } = req.body;
+    const query = `
+      UPDATE tbl_student_data
+      SET
+        student_type = ?,
+        student_id = ?,
+        year_level = ?,
+        program = ?
+      WHERE user_id = ?;
+    `;
+    const result = await db.query(query, [studentCategory, studentId, yearLevel, program, user_id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("User not found or no changes made.");
+    }
+
+    res.status(200).json({ message: "User data saved successfully." });
+  } catch (err) {
+    console.error("Error saving user data:", err.message);
+    res.status(500).send("Error saving user data.");
+  }
+});
+
+app.post("/api/subjects", async (req, res) => {
+  try {
+    const { user_id, selectedSubjects } = req.body;
+
+    for (const subject of selectedSubjects) {
+      console.log("Checking subject name:", subject.name);
+
+      const queryFindSubject = "SELECT subject_id FROM tbl_subjects WHERE subject_code = ?";
+      const [rows] = await db.query(queryFindSubject, [subject.name]); // Destructure rows to access results
+
+      console.log("Query result for subject:", rows);
+
+      if (rows.length > 0) {
+        const subjectId = rows[0].subject_id;
+
+        console.log(`Found subject ID: ${subjectId} for subject name: ${subject.name}`);
+
+        // Insert a new entry into the student_subjects table
+        const queryInsertOrUpdate = `
+          INSERT INTO tbl_student_subjects (user_id, subject_id)
+          VALUES (?, ?)
+        `;
+        await db.query(queryInsertOrUpdate, [user_id, subjectId]);
+        console.log(`Subject ${subject.name} saved successfully.`);
+      } else {
+        console.error(`Subject not found: ${subject.name}`);
+        return res.status(404).send(`Subject ${subject.name} not found.`);
+      }
+    }
+
+    res.status(200).send("Subjects saved successfully.");
+  } catch (err) {
+    console.error("Error saving subjects:", err.message);
+    res.status(500).send("Error saving subjects.");
+  }
+});
+
+
+
+
+
+// Handle file upload
+app.post(
+  "/api/files",
+  upload.fields([
+    { name: "curriculumChecklist", maxCount: 10 },
+    { name: "certificateOfRegistration", maxCount: 10 },
+    { name: "transcriptOfRecords", maxCount: 10 },
+  ]),
+  async (req, res) => {
+    try {
+      const files = req.files;
+      const userId = req.body.userId; // Assuming userId is sent in the request body
+
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required." });
+      }
+
+      console.log("Uploaded files:", files);
+      console.log("User ID:", userId);
+
+      // Save file information to the database
+      const fileEntries = [];
+
+      if (files.curriculumChecklist) {
+        files.curriculumChecklist.forEach((file) => {
+          fileEntries.push([userId, file.filename, "curriculumChecklist"]);
+        });
+      }
+
+      if (files.certificateOfRegistration) {
+        files.certificateOfRegistration.forEach((file) => {
+          fileEntries.push([userId, file.filename, "certificateOfRegistration"]);
+        });
+      }
+
+      if (files.transcriptOfRecords) {
+        files.transcriptOfRecords.forEach((file) => {
+          fileEntries.push([userId, file.filename, "transcriptOfRecords"]);
+        });
+      }
+
+      if (fileEntries.length > 0) {
+        const query = `
+          INSERT INTO tbl_files (user_id, file_name, file_type)
+          VALUES ?
+        `;
+        await db.query(query, [fileEntries]);
+      }
+
+      res.status(200).json({ message: "Files uploaded and saved successfully." });
+    } catch (err) {
+      console.error("Error handling file upload:", err.message, err.stack);
+      res.status(500).json({ message: "Internal server error." });
+    }
+  }
+);
+
+
+
+app.put("/api/advisingDate", async (req, res) => {
+  try {
+      const { user_id, advisingDate } = req.body;
+      console.log("Received advising date:", advisingDate); // Log incoming advising date
+      console.log("Received user ID:", user_id); // Log incoming user ID
+
+      if (!advisingDate) {
+          return res.status(400).send("Advising date is required.");
+      }
+
+      const query = `
+          UPDATE tbl_student_data
+          SET advising_date = ?
+          WHERE user_id = ?;
+      `;
+
+      const result = await db.query(query, [advisingDate, user_id]);
+      console.log("Advising date update result:", result); // Log database response
+
+      res.status(200).send("Advising date saved.");
+  } catch (err) {
+      console.error("Error saving advising date:", err.message);
+      res.status(500).send("Error saving advising date.");
+  }
+});
 // Start server
 const PORT = 5000;
 app.listen(PORT, () => {

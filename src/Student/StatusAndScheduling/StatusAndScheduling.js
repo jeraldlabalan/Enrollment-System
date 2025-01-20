@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { SessionContext } from "../../contexts/SessionContext";
 import RescheduleModal from "./RescheduleModal";
 import styles from "./StatusAndScheduling.module.css";
 import Header from "../Header/Header";
@@ -8,6 +10,47 @@ import "react-toastify/dist/ReactToastify.css";
 
 function StatusAndScheduling() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
+    const {
+      user,
+      isLoading: sessionLoading,
+      logout,
+    } = useContext(SessionContext);
+    const [userData, setUserData] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+  useEffect(() => {
+      const fetchUserData = async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:5000/user/${user.user_id}`,
+            {
+              credentials: "include",
+            }
+          );
+  
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to fetch user data.");
+          }
+  
+          const data = await response.json();
+          setUserData(data);
+        } catch (err) {
+          console.error("Error fetching user data:", err.message);
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+  
+      if (!sessionLoading && user) {
+        fetchUserData();
+      } else if (!sessionLoading && !user) {
+        navigate("/login", { replace: true }); // Redirect to login if no session
+      }
+    }, [sessionLoading, user, navigate]);
 
   return (
     <main className={styles.content}>

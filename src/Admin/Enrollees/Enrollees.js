@@ -5,7 +5,6 @@ import { SessionContext } from "../../contexts/SessionContext";
 import DashboardHeader from "../Dashboard/DashboardHeader";
 import default_profile from "../../assets/default-profile-photo.jpg";
 
-
 const Enrollees = () => {
   const { user, isLoading: sessionLoading, logout } = useContext(SessionContext);
   const navigate = useNavigate();
@@ -25,32 +24,12 @@ const Enrollees = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editedStudent, setEditedStudent] = useState(null);
 
-  const handleEditClick = (student) => {
-    setEditedStudent({ ...student }); // Create a copy of the student object
-    setShowEditModal(true);
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditedStudent((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleEditSubmit = () => {
-    setStudents((prev) =>
-      prev.map((student) =>
-        student.id === editedStudent.id ? editedStudent : student
-      )
-    );
-    setShowEditModal(false);
-  };
- 
   useEffect(() => {
     if (!sessionLoading && !user) {
       navigate("/login", { replace: true });
     }
   }, [sessionLoading, user, navigate]);
 
-  
   useEffect(() => {
     const fetchStudents = async () => {
       try {
@@ -70,9 +49,9 @@ const Enrollees = () => {
     fetchStudents();
   }, []);
 
-    console.log("Students State:", students); // Log React state
+  console.log("Students State:", students); // Log React state
 
-    const filteredAndSortedStudents = students
+  const filteredAndSortedStudents = students
     .filter((student) => {
       if (!student) return false;
       const query = searchQuery.toLowerCase();
@@ -93,9 +72,97 @@ const Enrollees = () => {
         return a.student_id - b.student_id;
       }
       return a[sortCriteria]?.localeCompare(b[sortCriteria]) || 0;
-    }); 
+    });
 
+  const handleEditClick = (student) => {
+    setEditedStudent({ ...student }); // Create a copy of the student object
+    setShowEditModal(true);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditedStudent((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditSubmit = async () => {
+    const programMapping = {
+      "computer science": 1,
+      "information technology": 2,
+    };
   
+    const statusMapping = {
+      "s1": "Freshman",
+      "s2": "Irregular",
+      "s3": "Regular",
+      "s4": "Transferee",
+      "s5": "Shiftee",
+    };
+  
+    const yearMapping = {
+      "1st year": "1",
+      "2nd year": "2",
+      "3rd year": "3",
+      "4th year": "4",
+    };
+  
+    const normalizedProgramName = editedStudent.program_name?.trim().toLowerCase() || "";
+    const normalizedStudentStatus = editedStudent.student_status?.trim().toLowerCase() || "";
+    const normalizedYearLevel = editedStudent.year_level?.trim().toLowerCase() || "";
+  
+    const programId = programMapping[normalizedProgramName] || null;
+    const studentStatus = statusMapping[normalizedStudentStatus] || null;
+    const yearLevel = yearMapping[normalizedYearLevel] || null;
+  
+    if (!programId || !studentStatus || !yearLevel) {
+      console.error("Invalid mappings detected:", {
+        program: normalizedProgramName,
+        status: normalizedStudentStatus,
+        year: normalizedYearLevel,
+      });
+      return alert(`Invalid data mappings:
+        Program: ${normalizedProgramName || "None"} 
+        Status: ${normalizedStudentStatus || "None"} 
+        Year: ${normalizedYearLevel || "None"}`);
+    }
+  
+    const updatedStudent = {
+      first_name: editedStudent.first_name,
+      last_name: editedStudent.last_name,
+      program_id: programId,
+      student_status: studentStatus,
+      year_level: yearLevel,
+    };
+  
+    try {
+      const response = await fetch(`/api/students/${editedStudent.user_id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedStudent),
+      });
+  
+      const responseData = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(responseData.message || "Failed to update student data.");
+      }
+  
+      alert(responseData.message);
+  
+      const updatedStudents = students.map((student) =>
+        student.user_id === editedStudent.user_id ? { ...student, ...updatedStudent } : student
+      );
+      setStudents(updatedStudents);
+      setShowEditModal(false);
+    } catch (error) {
+      console.error("Error updating student:", error.message);
+      alert("An error occurred while updating the student.");
+    }
+  };
+  
+  
+
   const handleFilterProgramChange = (e) => {
     setFilterProgram(e.target.value);
   };
@@ -140,7 +207,7 @@ const Enrollees = () => {
 
   const handleEnroll = async (student_id) => {
     console.log('Sending student_id:', student_id); // Debugging
-  
+
     try {
       const response = await fetch(`http://localhost:5000/students/${student_id}/enroll`, {
         method: 'PUT',
@@ -148,11 +215,11 @@ const Enrollees = () => {
           'Content-Type': 'application/json',
         },
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to update enrollment status.');
       }
-  
+
       const result = await response.json();
       alert(result.message);
       window.location.reload();
@@ -333,87 +400,144 @@ const Enrollees = () => {
         <div className={styles.modal}>
           <div className={styles.modalContent}>
             <h3>Edit Credentials</h3>
-            <form>
-              <div className={styles.formGroup}>
-                <label>Last Name:</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={editedStudent.lastName}
-                  onChange={handleEditChange}
-                  className={styles.input}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label>First Name:</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={editedStudent.firstName}
-                  onChange={handleEditChange}
-                  className={styles.input}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label>Program:</label>
-                <select
-                  name="program"
-                  value={editedStudent.program}
-                  onChange={handleEditChange}
-                  className={styles.input}
-                >
-                  <option value="Computer Science">Computer Science</option>
-                  <option value="Information Technology">
-                    Information Technology
-                  </option>
-                  
-                </select>
-              </div>
-              <div className={styles.formGroup}>
-                <label>Student Type:</label>
-                <select
-                  name="type"
-                  value={editedStudent.type}
-                  onChange={handleEditChange}
-                  className={styles.input}
-                >
-                  <option value="S1">S1</option>
-                  <option value="S2">S2</option>
-                  <option value="S3">S3</option>
-                  <option value="S4">S4</option>
-                  <option value="S5">S5</option>
-                  <option value="S6">S6</option>
-                </select>
-              </div>
-              <div className={styles.formGroup}>
-                <label>Year Standing:</label>
-                <select
-                  name="yearStanding"
-                  value={editedStudent.yearStanding}
-                  onChange={handleEditChange}
-                  className={styles.input}
-                >
-                  <option value="1st year">1st Year</option>
-                  <option value="2nd year">2nd Year</option>
-                  <option value="3rd year">3rd Year</option>
-                  <option value="4th year">4th Year</option>
-                </select>
-              </div>
-              <button
-                type="button"
-                className={styles.submit}
-                onClick={handleEditSubmit}
-              >
-                Save
-              </button>
-              <button
-                type="button"
-                className={styles.closeButton}
-                onClick={() => setShowEditModal(false)}
-              >
-                Cancel
-              </button>
-            </form>
+            {filteredAndSortedStudents.map((student) => (
+              <form key={student.user_id} className={styles.form}>
+                <div className={styles.formGroup}>
+                  <label>Last Name:</label>
+                  <input
+                    type="text"
+                    name="last_name"
+                    value={
+                      editedStudent?.student_id === student.student_id
+                        ? editedStudent.last_name
+                        : student.last_name
+                    }
+                    onChange={
+                      editedStudent?.student_id === student.student_id
+                        ? handleEditChange
+                        : undefined
+                    }
+                    className={styles.input}
+                    disabled={editedStudent?.student_id !== student.student_id} // Disable unless editing
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>First Name:</label>
+                  <input
+                    type="text"
+                    name="first_name"
+                    value={
+                      editedStudent?.student_id === student.student_id
+                        ? editedStudent.first_name
+                        : student.first_name
+                    }
+                    onChange={
+                      editedStudent?.student_id === student.student_id
+                        ? handleEditChange
+                        : undefined
+                    }
+                    className={styles.input}
+                    disabled={editedStudent?.student_id !== student.student_id}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Program:</label>
+                  <select
+                    name="program_name"
+                    value={
+                      editedStudent?.student_id === student.student_id
+                        ? editedStudent.program_name
+                        : student.program_name
+                    }
+                    onChange={
+                      editedStudent?.student_id === student.student_id
+                        ? handleEditChange
+                        : undefined
+                    }
+                    className={styles.input}
+                    disabled={editedStudent?.student_id !== student.student_id}
+                  >
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Information Technology">Information Technology</option>
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Student Type:</label>
+                  <select
+                    name="student_status"
+                    value={
+                      editedStudent?.student_id === student.student_id
+                        ? editedStudent.student_status
+                        : student.student_status
+                    }
+                    onChange={
+                      editedStudent?.student_id === student.student_id
+                        ? handleEditChange
+                        : undefined
+                    }
+                    className={styles.input}
+                    disabled={editedStudent?.student_id !== student.student_id}
+                  >
+                    <option value="S1">S1</option>
+                    <option value="S2">S2</option>
+                    <option value="S3">S3</option>
+                    <option value="S4">S4</option>
+                    <option value="S5">S5</option>
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Year Standing:</label>
+                  <select
+                    name="year_level"
+                    value={
+                      editedStudent?.student_id === student.student_id
+                        ? editedStudent.year_level
+                        : student.year_level
+                    }
+                    onChange={
+                      editedStudent?.student_id === student.student_id
+                        ? handleEditChange
+                        : undefined
+                    }
+                    className={styles.input}
+                    disabled={editedStudent?.student_id !== student.student_id}
+                  >
+                    <option value="1st year">1st Year</option>
+                    <option value="2nd year">2nd Year</option>
+                    <option value="3rd year">3rd Year</option>
+                    <option value="4th year">4th Year</option>
+                  </select>
+                </div>
+
+                {editedStudent?.student_id === student.student_id ? (
+                  <>
+                    <button type="button" onClick={handleEditSubmit} className={styles.submit}>
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditedStudent(null)}
+                      className={styles.closeButton}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleEditClick(student)}
+                    className={styles.editButton}
+                  >
+                    Edit
+                  </button>
+                )}
+              </form>
+            ))}
+
           </div>
         </div>
       )}

@@ -11,44 +11,96 @@ function EnrollmentTeam() {
   const [students, setStudents] = useState([]); // Add this line
   const [showModal, setShowModal] = useState(false);
   const [Role, setRole] = useState(""); 
-  const handleRole = () => {
-    setShowModal(true);
-  };
+  const [selectedStudent, setSelectedStudent] = useState(null); // State for selected user
 
-  const handleModalClose = () => {
-    setShowModal(false);
-    setRole("");
-  };
 
-  useEffect(() => {
-      const fetchStudents = async () => {
-        try {
-          const response = await fetch("http://localhost:5000/api/enrollment-team");
-          const data = await response.json();
-          console.log("Raw Students Data:", data); // Check API data
+   // Fetch Students
+   useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/enrollment-team");
+        const data = await response.json();
+        console.log("Raw Students Data:", data); // Debug API response
+        if (Array.isArray(data)) {
           setStudents(data);
-        } catch (error) {
-          console.error("Error fetching students:", error);
+        } else {
+          console.error("Expected an array, but got:", data);
         }
-      };
-    
-      fetchStudents();
-    }, []);
-
- const filteredAndSortedStudents = students;
- 
-
-
-
-  useEffect(() => {
-        if (!sessionLoading && !user) {
-          navigate("/login", { replace: true });
-        }
-      }, [sessionLoading, user, navigate]);
+      } catch (error) {
+        console.error("Error fetching students:", error);
+      }
+    };
   
+    fetchStudents();
+  }, []);
+
+  const filteredAndSortedStudents = students;
+
+  // Redirect if user is not logged in
+  useEffect(() => {
+    if (!sessionLoading && !user) {
+      navigate("/login", { replace: true });
+    }
+  }, [sessionLoading, user, navigate]);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  // Open Modal and Set Selected Student
+  const handleRole = (student) => {
+    setSelectedStudent(student); // Set the selected student
+    setShowModal(true); // Open the modal
+  };
+
+  // Close Modal
+  const handleModalClose = () => {
+    setShowModal(false);
+    setSelectedStudent(null); // Clear the selected student
+  };
+
+  // Handle Changes to Role
+  const handleRoleChange = (e) => {
+    setSelectedStudent((prevStudent) => ({
+      ...prevStudent,
+      role: e.target.value, // Update the role field
+    }));
+  };
+
+ 
+
+  
+  // Save Updated Data (e.g., send to API)
+  const saveChanges = async () => {
+    try {
+      // Assuming API endpoint to update student role
+      const response = await fetch(
+        `http://localhost:5000/api/enrollment-team/${selectedStudent.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role: selectedStudent.role }),
+        }
+      );
+
+      if (response.ok) {
+        console.log("Role updated successfully.");
+        // Optionally update the student list locally
+        setStudents((prevStudents) =>
+          prevStudents.map((student) =>
+            student.id === selectedStudent.id ? selectedStudent : student
+          )
+        );
+      } else {
+        console.error("Error updating role:", await response.text());
+      }
+    } catch (error) {
+      console.error("Error saving changes:", error);
+    }
+
+    // Close the modal
+    handleModalClose();
+  };
+
 
   return (
     <div className={styles.enrollment_team_wrapper}>
@@ -94,7 +146,7 @@ function EnrollmentTeam() {
                     <td className={styles.td}>{student.position} </td>
                     <td className={styles.td}>
                       
-                    <button className={styles.button}  onClick={() => handleRole()}>Edit Role</button>
+                    <button className={styles.button}  onClick={() => handleRole(student)}>Edit Role</button>
                     <button className={styles.button}>Delete</button>
 
                     </td>
@@ -203,28 +255,30 @@ function EnrollmentTeam() {
         </div>
       )}
 
-{showModal &&  (
+ {/* Modal */}
+ {showModal && selectedStudent && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
-            <h3>Edit Role</h3>
-            {/*<h2>{selectedStudent.firstName} {selectedStudent.lastName}</h2>*/}
-            <label for="date-input" className={styles.dateLabel} >Select Role</label>
-            <div className={styles.selected}>
-            
-              
-              <select className={styles.input}>
-                
-                <option value="admin">Admin</option>
-                <option value="adviser">Adviser</option>
-                <option value="officer">Officer</option>
-                
-              </select>
-            
-            </div>
+            <h3>Edit Role for {selectedStudent.firstName} {selectedStudent.lastName}</h3>
+            <label htmlFor="role-select" className={styles.dateLabel}>
+              Select Role
+            </label>
+            <select
+              id="role-select"
+              className={styles.input}
+              value={selectedStudent.role || ""}
+              onChange={handleRoleChange}
+            >
+              <option value="admin">Admin</option>
+              <option value="adviser">Adviser</option>
+              <option value="officer">Officer</option>
+            </select>
             <div className={styles.buttonGroup}>
-              
+              <button className={styles.closeButton} onClick={saveChanges}>
+                Save
+              </button>
               <button className={styles.closeButton} onClick={handleModalClose}>
-                Done
+                Cancel
               </button>
             </div>
           </div>

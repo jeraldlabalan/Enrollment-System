@@ -3,6 +3,15 @@ import ReactDOM from "react-dom";
 import styles from "./CORPrint.module.css";
 
 const CORPrint = ({ student, onClose }) => {
+  console.log("Student object:", student);
+  function formatDateToWords(dateString) {
+    const date = new Date(dateString); // Convert string to Date object
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
   useEffect(() => {
     window.print(); // Trigger print dialog
     if (onClose) onClose(); // Close the modal after printing
@@ -30,32 +39,32 @@ const CORPrint = ({ student, onClose }) => {
         {/* Student Information Section */}
         <div className={styles.studentInfo}>
           <p>
-            <strong>Student Number:</strong> {student?.id || "202211456"}
+            <strong>Student Number:</strong> {student.student_id}
             <span className={styles.floatRight}>
               <strong>Semester:</strong> 1st Semester
             </span>
           </p>
           <p>
-            <strong>Student Name:</strong> {student?.name || "DELA CRUZ, JUAN CRUZ"}
+            <strong>Student Name:</strong> {`${student.last_name}, ${student.first_name} ${student.middle_name} ${student.suffix}`}
             <span className={styles.floatRight}>
               <strong>Academic Year:</strong> 2023-2024
             </span>
           </p>
           <p>
-            <strong>Program:</strong> INFORMATION TECHNOLOGY
+            <strong>Program:</strong> {student.program_name}
             <span className={styles.floatRight}>
               <strong>Encoder:</strong> via DCS Enrollment System
             </span>
           </p>
           <p>
             <strong>Address:</strong>{" "}
-            {student?.address || "#12 Yellow St, Makatang Subdivision, Molino II, Bacoor"}
+             {`${student.house_number} ${student.street}, ${student.barangay}, ${student.city}`}
           </p>
         </div>
 
         {/* Certification Section */}
         <p className={styles.certification}>
-          This certificate is to certify that ____ is a bona fide student of Cavite State
+          This certificate is to certify that {`${student.last_name}, ${student.first_name} ${student.middle_name} ${student.suffix}`} is a bona fide student of Cavite State
           University - Bacoor City Campus, academic year ____ - ____ semester. Note that
           this certificate is not valid without dry seal or stamp.
         </p>
@@ -89,16 +98,16 @@ const CORPrint = ({ student, onClose }) => {
         {/* Footer Section */}
         <footer className={styles.footer}>
           <p>
-            <strong>Registration Status/ Student Category:</strong> Regular
+            <strong>Registration Status/ Student Category:</strong> {student.student_type}
           </p>
           <p>
-            <strong>Date of Birth:</strong> June 12, 2003
+            <strong>Date of Birth:</strong> {student.date_of_birth ? formatDateToWords(student.date_of_birth) : "N/A"}
           </p>
           <p>
-            <strong>Contact Number:</strong> 09178129083
+            <strong>Contact Number:</strong> {student.phone_number || "N/A"}
           </p>
           <p>
-            <strong>Email Address:</strong> juanbldg@gmail.com
+            <strong>Email Address:</strong> {student.email || "N/A"}
           </p>
           <p>
             <strong>Student's Signature:</strong> _______________

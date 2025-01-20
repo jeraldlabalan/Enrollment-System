@@ -439,17 +439,12 @@
 }
 
 .modal_credentails_account {
-  input[type="text"] {
-    border: 2px solid #1e1e1e;
-    border-radius: 5px;
-    color: black;
-    font-size: var(--normal-font-size);
-  }
 
-  input[type="password"] {
+
+  input {
     border: 2px solid #1e1e1e;
     border-radius: 5px;
     color: black;
     font-size: var(--normal-font-size);
-  }
+  } 
 }

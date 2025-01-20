@@ -14,9 +14,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-
 app.use(bodyParser.json());
-
 
 // Middleware
 app.use(
@@ -29,7 +27,6 @@ app.use(express.json());
 app.use(cookieParser());
 require('dotenv').config();
 const sessionSecret = process.env.SESSION_SECRET;
-
 
 // Set up session
 app.use(
@@ -45,7 +42,6 @@ app.use(
     },
   })
 );
-
 
 // Database connection
 const db = mysql.createPool({
@@ -73,200 +69,204 @@ if (!fs.existsSync(uploadDir)) {
   console.log("Created uploads directory:", uploadDir);
 }
 
-
-
 const storage = multer.memoryStorage(); // Stores files in memory as Buffer objects
-
 const upload = multer({ storage });
-
-// No selection was provided, so I'll generate a code snippet that can be inserted at the cursor position.
-
-// Example of a well-structured and readable code snippet
-// This is a simple function that takes a user ID as input and returns the
-
 
 app.use("/uploads", express.static("uploads"));
 
-// Routes
-app.get("/", (req, res) => {
-  if (req.session.views) {
-    req.session.views++;
-    res.send(`Number of views: ${req.session.views}`);
-  } else {
-    req.session.views = 1;
-    res.send("Welcome! Refresh to count views.");
+// Registration endpoint
+app.post("/register", async (req, res) => {
+  const {
+    firstName,
+    middleName,
+    lastName,
+    dob,
+    contactNumber,
+    email,
+    password,
+    address,
+    barangay,
+    city,
+    province,
+    postal,
+    country,
+  } = req.body;
+
+  // Validate required fields
+  if (
+    !firstName ||
+    !lastName ||
+    !dob ||
+    !contactNumber ||
+    !email ||
+    !password ||
+    !address ||
+    !barangay ||
+    !city ||
+    !province ||
+    !postal ||
+    !country
+  ) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  try {
+    // Extract house_number and street from the address
+    const { house_number, street } = splitAddress(address);
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert address into the database
+    const addressQuery = `
+      INSERT INTO tbl_address (house_number, street, barangay, city, province, country, postal_code)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    const [addressResult] = await db.query(addressQuery, [
+      house_number,
+      street,
+      barangay,
+      city,
+      province,
+      country,
+      postal,
+    ]);
+
+    const addressId = addressResult.insertId;
+
+    // Insert user data into the database
+    const userQuery = `
+      INSERT INTO tbl_user_account (first_name, middle_name, last_name, date_of_birth, phone_number, email, password, address_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const [userResult] = await db.query(userQuery, [
+      firstName,
+      middleName,
+      lastName,
+      dob,
+      contactNumber,
+      email,
+      hashedPassword,
+      addressId,
+    ]);
+
+    const userId = userResult.insertId;
+
+    // Insert data into tbl_student_data
+    const studentQuery = `
+      INSERT INTO tbl_student_data (user_id, address_id, status)
+      VALUES (?, ?, ?)
+    `;
+    await db.query(studentQuery, [userId, addressId, "not enrolled"]);
+
+    // Respond with success message and user details
+    res.status(201).json({
+      message: "Proceed to email verification.",
+      userId: userId, // Send user ID for verification if needed
+      email: email, // Optional: Return the email for the frontend
+    });
+  } catch (error) {
+    console.error("Error during registration:", error.message);
+
+    // Handle specific errors (e.g., duplicate email)
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(400).json({ message: "Email already registered." });
+    }
+
+    // General error response
+    res.status(500).json({ message: "Server error." });
   }
 });
-app.get("/user/:userId", async (req, res) => {
+
+// Profile Update Endpoint
+app.put("/profile/:userId", async (req, res) => {
   const { userId } = req.params;
+  const {
+    firstName,
+    middleName,
+    lastName,
+    suffix,
+    sex,
+    dob,
+    contactNumber,
+    address,
+    barangay,
+    city,
+    province,
+    postal,
+    country,
+  } = req.body;
 
-  const query = `
-    SELECT u.*, s.*, p.program_name
-    FROM tbl_user_account u
-    LEFT JOIN tbl_student_data s ON u.user_id = s.user_id
-    LEFT JOIN tbl_program p ON s.program = p.program_id
-    WHERE u.user_id = ?
-  `;
+  const requiredFields = [
+    "firstName",
+    "lastName",
+    "dob",
+    "sex",
+    "contactNumber",
+    "address",
+    "barangay",
+    "city",
+    "province",
+    "postal",
+    "country",
+  ];
+
+  if (requiredFields.some((field) => !req.body[field])) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
 
   try {
-    const [results] = await db.query(query, [userId]);
-    if (results.length === 0) {
-      return res.status(404).json({ message: "User not found." });
-    }
+    const { house_number, street } = splitAddress(address);
 
-    // Assuming the user data, student data, and program name are returned in the same object
-    res.status(200).json(results[0]);
+    const updateUserQuery = `
+      UPDATE tbl_user_account
+      SET first_name = ?, middle_name = ?, last_name = ?, suffix = ?, sex = ?, date_of_birth = ?, phone_number = ?
+      WHERE user_id = ?
+    `;
+
+    await db.query(updateUserQuery, [firstName, middleName, lastName, suffix, sex, dob, contactNumber, userId]);
+
+    const updateAddressQuery = `
+      UPDATE tbl_address
+      SET house_number = ?, street = ?, barangay = ?, city = ?, province = ?, country = ?, postal_code = ?
+      WHERE address_id = (SELECT address_id FROM tbl_user_account WHERE user_id = ?)
+    `;
+
+    await db.query(updateAddressQuery, [house_number, street, barangay, city, province, country, postal, userId]);
+
+    res.status(200).json({ message: "Profile updated successfully." });
   } catch (error) {
-    console.error("Error fetching user data:", error.message);
-    res.status(500).json({ message: "Database error." });
+    console.error("Error updating profile:", error.message);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 
-app.get("/session", async (req, res) => {
+// Person Data Update Endpoint
+app.put("/api/person", async (req, res) => {
+  console.log("Request body:", req.body);
   try {
-    console.log("Session Retrieved:", req.session);
-    if (req.session && req.session.user) {
-      return res.status(200).json({ user: req.session.user });
-    }
-    return res.status(401).json({ message: "Unauthorized" });
-  } catch (error) {
-    console.error("Error retrieving session:", error.message);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+    const { user_id, person } = req.body;
+    const query = `
+      UPDATE tbl_user_account
+      SET first_name = ?, 
+          middle_name = ?, 
+          last_name = ?, 
+          date_of_birth = ?, 
+          phone_number = ?, 
+          suffix = ?
+      WHERE user_id = ?;
+    `;
 
-app.use((req, res, next) => {
-  console.log("Session Data:", req.session);
-  next();
-});
+    const result = await db.query(query, [
+      person.firstName,
+      person.middleName,
+      person.lastName,
+      person.dob,
+      person.contactNumber,
+      person.suffix === '' ? null : person.suffix, // Handle empty string as null for suffix
+      user_id
+    ]);
 
-app.get("/protected-endpoint", (req, res) => {
-  if (req.session.user) {
-    res.status(200).json({ message: "Session is valid.", user: req.session.user });
-  } else {
-    res.status(401).json({ message: "Unauthorized." });
-  }
-});
-
-
-// Route with callback-style connection
-app.get('/callback-route', async (req, res) => {
-  try {
-    const [results] = await db.query('SELECT * FROM tbl_user_account');
-    res.status(200).json(results);
-  } catch (err) {
-    console.error('Error executing query:', err);
-    res.status(500).json({ message: 'Internal server error.' });
-  }
-});
-
-// Route with promise-based connection
-app.post('/promise-route', async (req, res) => {
-  try {
-    const [rows] = await db.query('SELECT * FROM tbl_user_account WHERE email = ?', [req.body.email]);
-    res.status(200).json(rows);
-  } catch (err) {
-    console.error('Error executing query:', err);
-    res.status(500).json({ message: 'Internal server error.' });
-  }
-});
-
-// wag buburahin
-// Splitting Address
-function splitAddress(address) {
-  const addressParts = address.split(",").map((part) => part.trim());
-
-  if (addressParts.length < 2) {
-    throw new Error(
-      "Invalid address format. Please provide house number, street. Use a "," to separate them."
-    );
-  }
-
-  const house_number = addressParts[0];
-  const street = addressParts[1];
-
-  return { house_number, street};
-}
-
-// Configure Nodemailer
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "martkaws847@gmail.com", // Your Gmail address
-    pass: "eebtevpxpzsaceul",     // Your 16-character App Password
-  },
-});
-
-// Test email sending
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("Error connecting to email server:", error);
-  } else {
-    console.log("Server is ready to send emails:", success);
-  }
-});
-
-function generateOtp() {
-  return crypto.randomInt(100000, 999999).toString();
-}
-
-app.get('/announcements', async (req, res) => {
-  try {
-    await db.query(`DELETE FROM tbl_announcements WHERE date < NOW();`);
-    const [results] = await db.query(`SELECT * FROM tbl_announcements ORDER BY date DESC;`);
-    res.json(results || []);
-  } catch (err) {
-    console.error('Error fetching announcements:', err);
-    res.status(500).json({ error: 'Failed to fetch announcements' });
-  }
-});
-
-app.get('/latest-announcement', async (req, res) => {
-  try {
-    const [results] = await db.query(`SELECT * FROM tbl_announcements ORDER BY date DESC LIMIT 1;`);
-    res.json(results[0] || null);
-  } catch (err) {
-    console.error('Error fetching latest announcement:', err);
-    res.status(500).json(err);
-  }
-});
-
-app.get('/enrolled-count', async (req, res) => {
-  const queryTotal = `
-    SELECT COUNT(*) AS totalEnrolled
-    FROM tbl_student_data
-    WHERE status = 'enrolled'
-  `;
-
-  const queryComSci = `
-    SELECT COUNT(*) AS enrolledComSci
-    FROM tbl_student_data
-    WHERE status = 'enrolled' AND program = '1'
-  `;
-
-  const queryIT = `
-    SELECT COUNT(*) AS enrolledIT
-    FROM tbl_student_data
-    WHERE status = 'enrolled' AND program = '2'
-  `;
-
-  const querypaidIT = `
-    SELECT COUNT(*) AS paidIT
-    FROM tbl_society_fee_transaction
-    WHERE payment_status = 'paid' AND program = '2'
-  `;
-
-  const querypaidComSci = `
-    SELECT COUNT(*) AS paidComSci
-    FROM tbl_society_fee_transaction
-    WHERE payment_status = 'paid' AND program = '1'
-  `;
-
-  try {
-    const [totalResult] = await db.query(queryTotal);
-    const [comSciResult] = await db.query(queryComSci);
-    const [itResult] = await db.query(queryIT);
-    const [paidComSciResult] = await db.query(querypaidComSci);
     const [paidITResult] = await db.query(querypaidIT);
 
     const results = {
@@ -396,7 +396,7 @@ app.post("/request-password-reset", async (req, res) => {
   }
 
   try {
-    const [rows] = await db.query(
+    const [rows] = await dbPromise.query(
       "SELECT * FROM tbl_email_verification WHERE email = ?",
       [email]
     );
@@ -406,7 +406,7 @@ app.post("/request-password-reset", async (req, res) => {
     }
 
     const otp = crypto.randomInt(100000, 999999).toString();
-    await db.query(
+    await dbPromise.query(
       `UPDATE tbl_email_verification 
        SET otp = ?, expires_at = DATE_ADD(NOW(), INTERVAL 15 MINUTE) 
        WHERE email = ?`,
@@ -436,7 +436,7 @@ app.post("/reset-password", async (req, res) => {
 
   try {
     // Validate the OTP
-    const [result] = await db.query(
+    const [result] = await dbPromise.query(
       `SELECT * FROM tbl_email_verification
        WHERE LOWER(email) = LOWER(?) AND otp = ? AND expires_at > NOW()`,
       [email, otp]
@@ -450,7 +450,7 @@ app.post("/reset-password", async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Update the password in the users table
-    const [updateResult] = await db.query(
+    const [updateResult] = await dbPromise.query(
       "UPDATE tbl_user_account SET password = ? WHERE LOWER(email) = LOWER(?)",
       [hashedPassword, email]
     );
@@ -460,10 +460,6 @@ app.post("/reset-password", async (req, res) => {
     }
 
     // Delete the OTP record to prevent reuse
-    await db.query(
-      "DELETE FROM tbl_email_verification WHERE LOWER(email) = LOWER(?)",
-      [email]
-    );
 
     res.status(200).json({ message: "Password reset successful." });
   } catch (err) {
@@ -879,8 +875,9 @@ app.get("/api/enrollees", async (req, res) => {
   tbl_user_account.email,
   tbl_program.program_name,
   tbl_student_data.student_type,
-  tbl_student_data.status,
-  tbl_student_data.year_level
+  tbl_student_data.student_status,
+  tbl_year_level.year_level
+
 FROM 
   tbl_student_data
 JOIN 
@@ -891,6 +888,10 @@ JOIN
   tbl_program 
 ON 
   tbl_student_data.program = tbl_program.program_id
+JOIN 
+  tbl_year_level
+ON 
+  tbl_student_data.year_level = tbl_year_level.year_level_id
 WHERE
   tbl_student_data.status = 'not enrolled';
       `
@@ -1929,30 +1930,6 @@ app.post("/api/sibling", async (req, res) => {
   }
 });
 
-app.post("/update-role", async (req, res) => {
-  const { userId } = req.body;
-
-  if (!userId) {
-    return res.status(400).json({ message: "User ID is required." });
-  }
-
-  try {
-    // Update user account role to 0 (student)
-    const [updateResult] = await db.query(
-      "UPDATE tbl_user_account SET user_accout_role = 0 WHERE id = ?",
-      [userId]
-    );
-
-    if (updateResult.affectedRows === 0) {
-      return res.status(404).json({ message: "User not found." });
-    }
-
-    res.status(200).json({ message: "User role updated successfully." });
-  } catch (err) {
-    console.error("Error updating user role:", err.message);
-    res.status(500).json({ message: "Internal server error." });
-  }
-});
 
 
 // Start server

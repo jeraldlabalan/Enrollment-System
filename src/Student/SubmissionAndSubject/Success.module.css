@@ -1,6 +1,6 @@
 /* Overall Container */
 .container {
-    background-color: #f2f0ef;
+    background-color: white;
     min-height: 100vh;
     width: 100%;
     display: flex;
@@ -37,7 +37,6 @@
     text-align: center;
     border-radius: 10px;
     animation: fadeIn 0.8s ease-in-out;
-    margin-top: 185px;
   }
   
   /* Checkmark Animation */
@@ -91,15 +90,15 @@
   
   /* Button Styling */
   .button {
-    padding: 12px 24px;
+    padding: 5px 24px;
+    width: max-content;
     background-color: #1e1e1e;
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: var(--normal-font-size);
     cursor: pointer;
     transition: background-color 0.3s ease;
-    margin-top: 10px;
     
   }
   

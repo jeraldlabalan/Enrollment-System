@@ -1,6 +1,7 @@
 import styles from "./Success.module.css";
 import React from "react";
 import Header from "../Header/Header";
+import { Link } from "react-router-dom";
 
 const SuccessRegular = () => {
   return (
@@ -21,8 +22,9 @@ const SuccessRegular = () => {
           You may check back for a copy of your pre-enrollment form or errors in file submissions.
         </p>
         <div className={styles.buttons}>
-          <button className={styles.button}>Open Pre-Enrollment Form</button>
+          <Link to="/home">
           <button className={styles.button}>Go Back</button>
+          </Link>
         </div>
       </div>
     

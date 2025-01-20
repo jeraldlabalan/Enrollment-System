@@ -4,6 +4,8 @@ import { SessionContext } from "../../contexts/SessionContext";
 import styles from "./Schedule.module.css"; // Ensure this file exists
 import HeaderCS from "../Header/HeaderCS";
 import default_profile from "../../assets/default-profile-photo.jpg";
+import redesignate_icon from "../../assets/edit.jpg";
+import accept_schedule from "../../assets/accept.png";
 
 const ScheduleCS = () => {
   const {
@@ -185,7 +187,8 @@ const ScheduleCS = () => {
                       </td>
                       <td className={styles.td}>
                         <button className={`${styles.button} ${styles.accept_schedule_button}`}>
-                          Accept Schedule
+                        <img src={accept_schedule} alt="view" />
+                        <p>Accept Schedule</p>
                         </button>
 
                         <button
@@ -194,7 +197,8 @@ const ScheduleCS = () => {
                             handleSetRedesignateScheduleClick(student)
                           }
                         >
-                          Redesignate Schedule
+                          <img src={redesignate_icon} alt="view" />
+                          <p>Redesignate Schedule</p>
                         </button>
                       </td>
                     </tr>

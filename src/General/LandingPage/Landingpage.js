@@ -46,6 +46,7 @@ function Landingpage() {
             <div className={styles.logo_shield}></div>
             <div className={styles.logo_its}></div>
           </div>
+          
           </div>
 
         </div>

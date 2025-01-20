@@ -1,6 +1,8 @@
 import React from "react";
 import Header from "../Header/Header";
 import styles from "./Success.module.css";
+import { Link } from "react-router-dom";
+
 
 const SuccessIrregular = () => {
   return (
@@ -21,8 +23,9 @@ const SuccessIrregular = () => {
         You may check back for a copy of your pre-enrollment form or errors in file submissions.
         </p>
         <div className={styles.buttons}>
-          <button className={styles.button}>Status and Scheduling</button>
+        <Link to="/home">
           <button className={styles.button}>Go Back</button>
+          </Link>
         </div>
       </div>
     

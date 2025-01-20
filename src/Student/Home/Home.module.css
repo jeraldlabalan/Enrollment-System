@@ -204,7 +204,18 @@
 }
 
 
-@media (max-width: 768px) {
+
+@media (max-width:992px) {
+
+  .statusGroup {
+    display: flex;
+    flex-direction: column;
+
+    .enrollmentStatus {
+      font-size: var(--h2-font-size) !important;
+    }
+  }
+
   .avatar {
     margin-top: 10px;
   }
@@ -246,7 +257,18 @@
   padding: 0 50px;
 }
 
-@media (max-width: 480px) {
+.statusCard .statusGroup .statusInfo {
+  width: max-content;
+  margin: 0 auto !important;
+}
+
+
+@media (max-width: 567px) {
+
+  .content_right .statusCard {
+    align-items: center;
+    width: 100%;
+  }
 
   .avatar {
     margin-top: 10px;
@@ -254,26 +276,32 @@
 
   .statusCard {
     flex-direction: column;
-    align-items: flex-start;
   }
 
-  .statusCard .statusGroup {
+  .statusGroup {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 100%;
+    padding: 10px 0;
   }
+
+
+  
+
+
 
   .statusCard .statusGroup .statusInfo {
-    margin-bottom: 10px; /* Adds spacing between statusInfo and the buttonGroup */
+    width: max-content;
+    margin: 0 auto !important;
   }
 
-  .statusInfo {
-    margin-bottom: 10px;
-  }
 
   .statusCard .buttonGroup {
     width: 100%;
     margin-top: 0;
-    justify-content: flex-start;
-    margin-left: 20px; /* Aligns with the statusInfo */
+    justify-content: center;
+  
   }
 
   .buttonGroup .printButton {

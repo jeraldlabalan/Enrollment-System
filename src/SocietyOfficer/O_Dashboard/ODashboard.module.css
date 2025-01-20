@@ -516,6 +516,56 @@ p, h5, span, strong {
 }
 
 
+@media (max-width: 992px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 20px;
+  }
+
+  .card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 15px;
+  }
+
+  .card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 567px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 10px;
+  }
+
+  .card {
+    width: 100%;
+  }
+}
+
+/* For screens with a max-width of 375px */
+@media (max-width: 375px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 5px;
+  }
+
+  .card {
+    width: 100%;
+  }
+}
+
+
 
 
 

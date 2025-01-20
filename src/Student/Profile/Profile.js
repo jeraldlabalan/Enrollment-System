@@ -694,6 +694,8 @@ const FamilyBackground = ({ profile, setProfile }) => {
                 <option value="auntie">Father</option>
                 <option value="grandparent">Grand Parent</option>
                 <option value="relative">Other Relatives</option>
+                <option value="mother">Mother</option>
+                <option value="father">Father</option>
               </select>
             </div>
             <div className={styles.field}>
@@ -756,6 +758,8 @@ const FamilyBackground = ({ profile, setProfile }) => {
                 <option value="auntie">Father</option>
                 <option value="grandparent">Grand Parent</option>
                 <option value="relative">Other Relatives</option>
+                <option value="mother">Mother</option>
+                <option value="father">Father</option>
               </select>
             </div>
             <div className={styles.field}>

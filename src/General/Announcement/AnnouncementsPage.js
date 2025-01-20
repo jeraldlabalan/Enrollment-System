@@ -33,7 +33,7 @@ const AnnouncementsPage = () => {
               <p className={styles.announcement_author}>{announcement.author}</p>
             )}
             <p className={styles.announcement_content}>{announcement.content}</p>
-            <p>{format(new Date(announcement.date), 'MMMM d, yyyy @ h:mm a')}</p>
+            <p className={styles.announcement_date}>{format(new Date(announcement.date), 'MMMM d, yyyy @ h:mm a')}</p>
           </div>
                  ))
                 ) : (

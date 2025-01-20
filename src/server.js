@@ -101,7 +101,11 @@ app.get("/user/:userId", async (req, res) => {
   const { userId } = req.params;
 
   const query = `
-    SELECT * FROM tbl_user_account WHERE user_id = ?
+    SELECT u.*, s.*, p.program_name
+    FROM tbl_user_account u
+    LEFT JOIN tbl_student_data s ON u.user_id = s.user_id
+    LEFT JOIN tbl_program p ON s.program = p.program_id
+    WHERE u.user_id = ?
   `;
 
   try {
@@ -109,6 +113,8 @@ app.get("/user/:userId", async (req, res) => {
     if (results.length === 0) {
       return res.status(404).json({ message: "User not found." });
     }
+
+    // Assuming the user data, student data, and program name are returned in the same object
     res.status(200).json(results[0]);
   } catch (error) {
     console.error("Error fetching user data:", error.message);

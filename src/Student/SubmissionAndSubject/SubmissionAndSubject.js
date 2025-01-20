@@ -198,63 +198,63 @@ const SubmissionAndSubject = () => {
     try {
       console.log("Form Data:", formData); // Log the entire form data
 
-      // // Ensure advisingDate is not empty
-      // if (!formData.advisingDate) {
-      //     console.error("Advising date is required."); // Debugging log
-      //     toast.error("Please select an advising date.");
-      //     return;
-      // }
+      // Ensure advisingDate is not empty
+      if (!formData.advisingDate) {
+          console.error("Advising date is required."); // Debugging log
+          toast.error("Please select an advising date.");
+          return;
+      }
 
-      // const programMap = {
-      //   "Computer Science": 1,
-      //   "Information Technology": 2,
-      // };
+      const programMap = {
+        "Computer Science": 1,
+        "Information Technology": 2,
+      };
   
-      // const programValue = programMap[formData.program];
-      // console.log("Program Value:", programValue); // Debugging log
+      const programValue = programMap[formData.program];
+      console.log("Program Value:", programValue); // Debugging log
   
-      // // Ensure the program value exists
-      // if (!programValue) {
-      //   console.error("Invalid program selected."); // Debugging log
-      //   toast.error("Invalid program selected.");
-      //   return;
-      // }
+      // Ensure the program value exists
+      if (!programValue) {
+        console.error("Invalid program selected."); // Debugging log
+        toast.error("Invalid program selected.");
+        return;
+      }
   
-      // // 1. Send User Data
-      // console.log("Sending user data..."); // Debugging log
-      // const userResponse = await fetch("http://localhost:5000/api/user", {
-      //   method: "PUT",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     user_id: user.user_id,
-      //     studentCategory: formData.studentCategory,
-      //     studentId: formData.studentId,
-      //     yearLevel: formData.yearLevel,
-      //     program: programValue,
-      //   }),
-      // });
+      // 1. Send User Data
+      console.log("Sending user data..."); // Debugging log
+      const userResponse = await fetch("http://localhost:5000/api/user", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: user.user_id,
+          studentCategory: formData.studentCategory,
+          studentId: formData.studentId,
+          yearLevel: formData.yearLevel,
+          program: programValue,
+        }),
+      });
   
-      // console.log("User response status:", userResponse.status); // Debugging log
-      // if (!userResponse.ok) throw new Error("Failed to save user data");
+      console.log("User response status:", userResponse.status); // Debugging log
+      if (!userResponse.ok) throw new Error("Failed to save user data");
   
-      // // 2. Send Selected Subjects
-      // console.log("Sending selected subjects..."); // Debugging log
-      // const subjectsResponse = await fetch("http://localhost:5000/api/subjects", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     user_id: user.user_id,
-      //     studentId: formData.studentId,
-      //     selectedSubjects: formData.selectedSubjects,
-      //   }),
-      // });
+      // 2. Send Selected Subjects
+      console.log("Sending selected subjects..."); // Debugging log
+      const subjectsResponse = await fetch("http://localhost:5000/api/subjects", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: user.user_id,
+          studentId: formData.studentId,
+          selectedSubjects: formData.selectedSubjects,
+        }),
+      });
   
-      // console.log("Subjects response status:", subjectsResponse.status); // Debugging log
-      // if (!subjectsResponse.ok) throw new Error("Failed to save selected subjects");
+      console.log("Subjects response status:", subjectsResponse.status); // Debugging log
+      if (!subjectsResponse.ok) throw new Error("Failed to save selected subjects");
   
         // 3. Send Uploaded Files
         console.log("Form Data:", formData); // Log the entire form data

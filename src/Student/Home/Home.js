@@ -100,11 +100,11 @@ const Home = () => {
               {userData.last_name}, {userData.first_name} {userData.middle_name}
             </p>
             <strong className={styles.infoName}>Student Number</strong>
-            <p className={`${styles.info} ${styles.marginBelow}`}>N/A</p>
+            <p className={`${styles.info} ${styles.marginBelow}`}>{userData.student_id}</p>
             <strong className={styles.info}>Program</strong>
-            <p className={`${styles.info} ${styles.marginBelow}`}>N/A</p>
+            <p className={`${styles.info} ${styles.marginBelow}`}>{userData.program_name}</p>
             <strong className={styles.info}>Year Level</strong>
-            <p className={`${styles.info} ${styles.marginBelow}`}>N/A</p>
+            <p className={`${styles.info} ${styles.marginBelow}`}>{userData.year_level}</p>
             <Link to="/profile" target="_blank">
               <button className={styles.view_button}>View Details</button>
             </Link>

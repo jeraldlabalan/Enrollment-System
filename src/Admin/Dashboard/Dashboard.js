@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [paidComSci, setPaidComSci] = useState(null);
   const [paidIT, setPaidIT] = useState(null);
   const [announcementText, setAnnouncementText] = useState("");
+  const [announcementDate, setAnnouncementDate] = useState("");
   const [genderStudentTypeCounts, setGenderStudentTypeCounts] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -100,6 +101,17 @@ const Dashboard = () => {
       toast.warning("Please enter an announcement.");
       return;
     }
+  
+    if (!announcementDate.trim()) {
+      toast.warning("Please select a date for the announcement.");
+      return;
+    }
+  
+    // Format the date into the required 'YYYY-MM-DD HH:mm:ss' format
+    const formattedDate = `${announcementDate} 00:00:00`;
+    console.log({ content: announcementText, date: formattedDate }); // Debug log
+  
+  
     try {
       const response = await fetch("http://localhost:5000/api/announcements", {
         method: "POST",
@@ -107,22 +119,30 @@ const Dashboard = () => {
           "Content-Type": "application/json",
         },
         credentials: "include", // Include session cookies
-        body: JSON.stringify({ content: announcementText }),
+        body: JSON.stringify({ content: announcementText, date: formattedDate }),
       });
+
+      const payload = { content: announcementText, date: formattedDate };
+if (!payload.content || !payload.date) {
+  console.error("Invalid payload:", payload);
+}
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to post announcement.");
       }
-
+      
       const result = await response.json();
-      window.location.reload();
+      window.location.reload(); // Reload the page after posting
       toast.success(result.message);
-      setAnnouncementText(""); // Clear the textarea
+      setAnnouncementText(""); // Clear announcement text
+      setAnnouncementDate(""); // Clear date input
     } catch (error) {
       console.error("Failed to post announcement:", error);
-      alert(error.message);
+      toast.error(error.message);
     }
   };
+  
 
   // Fetch data on initial render
   useEffect(() => {
@@ -293,15 +313,15 @@ const Dashboard = () => {
             <div className={styles.select_date_container}>
               <h5 className={styles.cardTitle}>Announcement</h5> 
               <input
-                type="date"
-              />
+  type="date"
+  value={announcementDate}
+  onChange={(e) => setAnnouncementDate(e.target.value)} // Correctly sets the date
+/>
             </div>
             <textarea
-              className={styles.announcementBox}
-              placeholder="Make an announcement..."
-              value={announcementText} // Bind the state to the textarea
-              onChange={(e) => setAnnouncementText(e.target.value)} // Update state on input
-            ></textarea>
+  value={announcementText}
+  onChange={(e) => setAnnouncementText(e.target.value)} // Correctly sets the text
+></textarea>
             <button
               className={styles.announcementButton}
               onClick={handleAnnouncementSubmit} // Attach the function to the button

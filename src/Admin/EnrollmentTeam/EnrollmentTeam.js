@@ -100,7 +100,27 @@ function EnrollmentTeam() {
     // Close the modal
     handleModalClose();
   };
-
+  const handleDelete = async (student) => {
+    try {
+      const response = await fetch("http://localhost:5000/update-role", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: student.id }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Failed to update role:", errorData);
+      } else {
+        console.log("User role updated successfully.");
+        // Optionally, refresh the user list or update the UI
+      }
+    } catch (error) {
+      console.error("Error:", error.message);
+    }
+  };
 
   return (
     <div className={styles.enrollment_team_wrapper}>
@@ -143,11 +163,11 @@ function EnrollmentTeam() {
                     <td className={styles.td}>{student.first_name}</td>
                     <td className={styles.td}>{student.middle_name || "N/A"}</td>
                     <td className={styles.td}>{student.last_name}</td>
-                    <td className={styles.td}>{student.position} </td>
+                    <td className={styles.td}>{student.role_name} </td>
                     <td className={styles.td}>
                       
                     <button className={styles.button}  onClick={() => handleRole(student)}>Edit Role</button>
-                    <button className={styles.button}>Delete</button>
+                    <button className={styles.button} onClick={() => handleDelete(student)}>Delete</button>
 
                     </td>
                   </tr>

@@ -23,6 +23,40 @@ const Profile = () => {
   const [isNextDisabled, setIsNextDisabled] = useState(true);
   const [error, setError] = useState(null);
 
+  const [person, setPerson] = useState({
+    firstName: profile.firstName || "",
+    middleName: profile.middleName || "",
+    lastName: profile.lastName || "",
+    suffix: profile.suffix || "",
+    dob: profile.dob || "",
+    sex: profile.sex || "",
+    contactNumber: profile.contactNumber || "",
+  });
+  
+  const [address, setAddress] = useState({
+    street: profile.address || "",
+    barangay: profile.barangay || "",
+    city: profile.city || "",
+    province: profile.province || "",
+    postal: profile.postal || "",
+    country: profile.country || "",
+  });
+
+  const [familyData, setFamilyData] = useState({
+    parents: [
+      { fullName: "", relationship: "", highestEducation: "", contactNumber: "" },
+      { fullName: "", relationship: "", highestEducation: "", contactNumber: "" },
+    ],
+    guardian: {
+      name: "",
+      relationship: "",
+      employer: "",
+      highestEducation: "",
+      contactNumber: "",
+    },
+    siblings: [{ name: "", age: "" }],
+  });
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -61,62 +95,171 @@ const Profile = () => {
   }, [sessionLoading, user, navigate]);
 
 
+
   const handleImageChange = async (e) => {
-  const file = e.target.files[0];
-  const formData = new FormData();
-  formData.append("profilePicture", file);
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append("profilePicture", file);
 
-  try {
-    const response = await fetch(`/upload-profile-picture/${user.user_id}`, {
-      method: "POST",
-      body: formData,
-      headers: {
-        "Accept": "application/json",
-      },
-    });
+    try {
+      const response = await fetch(`/upload-profile-picture/${user.user_id}`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Accept": "application/json",
+        },
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to upload image.");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to upload image.");
+      }
+
+      const data = await response.json();
+      setProfile({ ...profile, profile_picture: data.profilePicture });
+    } catch (err) {
+      console.error("Error uploading profile picture:", err.message);
+      alert("Failed to upload profile picture. Please try again.");
     }
-
-    const data = await response.json();
-    setProfile({ ...profile, profile_picture: data.profilePicture });
-  } catch (err) {
-    console.error("Error uploading profile picture:", err.message);
-    alert("Failed to upload profile picture. Please try again.");
-  }
-};
-
+  };
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
-  
+    const { user_id } = user; // Extract user_id from the user context
+
+    // Validate required fields
+    if (!person.firstName || !person.lastName || !person.dob || !person.contactNumber) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
     try {
-      const response = await fetch(`http://localhost:5000/profile/${user.user_id}`, {
+      console.log("Starting profile update process...");
+      console.log("User ID:", user_id);
+      console.log("Person Data:", person);
+      console.log("Address Data:", address);
+      
+      // Send person details
+      console.log("Sending person details to the server...");
+      const personResponse = await fetch("http://localhost:5000/api/person", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(profile), // Manually convert `profile` to JSON
+        body: JSON.stringify({
+          user_id,
+        
+        })
       });
-  
-      if (!response.ok) {
-        throw new Error("Failed to update profile."); // Handle non-2xx responses
+
+      if (!personResponse.ok) {
+        const errorData = await personResponse.json();
+        console.error("Person update failed:", errorData);
+        throw new Error("Failed to update person details");
       }
-  
-      alert("Profile updated successfully.");
+      console.log("Person details updated successfully.");
+
+      // Send address details
+      console.log("Sending address details to the server...");
+      const addressResponse = await fetch("http://localhost:5000/api/address", {
+        method: "POST", // Use PUT or POST based on your API design
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          address,
+          parents: familyData.parents,
+        }),
+      });
+
+      if (!addressResponse.ok) {
+        const errorData = await addressResponse.json();
+        console.error("Address update failed:", errorData);
+        throw new Error("Failed to update address details");
+      }
+      console.log("Address details updated successfully.");
+
+
+      const parentsResponse = await fetch("http://localhost:5000/api/parents", {
+        method: "POST", // Use PUT or POST based on your API design
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          address,
+          parents: familyData.parents,
+        }),
+      }); 
+
+      if (!parentsResponse.ok) {
+        const errorData = await parentsResponse.json();
+        console.error("Address update failed:", errorData);
+        throw new Error("Failed to update address details");
+      }
+      console.log("Parents details updated successfully.");
+    
+      const guardianResponse = await fetch("http://localhost:5000/api/guardian", {
+        method: "POST", // Use PUT or POST based on your API design
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          address,
+          parents: familyData.guardian,
+        }),
+      }); 
+
+      if (!guardianResponse.ok) {
+        const errorData = await guardianResponse.json();
+        console.error("Address update failed:", errorData);
+        throw new Error("Failed to update address details");
+      }
+      console.log("Guardian details updated successfully.");
+
+      const siblingResponse = await fetch("http://localhost:5000/api/sibling", {
+        method: "POST", // Use PUT or POST based on your API design
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          address,
+          parents: familyData.siblings,
+        }),
+      }); 
+
+      if (!siblingResponse.ok) {
+        const errorData = await siblingResponse.json();
+        console.error("Address update failed:", errorData);
+        throw new Error("Failed to update address details");
+      }
+      console.log("Guardian details updated successfully.");
+    
+      // Update other profile data if needed
+      // console.log("Sending other profile details...");
+      // const otherProfileResponse = await fetch(`http://localhost:5000/user/${user_id}`, {
+      //   method: "PUT",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(profile),
+      // });
+
+      // if (!otherProfileResponse.ok) {
+      //   const errorData = await otherProfileResponse.json();
+      //   console.error("Other profile update failed:", errorData);
+      //   throw new Error("Failed to update additional profile details");
+      // }
+      // console.log("Other profile details updated successfully.");
+
+      console.log("Profile update process completed successfully.");
+      alert("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating profile:", error.message);
-      alert("Failed to update profile.");
+      alert(`Failed to update profile. Error: ${error.message}`);
     }
   };
 
-  const handleEducationChange = (index, field, value) => {
-    const updatedEducation = [...profile.education];
-    updatedEducation[index][field] = value;
-    setProfile({ ...profile, education: updatedEducation });
-  };
+
 
   const handleFamilyChange = (index, field, value) => {
     const updatedFamily = [...profile.family];
@@ -124,18 +267,30 @@ const Profile = () => {
     setProfile({ ...profile, family: updatedFamily });
   };
 
+  const handlePersonalDetailsChange = (updatedProfile) => {
+    setProfile((prevProfile) => ({ ...prevProfile, ...updatedProfile }));
+  };
+
+  const handleFamilyBackgroundChange = (updatedProfile) => {
+    setProfile((prevProfile) => ({ ...prevProfile, ...updatedProfile }));
+  };
+
+  const handleEducationChange = (updatedProfile) => {
+    setProfile((prevProfile) => ({ ...prevProfile, ...updatedProfile }));
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "personal":
-        return <PersonalDetails profile={profile} setProfile={setProfile} />;
+        return <PersonalDetails profile={profile} setProfile={handlePersonalDetailsChange} />;
       case "family":
-        return <FamilyBackground profile={profile} setProfile={setProfile} />;
+        return <FamilyBackground profile={profile} setProfile={handleFamilyBackgroundChange} />;
       case "education":
-        return <Education profile={profile} setProfile={setProfile} />;
+        return <Education profile={profile} setProfile={handleEducationChange} />;
       case "account":
         return <AccountSettings />;
       default:
-        return <PersonalDetails profile={profile} setProfile={setProfile} />;
+        return <PersonalDetails profile={profile} setProfile={handlePersonalDetailsChange} />;
     }
   };
 
@@ -245,6 +400,25 @@ const PersonalDetails = ({ profile, setProfile }) => {
     const { name, value } = e.target;
     setProfile((prevProfile) => ({ ...prevProfile, [name]: value }));
   };
+
+  const getPersonData = () => ({
+    firstName: profile.firstName || "",
+    middleName: profile.middleName || "",
+    lastName: profile.lastName || "",
+    suffix: profile.suffix || "",
+    dob: profile.dob || "",
+    sex: profile.sex || "",
+    contactNumber: profile.contactNumber || "",
+  });
+
+  const getAddressData = () => ({
+    address: profile.address || "",
+    barangay: profile.barangay || "",
+    city: profile.city || "",
+    province: profile.province || "",
+    postal: profile.postal || "",
+    country: profile.country || "",
+  });
 
   return (
     <div className={styles.personal_details_wrapper}>
@@ -408,15 +582,16 @@ const PersonalDetails = ({ profile, setProfile }) => {
         </div>
 
         <div className={`${styles.form_field} ${styles.two_rows}`}>
-          <input
-            type="text"
-            name="country"
-            id="country"
-            className={styles.input}
-            placeholder="Country"
-            value={profile.country || ""}
-            onChange={handleChange}
-          />
+        <input
+  type="text"
+  name="country"
+  id="country"
+  className={styles.input}
+  placeholder="Country"
+  value={profile.country || ""} // Default to empty string if profile.country is null or undefined
+  onChange={handleChange}
+/>
+
         </div>
       </div>
 
@@ -482,6 +657,8 @@ const FamilyBackground = ({ profile, setProfile }) => {
     setSiblings(newSiblings);
   };
 
+ 
+
   return (
     <div className={styles.family_background_wrapper}>
       <div className={styles.family_content_wrapper}>
@@ -513,8 +690,8 @@ const FamilyBackground = ({ profile, setProfile }) => {
                 onChange={handleChange}
               >
                 <option disabled>Select</option>
-                <option value="uncle">Uncle</option>
-                <option value="auntie">Auntie</option>
+                <option value="uncle">Mother</option>
+                <option value="auntie">Father</option>
                 <option value="grandparent">Grand Parent</option>
                 <option value="relative">Other Relatives</option>
               </select>
@@ -575,8 +752,8 @@ const FamilyBackground = ({ profile, setProfile }) => {
                 onChange={handleChange}
               >
                 <option disabled>Select</option>
-                <option value="uncle">Uncle</option>
-                <option value="auntie">Auntie</option>
+                <option value="uncle">Mother</option>
+                <option value="auntie">Father</option>
                 <option value="grandparent">Grand Parent</option>
                 <option value="relative">Other Relatives</option>
               </select>

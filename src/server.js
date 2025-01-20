@@ -51,7 +51,7 @@ app.use(
 const db = mysql.createPool({
   host: "localhost", // Replace with your DB host
   user: "root", // Replace with your MySQL username
-  password: "Jerald_11783", // Replace with your MySQL password
+  password: "Wearefamily03", // Replace with your MySQL password
   database: "enrollment_system", // Replace with your DB name
 });
 
@@ -396,7 +396,7 @@ app.post("/request-password-reset", async (req, res) => {
   }
 
   try {
-    const [rows] = await dbPromise.query(
+    const [rows] = await db.query(
       "SELECT * FROM tbl_email_verification WHERE email = ?",
       [email]
     );
@@ -406,7 +406,7 @@ app.post("/request-password-reset", async (req, res) => {
     }
 
     const otp = crypto.randomInt(100000, 999999).toString();
-    await dbPromise.query(
+    await db.query(
       `UPDATE tbl_email_verification 
        SET otp = ?, expires_at = DATE_ADD(NOW(), INTERVAL 15 MINUTE) 
        WHERE email = ?`,
@@ -436,7 +436,7 @@ app.post("/reset-password", async (req, res) => {
 
   try {
     // Validate the OTP
-    const [result] = await dbPromise.query(
+    const [result] = await db.query(
       `SELECT * FROM tbl_email_verification
        WHERE LOWER(email) = LOWER(?) AND otp = ? AND expires_at > NOW()`,
       [email, otp]
@@ -450,7 +450,7 @@ app.post("/reset-password", async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Update the password in the users table
-    const [updateResult] = await dbPromise.query(
+    const [updateResult] = await db.query(
       "UPDATE tbl_user_account SET password = ? WHERE LOWER(email) = LOWER(?)",
       [hashedPassword, email]
     );
@@ -460,6 +460,10 @@ app.post("/reset-password", async (req, res) => {
     }
 
     // Delete the OTP record to prevent reuse
+    await db.query(
+      "DELETE FROM tbl_email_verification WHERE LOWER(email) = LOWER(?)",
+      [email]
+    );
 
     res.status(200).json({ message: "Password reset successful." });
   } catch (err) {
@@ -796,7 +800,7 @@ app.post("/api/announcements", async (req, res) => {
   }
 
   const { user_id } = req.session.user;
-  const { content } = req.body;
+  const { content, date } = req.body;
 
   if (!content) {
     return res.status(400).json({ message: "Announcement content is required." });
@@ -819,9 +823,9 @@ app.post("/api/announcements", async (req, res) => {
 
     const query = `
       INSERT INTO tbl_announcements (author, content, date)
-      VALUES (?, ?, NOW())
+      VALUES (?, ?, ?)
     `;
-    await db.query(query, [author, content]);
+    await db.query(query, [author, content, date]);
 
     res.status(200).json({ message: "Announcement posted successfully." });
   } catch (error) {
@@ -875,8 +879,8 @@ app.get("/api/enrollees", async (req, res) => {
   tbl_user_account.email,
   tbl_program.program_name,
   tbl_student_data.student_type,
-  tbl_student_data.student_status,
-  tbl_year_level.year_level
+  tbl_student_data.status,
+  tbl_student_data.year_level
 FROM 
   tbl_student_data
 JOIN 
@@ -887,10 +891,6 @@ JOIN
   tbl_program 
 ON 
   tbl_student_data.program = tbl_program.program_id
-JOIN 
-  tbl_year_level
-ON 
-  tbl_student_data.year_level = tbl_year_level.year_level_id
 WHERE
   tbl_student_data.status = 'not enrolled';
       `
@@ -909,14 +909,24 @@ app.put("/api/students/:user_id", async (req, res) => {
   const { user_id } = req.params;
   const { first_name, last_name, program, student_status, year_level } = req.body;
 
-  console.log("Request body:", req.body);
-if (!first_name || !last_name || !program_id || !student_status || !year_level) {
-  return res.status(400).json({ message: "Missing required fields." });
-}
+  console.log("=== Incoming Update Request ===");
+  console.log("User ID:", user_id);
+  console.log("Request Body:", req.body);
+
+  // Validate required fields
+  if (!first_name || !last_name || !program || !student_status || !year_level) {
+    console.error("Missing required fields:", {
+      first_name,
+      last_name,
+      program,
+      student_status,
+      year_level,
+    });
+    return res.status(400).json({ message: "Missing required fields." });
+  }
 
   try {
-    console.log("Request body:", req.body);
-    console.log("User ID:", user_id);
+    console.log("Preparing to execute SQL query...");
 
     const query = `
       UPDATE tbl_student_data 
@@ -926,12 +936,14 @@ if (!first_name || !last_name || !program_id || !student_status || !year_level) 
         tbl_user_account.last_name = ?, 
         tbl_student_data.program = ?, 
         tbl_student_data.student_status = ?, 
-        tbl_student_data.year_level = ?, 
+        tbl_student_data.year_level = ?
       WHERE 
         tbl_student_data.user_id = ?;
     `;
 
-    await db.query(query, [
+    // Log SQL query and parameters for debugging
+    console.log("SQL Query:", query);
+    console.log("Parameters:", [
       first_name,
       last_name,
       program,
@@ -940,9 +952,41 @@ if (!first_name || !last_name || !program_id || !student_status || !year_level) 
       user_id,
     ]);
 
+    // Execute query
+    const [result] = await db.query(query, [
+      first_name,
+      last_name,
+      program,
+      student_status,
+      year_level,
+      user_id,
+    ]);
+
+    // Log the result of the query execution
+    console.log("Query Execution Result:", result);
+
+    if (result.affectedRows === 0) {
+      console.warn("No rows affected. Check if the user_id exists:", user_id);
+      return res
+        .status(404)
+        .json({ message: "Student not found or no changes made." });
+    }
+
+    // Success response
+    console.log("Student updated successfully:", {
+      user_id,
+      first_name,
+      last_name,
+      program,
+      student_status,
+      year_level,
+    });
     res.status(200).json({ message: "Student updated successfully." });
   } catch (error) {
-    console.error("Error updating student:", error.message, error.stack);
+    // Log error details for debugging
+    console.error("Error updating student:", error.message);
+    console.error("Stack Trace:", error.stack);
+
     res.status(500).json({ message: "Internal server error." });
   }
 });
@@ -1036,34 +1080,37 @@ app.get("/api/enrollment-team", async (req, res) => {
     officer: 3,
   };
   try {
+    // Extract role from the query string (e.g., ?role=admin)
+    const roleName = req.query.role;
+    
+    // Map the role name to the corresponding account_role value
+    const account_role = roleMapping[roleName] || null;
+
+    // If a role is provided, add the role filter to the SQL query
+    let query = `
+      SELECT 
+    user_id,
+    first_name,
+    middle_name,
+    last_name,
+    account_role,
+    CASE
+      WHEN account_role = 1 THEN 'admin'
+      WHEN account_role = 2 THEN 'adviser'
+      WHEN account_role = 3 THEN 'officer'
+      ELSE 'unknown'
+    END AS role_name
+  FROM tbl_user_account
+  WHERE account_role != 0
+    `;
+
+    // If account_role is not null, filter by account_role
+    if (account_role) {
+      query += ` AND account_role = ${account_role}`;
+    }
+
     // Execute the SQL query
-    const roleName = req.query.role; // Example: ?role=admin
-    const roleInt = roleMapping[roleName] || null;
-    const [students, metadata] = await db.query(
-      `
-SELECT 
-  officer_id AS id, 
-  first_name AS first_name, 
-  middle_name AS middle_name, 
-  last_name AS last_name,
-  position AS position,
-  account_role AS account_role  -- Added comma here
-FROM 
-  tbl_officer_data
-
-UNION ALL
-
-SELECT 
-  adviser_id AS id, 
-  first_name AS first_name, 
-  middle_name AS middle_name, 
-  last_name AS last_name,
-  position AS position,
-  NULL AS account_role  -- Placeholder for account_role in the adviser data
-FROM 
-  tbl_adviser_data;
-      `
-    );
+    const [students, metadata] = await db.query(query);
 
     // Respond with the data
     res.json(students);
@@ -1149,14 +1196,22 @@ app.put('/api/enrollment-team/:id', async (req, res) => {
   const { role } = req.body; // Get the new role from the request body
 
   // SQL query to update the student's role
+  const roleMapping = {
+    Admin: 1,
+    Adviser: 2,
+    Officer: 3,
+  };
+
+  const roleName  = roleMapping[role];
+
   const query = `
-    UPDATE tbl_officer_data
+    UPDATE tbl_user_account
     SET account_role = ?
-    WHERE officer_id = ?
+    WHERE user_id = ?;
   `;
 
   try {
-    const [result] = await pool.promise().query(query, [role, studentId]);
+    const [result] = await pool.promise().query(query, [roleName, studentId]);
 
     if (result.affectedRows > 0) {
       res.status(200).json({ message: 'Role updated successfully' });
@@ -1728,6 +1783,178 @@ app.put("/api/advisingDate", async (req, res) => {
       res.status(500).send("Error saving advising date.");
   }
 });
+
+app.put("/api/person", async (req, res) => {
+  console.log("Request body:", req.body);
+  try {
+    const { user_id, person } = req.body;
+    const query = `
+  UPDATE tbl_user_account
+  SET first_name = ?, 
+      middle_name = ?, 
+      last_name = ?, 
+      date_of_birth = ?, 
+      phone_number = ?, 
+      suffix = ?
+  WHERE user_id = ?;
+`;
+
+const result = await db.query(query, [
+  person.firstName,
+  person.middleName,
+  person.lastName,
+  person.dob,
+  person.contactNumber,
+  person.suffix === '' ? null : person.suffix, // Handle empty string as null for suffix
+  user_id
+]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("User not found or no changes made.");
+    }
+
+    res.status(200).json({ message: "User data saved successfully." });
+  } catch (err) {
+    console.error("Error saving user data:4", err.message);
+    res.status(500).send("Error saving user data.");
+  }
+});
+
+app.post("/api/address", async (req, res) => {
+  console.log("Request body:", req.body);
+  try {
+    const { user_id, address } = req.body;
+    const query = `
+    INSERT INTO tbl_address (country, province, city, barangay, house_number, postal_code)
+            VALUES ( ?, ?, ?, ?,  ?, ?);
+  `;
+  
+  const result = await db.query(query, [
+    address.country,
+    address.province,
+    address.city,
+    address.barangay,
+    address.house_number,
+    address.postal
+  ]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("User not found or no changes made.");
+    }
+
+    res.status(200).json({ message: "User data saved successfully." });
+  } catch (err) {
+    console.error("Error saving user data:3", err.message);
+    res.status(500).send("Error saving user data.");
+  }
+});
+
+app.post("/api/parents", async (req, res) => {
+  try {
+    const { user_id, parents } = req.body;
+    const query = `
+    INSERT INTO tbl_parents (name, relationship, highest_education, contact_number, user_id)
+            VALUES ( ?, ?,  ?, ?,?);
+  `;
+  
+  const result = await db.query(query, [
+    parents.Fullname,
+    parents.relationship,
+    parents.highestEducation,
+    parents.contactNumber,
+    user_id
+  ]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("User not found or no changes made.");
+    }
+
+    res.status(200).json({ message: "User data saved successfully." });
+  } catch (err) {
+    console.error("Error saving user data:2", err.message);
+    res.status(500).send("Error saving user data.");
+  }
+});
+
+app.post("/api/guardians", async (req, res) => {
+  try {
+    const { user_id, guardian } = req.body;
+    const query = `
+    INSERT INTO tbl_parents (name, relationship, employer, highest_education, contact_number, user_id)
+            VALUES ( ?, ?,  ?, ?, ?, ?);
+  `;
+  
+  const result = await db.query(query, [
+    guardian.name,
+    guardian.relationship,
+    guardian.employer,
+    guardian.highestEducation,
+    guardian.contactNumber,
+    user_id
+  ]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("User not found or no changes made.");
+    }
+
+    res.status(200).json({ message: "User data saved successfully." });
+  } catch (err) {
+    console.error("Error saving user data1:", err.message);
+    res.status(500).send("Error saving user data.");
+  }
+});
+
+app.post("/api/sibling", async (req, res) => {
+  try {
+    const { user_id, siblings } = req.body;
+    const query = `
+    INSERT INTO tbl_siblingss (name, age, user_id)
+            VALUES ( ?, ?, ?);
+  `;
+  
+  const result = await db.query(query, [
+    siblings.name,
+    siblings.age,
+    user_id
+  ]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("User not found or no changes made.");
+    }
+
+    res.status(200).json({ message: "User data saved successfully." });
+  } catch (err) {
+    console.error("Error saving user data:", err.message);
+    res.status(500).send("Error saving user data.");
+  }
+});
+
+app.post("/update-role", async (req, res) => {
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required." });
+  }
+
+  try {
+    // Update user account role to 0 (student)
+    const [updateResult] = await db.query(
+      "UPDATE tbl_user_account SET user_accout_role = 0 WHERE id = ?",
+      [userId]
+    );
+
+    if (updateResult.affectedRows === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.status(200).json({ message: "User role updated successfully." });
+  } catch (err) {
+    console.error("Error updating user role:", err.message);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+
 // Start server
 const PORT = 5000;
 app.listen(PORT, () => {

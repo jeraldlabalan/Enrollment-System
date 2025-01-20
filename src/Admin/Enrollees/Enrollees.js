@@ -91,46 +91,35 @@ const Enrollees = () => {
     };
   
     const statusMapping = {
-      "s1": "Freshman",
-      "s2": "Irregular",
-      "s3": "Regular",
-      "s4": "Transferee",
-      "s5": "Shiftee",
+      "S1": "Freshman",
+      "S2": "Irregular",
+      "S3": "Regular",
+      "S4": "Transferee",
+      "5": "Shiftee",
     };
   
-    const yearMapping = {
-      "1st year": "1",
-      "2nd year": "2",
-      "3rd year": "3",
-      "4th year": "4",
-    };
+    
   
     const normalizedProgramName = editedStudent.program_name?.trim().toLowerCase() || "";
-    const normalizedStudentStatus = editedStudent.student_status?.trim().toLowerCase() || "";
-    const normalizedYearLevel = editedStudent.year_level?.trim().toLowerCase() || "";
+   
   
     const programId = programMapping[normalizedProgramName] || null;
-    const studentStatus = statusMapping[normalizedStudentStatus] || null;
-    const yearLevel = yearMapping[normalizedYearLevel] || null;
-  
-    if (!programId || !studentStatus || !yearLevel) {
+ 
+
+    if (!programId) {
       console.error("Invalid mappings detected:", {
-        program: normalizedProgramName,
-        status: normalizedStudentStatus,
-        year: normalizedYearLevel,
+        program: normalizedProgramName
       });
       return alert(`Invalid data mappings:
-        Program: ${normalizedProgramName || "None"} 
-        Status: ${normalizedStudentStatus || "None"} 
-        Year: ${normalizedYearLevel || "None"}`);
+        Program: ${normalizedProgramName || "None"} `);
     }
   
     const updatedStudent = {
       first_name: editedStudent.first_name,
       last_name: editedStudent.last_name,
       program_id: programId,
-      student_status: studentStatus,
-      year_level: yearLevel,
+      student_status: editedStudent.student_status,
+      year_level: editedStudent.year_level,
     };
   
     try {

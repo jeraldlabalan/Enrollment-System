@@ -16,6 +16,18 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [latestAnnouncement, setLatestAnnouncement] = useState(null);
+  
+    useEffect(() => {
+      fetch('http://localhost:5000/latest-announcement')
+        .then(response => response.json())
+        .then(data => {
+          console.log('Fetched Announcement:', data); // Log for debugging
+          setLatestAnnouncement(data);
+        })
+        .catch(error => console.error('Error fetching the latest announcement:', error));
+    }, []);
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -116,7 +128,7 @@ const Home = () => {
 
             <div className={styles.statusGroup}>
               <h3 className={styles.boldHeader}>Enrollment Status</h3>
-              <h1 className={styles.enrollmentStatus}>Not Enrolled</h1>
+              <h1 className={styles.enrollmentStatus}>{userData.status}</h1>
               <p className={styles.statusInfo}>No Enrollment Schedule Date</p>
             </div>
 
@@ -131,15 +143,16 @@ const Home = () => {
             <h3 className={styles.announcementTitle}>Announcements</h3>
             <div className={styles.announcementContainer}>
               <div className={styles.announcement_item}>
-                <h4>Society President</h4>
+                <h4>{latestAnnouncement.author || 'Unknown Author'}</h4>
                 <p className={styles.announcementContent}>
-                  Sa mga students na late mag-enroll... Paano kayo maggrow niyan,
-                  hindi kayo naghihiwalay.
+                {latestAnnouncement.content}
                 </p>
               </div>
             </div>
             <div className={styles.viewAllButtonContainer}>
-              <button className={styles.viewAllButton}>VIEW ALL</button>
+              <Link to="/announcements">
+                <a className={styles.viewAllButton}>View All</a>
+              </Link>
             </div>
           </div>
         </div>

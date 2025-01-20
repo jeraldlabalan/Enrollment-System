@@ -125,7 +125,7 @@ function StatusAndScheduling() {
 
 
           <div className={styles.enrollment_date_content}>
-              <h3 className={styles.enrollment_date}>September 20, 2024</h3>
+              <h3 className={styles.enrollment_date}>{userData?.Advising_date || "N/A"}</h3>
               <button
                 className={styles.appeal_button}
                 onClick={() => setIsModalOpen(true)}

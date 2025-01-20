@@ -20,11 +20,40 @@ const RescheduleModal = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-      console.log("User state:", user);
-      if (!sessionLoading && !user) {
-        navigate("/login", { replace: true });
-      }
-    }, [sessionLoading, user, navigate]);
+     const fetchUserData = async () => {
+       try {
+         const response = await fetch(`http://localhost:5000/user/${user.user_id}`, {
+           credentials: "include", // Include cookies if required for authentication
+         });
+ 
+         if (!response.ok) {
+           const errorData = await response.json();
+           throw new Error(errorData.message || "Failed to fetch user data.");
+         }
+ 
+         const data = await response.json();
+         setUserData(data);
+       } catch (err) {
+         console.error("Error fetching user data:", err.message);
+         setError(err.message);
+       } finally {
+         setIsLoading(false);
+       }
+     };
+ 
+     const initialize = async () => {
+       if (!sessionLoading && !user) {
+         navigate("/login", { replace: true });
+         return;
+       }
+ 
+       if (user) {
+         await fetchUserData();
+       }
+     };
+ 
+     initialize();
+   }, [sessionLoading, user, navigate]);
   
 
   if (!isOpen) return null;

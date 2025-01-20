@@ -121,7 +121,6 @@ a {
   color: black;
 }
 
-
 .logos {
   display: flex;
   align-items: flex-end;
@@ -259,6 +258,10 @@ a {
 
   .logos {
     flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+
+  
   }
 
   .logo_shield {
@@ -274,17 +277,44 @@ a {
 
 
 @media (max-width: 768px) {
+
+
+
+
+  .top_section_holder {
+    flex-direction: column;
+  }
+
+  .logos {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo_shield {
+    width: 150px;
+    height: 150px;
+    margin: 0;
+  }
+  
+  .logo_its {
+    width: 100px;
+    height: 100px;
+    margin: 0;
+  }
+
   .container {
     flex-direction: column;
     min-height: auto;
     padding: 2rem;
+    gap: 100px;
   }
 
   .header {
     font-size: 2rem;
     letter-spacing: 3px;
     text-align: center;
-  
   }
 
   .subheader {
@@ -302,17 +332,6 @@ a {
     padding: 1rem;
   }
 
-  .bottom_section {
-    margin-top: 0.5rem;
-    position: relative;
-  }
-
-  .bottom_heading {
-    font-size: 1rem;
-    text-align: center;
-    margin-bottom: 10px;
-  }
-
   .announcement {
     width: 100%;
     height:  175px;
@@ -322,29 +341,14 @@ a {
   .landing_page_buttons {
     display: flex;
     justify-content: center;
+    align-items: center;
   }
 
   .landing_page_buttons .landing_button {
     height: 35px;
     width: 110px;
     font-size:1.15rem;
-    margin: 0 10px;
-  }
-
-  .logos {
-    margin-top: 2rem;
-    flex-direction: row;
-   
-  }
-
-  .logo_shield {
-    width: 150px;
-    height: 150px;
-  }
-  
-  .logo_its {
-    width: 100px;
-    height: 100px;
+    padding: 0;
   }
 }
 

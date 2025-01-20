@@ -1,11 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styles from "./AdmissionAndFaqs.module.css";
 import cs_logo from "../../assets/CSlogo.png";
 import it_logo from "../../assets/ITlogo.png";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AdmissionAndFaqs = () => {
   // State to track which FAQ is open
   const [openFaq, setOpenFaq] = useState(null);
+  const [isChecked, setIsChecked] = useState(false);
+  const [canCheck, setCanCheck] = useState(false);
+  const consentFormRef = useRef(null);
+  
+
+  const handleCheckboxChange = (e) => {
+    if (canCheck) {
+      setIsChecked(e.target.checked);
+      if (e.target.checked) {
+        toast.dismiss(); // Dismiss any existing toasts
+      }
+    } else {
+      toast.error('You must scroll to the bottom of the terms and conditions before agreeing.');;
+    }
+  };
+
+
+  const handleProceed = () => {
+    if (!isChecked) {
+      toast.error('You must agree to the terms and conditions before proceeding.');
+    } else {
+      // Proceed with the next steps
+      console.log('Proceeding to the next step...');
+    }
+  };
+
+  const handleScroll = () => {
+    if (consentFormRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = consentFormRef.current;
+      if (scrollTop + clientHeight >= scrollHeight) {
+        setCanCheck(true);
+        toast.dismiss(); // Dismiss any existing toasts
+      }
+    }
+  };
+  
+  useEffect(() => {
+    if (consentFormRef.current) {
+      consentFormRef.current.addEventListener('scroll', handleScroll);
+    }
+    return () => {
+      if (consentFormRef.current) {
+        consentFormRef.current.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
+
 
   // Toggle FAQ visibility
   const toggleFaq = (index) => {
@@ -14,6 +63,7 @@ const AdmissionAndFaqs = () => {
 
   return (
     <div className={styles.enrollment_container}>
+        <ToastContainer position="top-center" autoClose={3000} hideProgressBar newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
       {/* Navbar */}
       <nav className={styles.navbar}>
         <div className={styles.navbar_left}>
@@ -243,7 +293,7 @@ const AdmissionAndFaqs = () => {
             <h1 className={styles.faqs}>terms and conditions</h1>
           </div>
           <div className={styles.consent_form_box}>
-            <div className={styles.consent_from}>
+            <div className={styles.consent_from} ref={consentFormRef}>
               <ol>
                 <li>
                   <p className={styles.title}>1. Introduction</p>
@@ -410,6 +460,9 @@ const AdmissionAndFaqs = () => {
               <div className={styles.agree_section}>
               <input
                 type="checkbox"
+                checked={isChecked}
+                onChange={handleCheckboxChange}
+                disabled={!canCheck}
               />
               <p>
               <i>
@@ -417,15 +470,15 @@ const AdmissionAndFaqs = () => {
               </i>
               </p>
               </div>
-
-              <button>
+              
+              <button 
+              onClick={handleProceed}>
                 Proceed
               </button>
             </div>
           </div>
 
           <div>
-            
           </div>
         </section>
       </div>

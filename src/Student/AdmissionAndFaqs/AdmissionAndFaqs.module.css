@@ -406,3 +406,14 @@
   }
 
 }
+
+.error_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  p i {
+    font-size: var(--normal-font-size);
+    color: #C00202;
+  }
+}

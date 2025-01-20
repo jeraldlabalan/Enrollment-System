@@ -45,13 +45,14 @@
 
   h3 {
     font-size: var(--small-font-size);
-    color: var(--title-color);
+    color: black;
 
 }
 
   p {
     font-size: var(--tiny-font-size);
     margin-top: -5px;
+    color: black
 
 }
 }
@@ -269,6 +270,7 @@
   flex-direction: column;
   text-align: center;
   align-items: center;
+  width: 100%;
 }
 
 
@@ -277,8 +279,6 @@
   flex-direction: column;
   justify-content: center; 
   align-items: center;
-  padding: 20px 50px; 
-  width: auto;
 }
 
 .content::after {
@@ -294,13 +294,18 @@
 
 
 .content_h1 {
-  font-size: var(--big-font-size);
+  font-size: var(--h1-font-size);
 }
 
 
 .content_p {
-  width: 600px;
-  margin: 5px auto;
+  width: 100%;
+  font-size: var(--normal-font-size);
+
+   span {
+    font-weight: var(--font-semi-bold);
+    font-size: var(--normal-font-size);
+   }
 }
 
 
@@ -325,11 +330,12 @@
   border-radius: 5px;
   outline: none;
   transition: border-color 0.3s;
+  color: black;
 }
 
 .otpInput:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+  border-color: #1e1e1e;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
 }
 
 

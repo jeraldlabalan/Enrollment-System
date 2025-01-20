@@ -34,10 +34,10 @@ function Landingpage() {
             </div>
             <div className={styles.landing_page_buttons}>
               <Link to="/login">
-                <button>Log In</button>
+                <button className={styles.landing_button}>Log In</button>
               </Link>
               <Link to="/register">
-                <button>Register</button>
+                <button className={styles.landing_button}>Register</button>
               </Link>
             </div>
           </div>

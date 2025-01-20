@@ -7,6 +7,10 @@
   align-items: center;
 }
 
+button:hover {
+  background-color: var(--title-color-dark);
+}
+
 .page_title {
   display: flex;
   padding: 0 50px;
@@ -190,17 +194,18 @@
 
 
 .step2_container {
-  background-color: #e9e7e7;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   flex: 1;
   padding: 50px 100px;
   gap: 20px;
+  width: 100%;
 }
 
 .step2_container .step2_content {
   height: 100%;
+  width: 100%;
 }
 
 
@@ -219,6 +224,7 @@
   margin-bottom: 5px;
 }
 
+
 .subject_container .subject_table {
   border-spacing: 20px 2px;
 }
@@ -227,6 +233,12 @@
   display: flex;
   flex-direction: column;
 
+}
+
+.candunits2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .add_subject .dropdown,
@@ -585,7 +597,39 @@ thead tr th {
   cursor: pointer;
 }
 
+
+@media (max-width: 992px) {
+  .step2_container {
+    padding: 30px 50px  ;
+  }
+
+  .add_subject .num_units {
+    width: 100px;
+  }
+
+  .subject_table {
+  }
+
+  .add_subject .dropdown {
+    width: 250px;
+  }
+}
+
 @media (max-width: 768px) {
+
+  .step2_container {
+    padding: 15px 30px  ;
+  }
+
+  .navigate_buttons {
+    justify-content: center;
+  }
+
+  .page_title {
+    padding: 0;
+    justify-content: center;
+  }
+
   .container .category {
     flex-direction: column;
   }
@@ -597,17 +641,58 @@ thead tr th {
     align-items: center;
   }
 
+  .student_category {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+
   .student_info_left .student_categorization,
   .student_info_left .student_type {
     width: 100%;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
 
   .student_info_right .enrollment_data {
     width: 100%;
   }
+
+  .add_subject .num_units {
+    width: 75px;
+  }
+
+  .add_subject .dropdown {
+    width: 175px;
+  }
 }
 
-@media (max-width: 567px) {
+@media (max-width: 576px) {
+
+  .add_subject .num_units {
+    width: 60px;
+    font-size: var(--tiny-font-size);
+  }
+
+  .add_subject .dropdown {
+    width: 125px;
+    font-size: var(--tiny-font-size);
+  }
+  
+  .add_subject_button {
+    font-size: var(--tiny-font-size);
+  }
+  
+  .page_title h1 {
+    font-size: var(--h3-font-size);
+  }
+
+  .content {
+    padding: 20px 50px !important;
+  }
+  
   .container .category {
     flex-direction: column;
   }
@@ -627,10 +712,20 @@ thead tr th {
   }
 }
 
-
-@media (max-width: 350px) {
-  .student_type .student_category {
-    gap: 8px;
-  }
-
+button:hover {
+  background-color: none !important;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

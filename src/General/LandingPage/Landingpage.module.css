@@ -61,7 +61,7 @@
   
 }
 
-.landing_page_buttons button {
+.landing_page_buttons .landing_button {
   margin-left: 0;
   margin-right: 30px;
   height: 40 px;
@@ -116,7 +116,7 @@ a {
   justify-content: center;
 }
 
-button:hover {
+.landing_button:hover {
   background: white;
   color: black;
 }

@@ -318,7 +318,7 @@ export default function Register() {
                 <div className={styles.content_wrapper}>
                   <h1 className={styles.content_h1}>Verify email address</h1>
                   <p className={styles.content_p}>
-                    We have sent a verification code to {formData.email}. Please
+                    We have sent a verification code to <span>{formData.email}</span>. Please
                     check your inbox and insert the code in the fields below to
                     verify your email.
                   </p>

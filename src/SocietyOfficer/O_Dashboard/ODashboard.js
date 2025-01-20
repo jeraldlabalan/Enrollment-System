@@ -342,7 +342,12 @@ const handleAnnouncementSubmit = async () => {
 
           {/* Card 3: Announcement */}
           <div className={`${styles.card} ${styles.announcementCard}`}>
-            <h5 className={styles.cardTitle}>Announcement</h5>
+          <div className={styles.select_date_container}>
+              <h5 className={styles.cardTitle}>Announcement</h5> 
+              <input
+                type="date"
+              />
+            </div>
             <textarea
               className={styles.announcementBox}
               placeholder="Make an announcement..."

@@ -646,10 +646,12 @@
     label {
       font-size: var(--small-font-size);
       max-width: 20ch;
+      color: black;
     }
 
     .reason{
       align-self: flex-start;
+      color: black;
     }
 
     .select_wrapper {
@@ -661,7 +663,7 @@
         border-radius: 8px;
         height: 35px;
         width: 100%;
-        
+        color: black;
       }
     }
 

@@ -23,6 +23,7 @@ const Advisee = () => {
   const [acceptTo, setAcceptTo] = useState("Both");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showCORModal, setShowCORModal] = useState("")
 
   // Validate session by fetching a protected endpoint
   const fetchProtectedEndpoint = async () => {
@@ -117,6 +118,13 @@ const Advisee = () => {
     setShowModal(true);
   };
 
+  const handleViewCOR = (student) => {
+    setSelectedStudent(student);
+    setSelectedStudent(student);
+    setShowCORModal(true);
+
+  }
+
   const handleRejectClick = (student) => {
     setSelectedStudent(student);
     setShowRejectModal(true);
@@ -210,7 +218,11 @@ const Advisee = () => {
                           View Checklist
                         </button>
 
-                        <button className={styles.button}>View ISCOR</button>
+                        <button className={styles.button}
+                           onClick={() => handleViewCOR(student)}
+                        >
+                          View ISCOR
+                        </button>
                         <button
                           className={styles.button}
                           onClick={() => handleRejectClick(student)}
@@ -299,6 +311,23 @@ const Advisee = () => {
             </button>
           </div>
         </div>
+      )}
+
+      {showCORModal && selectedStudent && (
+        <div className={styles.modal}>
+        <div className={styles.modalContent}>
+          <h3>Student Details</h3>
+          <p>
+            <strong>Student ID:</strong> {selectedStudent.id}
+          </p>
+          <button
+            className={styles.closeButton}
+            onClick={() => setShowCORModal(false)}
+          >
+            Close
+          </button>
+        </div>
+      </div>
       )}
 
       {/* Reject Modal */}

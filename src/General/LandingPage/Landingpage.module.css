@@ -117,7 +117,7 @@ a {
 }
 
 .landing_button:hover {
-  background: white;
+  background: white !important;
   color: black;
 }
 
@@ -324,7 +324,7 @@ a {
     justify-content: center;
   }
 
-  .landing_page_buttons button {
+  .landing_page_buttons .landing_button {
     height: 35px;
     width: 110px;
     font-size:1.15rem;
@@ -403,7 +403,7 @@ a {
     justify-content: center;
   }
 
-  .landing_page_buttons button {
+  .landing_page_buttons .landing_button {
     height: 35px;
     width: 110px;
     font-size:1.15rem;

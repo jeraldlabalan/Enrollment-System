@@ -120,7 +120,6 @@ const Login = () => {
               className={styles.input}
               value={formData.email}
               onChange={handleChange}
-             
               ref={emailInputRef}
             />
           </div>

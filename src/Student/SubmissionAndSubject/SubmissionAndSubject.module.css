@@ -267,7 +267,8 @@ button:hover {
 
 .subject_container .add_subject_button {
   height: 35px;
-  padding: 0 20px;
+  width: max-content;
+  padding: 1px 10px;
   background-color: var(--title-color);
   border-radius: 8px;
   color: white;
@@ -275,19 +276,19 @@ button:hover {
 }
 
 .subject_container .add_subject_button:hover {
-  background-color: var(--title-color-dark);
+  background-color: var(--title-color-dark) !important;
   color: white;
 }
 
 .subject_table .remove_button {
-  background-color: #e9e7e7;
+  background-color: none;
   border: none;
   color: var(--title-color);
 }
 
 .subject_table .remove_button:hover {
 
-  background-color: #e9e7e7;
+  background-color: none !important;
   color: var(--title-color-dark) !important;
 }
 
@@ -311,7 +312,7 @@ button:hover {
 }
 
 .navigate_buttons .button:hover {
-  background-color: var(--title-color-dark);
+  background-color: var(--title-color-dark) !important;
   color: white;
 }
 
@@ -476,6 +477,7 @@ thead tr th {
 .sectionTitle {
   font-size: 1.5rem;
   margin-bottom: 10px;
+  text-align: center;
 }
 
 .sectionContent {
@@ -599,6 +601,26 @@ thead tr th {
 
 
 @media (max-width: 992px) {
+
+  .select_advising_date {
+    flex-direction: column;
+
+    input[type="date"] {
+      width: 100%;
+    }
+  }
+
+  .step3_container {
+    padding: 50px;
+  }
+
+  .sectionContent {
+    display: grid;
+    grid-template-columns: 150px 1fr 1fr;
+    grid-template-rows: 100px;
+    gap: 10px;
+  }
+
   .step2_container {
     padding: 30px 50px  ;
   }
@@ -617,6 +639,17 @@ thead tr th {
 
 @media (max-width: 768px) {
 
+  .step3_container {
+    padding: 25px;
+  }
+
+  .sectionContent {
+    display: grid;
+    grid-template-columns: 100px 1fr 1fr;
+    grid-template-rows: 125px;
+    gap: 10px;
+  }
+
   .step2_container {
     padding: 15px 30px  ;
   }
@@ -632,6 +665,8 @@ thead tr th {
 
   .container .category {
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .category .student_info_left,
@@ -670,6 +705,30 @@ thead tr th {
 }
 
 @media (max-width: 576px) {
+
+  .sectionContent {
+    display: grid;
+    grid-template-columns: 75px 1fr 1fr;
+    grid-template-rows: 100px;
+
+    p {
+      font-size: var(--tiny-font-size);
+    }
+
+    .file_header {
+      font-size: var(--tiny-font-size);
+    }
+
+    span {
+      font-size: var(--tiny-font-size);
+    }
+  
+  }
+
+  .select_advising_date h2 {
+    font-size: var(--h3-font-size);
+    text-align: center;
+  }
 
   .add_subject .num_units {
     width: 60px;
@@ -710,6 +769,18 @@ thead tr th {
   .student_type .student_category {
     gap: 8px;
   }
+}
+
+
+@media (max-width: 400px) {
+
+  .sectionContent {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    gap: 50px;
+  }
+
 }
 
 button:hover {

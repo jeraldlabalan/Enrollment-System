@@ -53,7 +53,7 @@
 }
 
 .profileCard .view_button:hover {
-  background-color: var(--title-color-dark);
+  background-color: var(--title-color-dark) !important;
 }
 
 
@@ -175,7 +175,7 @@
 }
 
 .announcementCard .viewAllButton:hover {
-  background-color: var(--title-color-dark);
+  background-color: var(--title-color-dark) !important;
 }
 
 .announcementCard .announcementTitle {

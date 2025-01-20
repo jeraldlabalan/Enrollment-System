@@ -148,7 +148,7 @@ label {
 }
 
 .wrapper .btn:hover {
-    background-color: var(--title-color-dark);
+    background-color: var(--title-color-dark) !important;
 }
 
 .text_end {

@@ -191,7 +191,7 @@
   margin-top: 10px;
 }
 .register_wrapper  .register_btn:hover {
-  background-color: var(--title-color-dark);
+  background-color: var(--title-color-dark) !important;
 }
 
 .form_field:last-child {

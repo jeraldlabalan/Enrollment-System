@@ -588,6 +588,7 @@ const SubmissionAndSubject = () => {
         {step === 3 && (
           <div className={styles.step3_container}>
             <div className={styles.upload_file_section}>
+              
               <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>
                   Curriculum Curriculum Checklist

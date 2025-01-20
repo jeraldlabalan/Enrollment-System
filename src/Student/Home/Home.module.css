@@ -202,3 +202,93 @@
   justify-content: center;
   align-items: center;
 }
+
+
+@media (max-width: 768px) {
+  .avatar {
+    margin-top: 10px;
+  }
+
+  
+  .content {
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 38px;
+  }
+
+  .content .profileCard {
+    width: 100%;
+  }
+
+  .content .content_right {
+    width: 100%;
+  }
+
+  .statusCard .statusGroup .enrollmentStatus {
+    font-size: 2rem;
+  }
+
+  .statusInfo {
+    margin-bottom: 20px;
+  }
+
+  .statusGroup {
+    gap: 10px;
+
+  }
+
+  .view_button {
+    margin-bottom: 10px;
+  }
+}
+
+.page_title {
+  padding: 0 50px;
+}
+
+@media (max-width: 480px) {
+
+  .avatar {
+    margin-top: 10px;
+  }
+
+  .statusCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .statusCard .statusGroup {
+    width: 100%;
+  }
+
+  .statusCard .statusGroup .statusInfo {
+    margin-bottom: 10px; /* Adds spacing between statusInfo and the buttonGroup */
+  }
+
+  .statusInfo {
+    margin-bottom: 10px;
+  }
+
+  .statusCard .buttonGroup {
+    width: 100%;
+    margin-top: 0;
+    justify-content: flex-start;
+    margin-left: 20px; /* Aligns with the statusInfo */
+  }
+
+  .buttonGroup .printButton {
+    height: 35px;
+    padding: 0 20px;
+    margin:  10px;
+  }
+}
+
+@media (max-width: 320px) {
+  .statusCard .statusGroup .statusInfo {
+    width: 100%;
+  }
+
+  .viewAllButtonContainer {
+    margin-top: 10px;
+  }
+}

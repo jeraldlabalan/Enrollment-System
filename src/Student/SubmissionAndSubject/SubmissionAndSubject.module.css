@@ -584,3 +584,53 @@ thead tr th {
   font-size: 1rem;
   cursor: pointer;
 }
+
+@media (max-width: 768px) {
+  .container .category {
+    flex-direction: column;
+  }
+
+  .category .student_info_left,
+  .category .student_info_right {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .student_info_left .student_categorization,
+  .student_info_left .student_type {
+    width: 100%;
+  }
+
+  .student_info_right .enrollment_data {
+    width: 100%;
+  }
+}
+
+@media (max-width: 567px) {
+  .container .category {
+    flex-direction: column;
+  }
+
+  .category .student_info_left,
+  .category .student_info_right {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .category .student_info_right {
+    margin-top: 15px; /* Space adjustment for smaller screens */
+  }
+
+  .student_type .student_category {
+    gap: 8px;
+  }
+}
+
+
+@media (max-width: 350px) {
+  .student_type .student_category {
+    gap: 8px;
+  }
+
+}

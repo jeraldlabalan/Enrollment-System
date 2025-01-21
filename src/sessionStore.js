@@ -3,8 +3,11 @@ require('dotenv').config(); // Load environment variables from .env file
 const session = require('express-session');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const { Sequelize } = require('sequelize');
+const path = require("path");
 const fs = require("fs");
 
+const caPath = path.resolve(__dirname, '../certs/isgrootx1.pem');
+console.log("Resolved CA Path:", caPath);
 // Initialize Sequelize
 console.log({
   DB_NAME: process.env.DB_NAME,
@@ -22,7 +25,7 @@ const sequelize = new Sequelize(
     logging: console.log, // Enable Sequelize logging for debugging
     dialectOptions: {
       ssl: {
-        ca: fs.readFileSync(process.env.CA) // Path to the SSL certificate
+        ca: fs.readFileSync(caPath) // Path to the SSL certificate
       }
     }
   }

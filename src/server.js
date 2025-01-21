@@ -43,6 +43,7 @@ app.use(
   })
 );
 
+const caPath = path.resolve(__dirname, '../certs/isgrootx1.pem');
 // Database connection
 const db = mysql.createPool({
   host: "gateway01.us-west-2.prod.aws.tidbcloud.com", // Replace with your DB host
@@ -50,7 +51,7 @@ const db = mysql.createPool({
   password: "4vhCZ0kNb3u3QDlm", // Replace with your MySQL password
   database: "enrollment_system", // Replace with your DB name
   ssl: {
-    ca: fs.readFileSync(process.env.CA) // Path to the SSL certificate
+    ca: fs.readFileSync(caPath) // Path to the SSL certificate
   }
 });
 

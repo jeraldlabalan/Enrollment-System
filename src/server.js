@@ -45,10 +45,13 @@ app.use(
 
 // Database connection
 const db = mysql.createPool({
-  host: "localhost", // Replace with your DB host
-  user: "root", // Replace with your MySQL username
-  password: "Wearefamily03", // Replace with your MySQL password
+  host: "gateway01.us-west-2.prod.aws.tidbcloud.com", // Replace with your DB host
+  user: "2WT5C2HiPY7o5Wf.root", // Replace with your MySQL username
+  password: "4vhCZ0kNb3u3QDlm", // Replace with your MySQL password
   database: "enrollment_system", // Replace with your DB name
+  ssl: {
+    ca: fs.readFileSync(process.env.CA) // Path to the SSL certificate
+  }
 });
 
 // Test database connection
@@ -1933,7 +1936,7 @@ app.post("/api/sibling", async (req, res) => {
 
 
 // Start server
-const PORT = 5000;
+const PORT = 4000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

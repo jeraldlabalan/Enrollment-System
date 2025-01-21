@@ -3,6 +3,7 @@ require('dotenv').config(); // Load environment variables from .env file
 const session = require('express-session');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const { Sequelize } = require('sequelize');
+const fs = require("fs");
 
 // Initialize Sequelize
 console.log({
